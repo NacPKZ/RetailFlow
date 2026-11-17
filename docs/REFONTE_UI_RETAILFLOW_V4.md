@@ -1,10 +1,10 @@
-# RetailFlow V4 : refonte Streamlit et centre analytique
+# RetailFlow | Évolution de l'interface Streamlit (V4)
 
-## Objectif
+## 1. Objectif
 
 Améliorer l'expérience visuelle et les fonctionnalités sans réécrire le moteur métier existant. Le module `queuesmart/ui/insights.py` ajoute plus de 800 lignes de code fonctionnel, avec 12 espaces d'analyse accessibles sous les trois onglets historiques.
 
-## Espaces ajoutés
+## 2. Historique des espaces analytiques
 
 1. Vue exécutive : indicateurs, courbes d'activité, jauge d'attente.
 2. Attentes : histogrammes, classes, percentiles et équité entre arrivants.
@@ -19,7 +19,7 @@ Améliorer l'expérience visuelle et les fonctionnalités sans réécrire le mot
 11. Exports : CSV, JSON et rapport Markdown.
 12. Méthodologie : hypothèses, formules, limites et reproductibilité.
 
-## Points de vigilance
+## 3. Points de vigilance
 
 - La scène 2D définitive et les modules des autres membres ne sont pas intégrés.
 - Les analyses du Studio portent sur le moteur historique, pas sur le moteur dynamique.
@@ -27,7 +27,7 @@ Améliorer l'expérience visuelle et les fonctionnalités sans réécrire le mot
 - Les simulations comparatives ne doivent pas être interprétées comme des résultats sur des clients réels.
 - Le moteur historique permet jusqu'à 8 caisses. Le périmètre final de 5 caisses reste à harmoniser.
 
-## Démarrage
+## 4. Démarrage
 
 ```powershell
 python -m pip install -r requirements.txt
@@ -35,6 +35,13 @@ python -m pytest -q
 python -m streamlit run app.py
 ```
 
-## Publication GitHub
+## 5. Collaboration GitHub
 
 Créer le dépôt `RetailFlow`, vérifier `.gitignore`, puis publier seulement après validation locale du rendu et des tests Streamlit.
+
+
+## 6. État de l'interface principale actuelle
+
+L'interface principale `app.py` a été simplifiée depuis les itérations du Studio décrites plus haut. Elle expose maintenant **quatre vues** : Vue d'ensemble, Simulation, Analyse et Comparaison. Les douze espaces listés en section 2 correspondent à une **itération antérieure**, et ne doivent pas être présentés comme douze pages actuelles. La refonte conserve les graphiques essentiels, une typographie agrandie et une navigation resserrée.
+
+Le moteur dynamique reste accessible via `dynamic_demo.py`. Les analyses de `app.py` sont fondées principalement sur le moteur historique. La scène pixel art et les analyses dynamiques complètes restent à intégrer.
