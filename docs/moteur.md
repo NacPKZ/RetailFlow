@@ -1,6 +1,6 @@
-# Documentation technique du moteur
+# RetailFlow | Documentation des moteurs de simulation
 
-Le moteur (`queuesmart/config.py`, `exceptions.py`, `domain/` et `simulation/`) n'utilise que la
+Le moteur historique (`queuesmart/config.py`, `exceptions.py`, `domain/` et `simulation/`) n'utilise que la
 bibliothèque standard Python. Il ne dépend ni de Streamlit, ni de pandas, ni de Plotly.
 
 ## Unités
@@ -38,7 +38,7 @@ ScenarioConfig ──► CustomerGenerator.generate() ──► clients triés p
 4. **Résultat** : `SimulationResult` regroupe la config, le nom de la stratégie, les clients
    et les caisses. Il sait reconstituer l'état du magasin à n'importe quel instant.
 
-Pourquoi ce n'est pas une simulation « à événements discrets » avec une horloge ? Parce que,
+Pourquoi le moteur **historique** n'est-il pas une simulation « à événements discrets » avec une horloge ? Parce que,
 dans une file FIFO sans abandon ni changement de file, l'heure de début de service d'un client
 se calcule **dès son arrivée**. Une seule boucle sur les clients suffit, ce qui est plus simple
 à lire, à tester et à expliquer.
@@ -114,3 +114,12 @@ L'écran client réduit l'attente moyenne et, surtout, l'attente maximale.
 - affluence uniforme sur la fenêtre (pas de pic à l'intérieur de l'heure) ;
 - l'écran client estime parfaitement les durées de passage ;
 - pas de caisse rapide (« moins de 10 articles ») ni de caisse automatique.
+
+
+## Extension : moteur événementiel dynamique
+
+Le module `queuesmart/simulation/dynamic.py` ajoute une seconde implémentation, indépendante du moteur FIFO historique. Il prend en charge 1 à 5 caisses, les changements de file, les abandons selon une patience configurable et les ouvertures/fermetures programmées. Il produit un `DynamicResult` avec `events` et `customers`.
+
+Le banc d'essai est `dynamic_demo.py`. L'interface principale `app.py` repose encore principalement sur le moteur historique. Les invariants de cette documentation concernant « tous les clients servis » s'appliquent **uniquement au moteur historique** : dans le moteur dynamique, certains clients peuvent abandonner.
+
+Pour les contrats de données et limites d'intégration, voir [la transmission V2](TRANSMISSION_EQUIPE_V2.md).
