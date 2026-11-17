@@ -1,0 +1,13 @@
+SuperQueue V2 - état de livraison
+
+Ancien app.py conservé pour ne pas casser la démonstration historique.
+Nouveau dynamic_demo.py pour tester les comportements dynamiques.
+
+COMMANDES WINDOWS (ouvrir VS Code dans le dossier SuperQueue) :
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m streamlit run dynamic_demo.py
+
+IMPORTANT : la scène pixel art, le dashboard dynamique complet et la fusion finale
+restent les missions des membres 2 et 3 et de l'intégration de samedi.

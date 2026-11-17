@@ -1,0 +1,3 @@
+Commande : python -m pytest -q --ignore=tests/test_app.py
+Resultat : 162 tests passes.
+Test Streamlit exclu : validation Windows restante.
