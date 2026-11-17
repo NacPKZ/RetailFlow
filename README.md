@@ -1,164 +1,112 @@
-# QueueSmart
+# RetailFlow
 
-**QueueSmart aide le responsable d'un supermarché à décider combien de caisses ouvrir, en
-simulant les files d'attente selon l'affluence.**
+**Simulation et optimisation des files d'attente en supermarché**
 
-Si le magasin ouvre trop peu de caisses, les clients attendent. S'il en ouvre trop, le
-personnel est sous-utilisé. QueueSmart simule un supermarché (1 à 8 caisses) dans trois
-scénarios (heures creuses, heures normales, heure de pointe). Il mesure les temps d'attente
-et **recommande le nombre de caisses** à ouvrir. Il mesure aussi le gain apporté par un
-**écran client** qui affiche l'attente estimée à chaque caisse.
+Projet universitaire de Master 2 BIDABI (Big Data, Analyse & Business Intelligence), consacré à la simulation de flux de clients, à la mesure de la qualité de service et à l'aide à la décision sur le nombre de caisses.
 
-Les données sont générées en Python : pas de données réelles, pas d'API, pas de base de données.
+> **État du projet : version de travail collaborative.** L'interface analytique et le moteur FIFO historique fonctionnent dans `app.py`. Le moteur événementiel dynamique est disponible dans `dynamic_demo.py`. La scène pixel art et le dashboard dynamique définitif restent à intégrer.
 
-*Projet du cours « Programmation épurée (Clean Code) », Master 2 BIDABI.*
+## Le problème étudié
 
----
+Un magasin doit limiter les temps d'attente sans mobiliser inutilement trop de caisses. RetailFlow permet d'explorer ce compromis dans des **scénarios synthétiques**, reproductibles grâce à une graine aléatoire. Aucun jeu de données clients réel n'est utilisé.
 
-## Fonctionnalités
+## Deux moteurs complémentaires
 
-L'application Streamlit comporte une barre latérale et trois onglets.
+| | Moteur historique | Moteur dynamique |
+|---|---|---|
+| Entrée | `queuesmart/simulation/engine.py` | `queuesmart/simulation/dynamic.py` |
+| Interface | `app.py` | `dynamic_demo.py` |
+| Files FIFO | Oui | Oui |
+| Stratégies | File la plus courte, attente estimée minimale | Choix de caisse avec réévaluation |
+| Changement de file | Non | Oui |
+| Abandon selon la patience | Non | Oui |
+| Ouverture et fermeture programmées | Non | Oui, de 1 à 5 caisses |
+| Statut | Interface principale | Banc d'essai technique |
 
-- **Barre latérale** : scénario prédéfini, puis ajustements (nombre de clients, durée
-  d'arrivée, nombre de caisses, temps moyen de passage, comportement des clients, graine
-  aléatoire). Les saisies incohérentes affichent un message clair, sans traceback.
-- **Magasin 2D** : vue du dessus animée (lecture/pause et curseur de temps). On y voit les
-  caisses avec leur attente estimée, et les clients colorés selon leur attente : vert,
-  orange au-delà de la moitié du seuil de 5 min, rouge au-delà du seuil. On peut **suivre
-  un client**, qui est alors entouré.
+Le moteur historique calcule les affectations et permet les comparaisons de scénarios. Le moteur dynamique produit des **événements horodatés** (`customer_arrived`, `queue_joined`, `service_started`, `queue_switched`, `customer_abandoned`, `register_opened`, `register_closed`, `customer_departed`). Ces événements doivent alimenter la future animation 2D, sans recalculer les décisions métier dans le navigateur.
 
-  ![Magasin 2D](docs/captures/magasin_2d.png)
+## Application et analyses
 
-- **Écran client** : panneau « temps d'attente estimé » par caisse à un instant choisi, avec
-  la caisse conseillée mise en avant, et le parcours d'un client (arrivée, caisse, début,
-  départ, attente).
+L'interface RetailFlow propose quatre espaces : **Vue d'ensemble**, **Simulation**, **Analyse** et **Comparaison**. Elle rassemble des KPI, des distributions d'attente, des nuages de points, des analyses par caisse et des exports. Ces résultats concernent principalement **le moteur historique**. Les abandons et changements de file ne doivent pas être attribués à ces graphiques.
 
-  ![Écran client](docs/captures/ecran_client.png)
+Le projet conserve deux approches de recommandation distinctes :
+- une recommandation historique fondée sur le 90e percentile (P90) et un seuil de service ;
+- un optimiseur expérimental fondé sur l'attente moyenne (`queuesmart/analytics/mean_wait_optimizer.py`), actuellement appliqué au moteur historique.
 
-- **Dashboard responsable** :
-  - indicateurs : attente moyenne, p90, attente maximale, part des clients au-delà de 5 min, occupation ;
-  - **recommandation du nombre de caisses** (courbe du p90 selon le nombre de caisses, avec la cible) ;
-  - graphiques : histogramme des attentes, attente selon l'heure d'arrivée, occupation par caisse ;
-  - **gain apporté par l'écran client** (comparaison des comportements « file la plus courte »
-    et « attente estimée minimale ») ;
-  - comparaison des trois scénarios.
+## Démarrage rapide
 
-  ![Dashboard](docs/captures/dashboard.png)
+Prérequis : Python 3.11 ou version ultérieure (développement sous Python 3.12).
 
-### Deux comportements de client
-
-| Comportement | Ce que fait le client |
-|---|---|
-| `shortest_queue` (« File la plus courte ») | il compte les personnes et va à la file la plus courte, comme dans la réalité |
-| `least_wait` (« Attente estimée minimale ») | il suit l'écran client et va à la caisse dont l'attente estimée est la plus faible |
-
-Exemple (graine 42, heure de pointe, 5 caisses) : avec l'écran, l'attente moyenne passe de
-2,25 min à 1,91 min, et l'attente maximale de 10,2 min à 4,4 min.
-
----
-
-## Prérequis
-
-- **Python 3.11 ou plus récent** (le projet a été développé sous Python 3.12).
-- `pip` (fourni avec Python).
-
-## Installation
-
-Depuis la racine du dépôt :
-
-```bash
-# 1. Créer un environnement virtuel
+```powershell
 python -m venv .venv
-
-# 2. L'activer
-#    Windows (PowerShell) :
-.venv\Scripts\Activate.ps1
-#    macOS / Linux :
-source .venv/bin/activate
-
-# 3. Installer les dépendances (versions épinglées)
-pip install -r requirements.txt
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
 ```
 
-## Exécution
+Depuis le dossier racine du dépôt, pour tester séparément le moteur dynamique :
 
-```bash
-# Application web (s'ouvre sur http://localhost:8501)
-streamlit run app.py
-
-# Démo du moteur dans le terminal (résumé des 3 scénarios)
-python -m scripts.demo_moteur
+```powershell
+python -m streamlit run dynamic_demo.py
 ```
 
-## Tests et qualité
+Sur macOS/Linux, l'activation est `source .venv/bin/activate`.
 
-```bash
-pytest                                   # tous les tests (~1 min, dont le test de bout en bout de l'appli)
-pytest --cov=queuesmart                  # avec la couverture de code
-ruff check .                             # analyse statique (style, imports, bugs fréquents)
+## Tests
+
+```powershell
+python -m pytest -q
+python -m pytest --cov=queuesmart
+ruff check .
 ```
 
-Les tests couvrent les règles métier et les invariants du moteur, les KPI sur des cas
-calculés à la main, la recommandation, la logique pure de l'interface, et un test de bout en
-bout de l'application Streamlit (`streamlit.testing`) sur les 3 scénarios × 2 comportements.
-La couverture est de 100 % hors `ui/` et de 99 % au total.
+Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. **La suite locale a été signalée comme réussie le 17 novembre 2026 après adaptation des tests d'interface** ; les contrôles visuels et l'intégration des modules des autres membres restent à réaliser.
 
----
+## Architecture
 
-## Architecture et choix techniques
-
-```
-app.py                  assemblage Streamlit, aucune logique métier
-queuesmart/
-├── config.py           constantes + ScenarioConfig validé + scénarios prédéfinis
-├── exceptions.py       erreurs métier typées (QueueSmartError, …)
-├── domain/             Customer, CheckoutRegister
-├── simulation/         CustomerGenerator, stratégies, SimulationEngine, SimulationResult
-├── analytics/          KpiCalculator, comparaisons, RegisterRecommender
-└── ui/                 logique pure (store_layout, client_board) + rendu Streamlit
-tests/                  un fichier de test par module
-scripts/demo_moteur.py  démo terminal
-docs/                   conception, moteur, exemples Clean Code
+```text
+RetailFlow/
+├── app.py                        Interface principale (moteur historique)
+├── dynamic_demo.py               Banc d'essai du moteur événementiel
+├── queuesmart/                   Nom technique conservé du package Python
+│   ├── config.py                 Paramètres et scénarios
+│   ├── domain/                   Clients et caisses
+│   ├── simulation/               Génération, FIFO, stratégies, événements, dynamique
+│   ├── analytics/                KPI, comparaisons et optimisation
+│   └── ui/                       Composants de présentation
+├── tests/                        Tests automatisés
+├── docs/                         Documentation et contrats d'intégration
+└── requirements.txt
 ```
 
-Les dépendances vont dans un seul sens : `ui → analytics → simulation → domain → config`.
-Seul `ui/` importe Streamlit.
+**Pourquoi le dossier `queuesmart` existe encore ?** RetailFlow est le nom du produit. `queuesmart` est le nom historique du package Python, maintenu temporairement pour ne pas casser les imports, scripts et tests. Son renommage technique nécessite une migration séparée et testée.
 
-Stack : Python, Streamlit, Plotly, pandas. Le moteur n'utilise que la bibliothèque standard.
-Outils : pytest, pytest-cov, ruff.
+## Documentation
 
-Pour aller plus loin :
-
-- [docs/conception.md](docs/conception.md) : classes, responsabilités, relations, **diagramme UML** et choix de conception ;
-- [docs/moteur.md](docs/moteur.md) : modèle d'arrivées, comportements, invariants, erreurs ;
-- [docs/clean_code_examples.md](docs/clean_code_examples.md) : exemples avant/après.
-
-### Comment est calculée la recommandation ?
-
-Pour chaque nombre de caisses de 1 à 8, on lance 20 simulations avec des graines différentes
-et on calcule les KPI sur l'ensemble des clients. On retient le **plus petit** nombre de
-caisses qui respecte la cible de service : **90 % des clients attendent au plus 5 min** et
-**au plus 10 % dépassent 5 min**. Si aucun nombre ne convient, l'application le signale.
-Avec la graine 42, on obtient 3 caisses aux heures creuses (2 avec l'écran client), 4 aux
-heures normales et 6 à l'heure de pointe.
-
----
-
-## Limites et pistes d'évolution
-
-- **Abandon de file** : tous les clients attendent jusqu'au bout ; on pourrait ajouter un seuil de patience.
-- **Changement de file** : un client ne change jamais de file une fois placé.
-- **Affluence variable** : les arrivées sont uniformes sur la fenêtre ; une affluence qui
-  varie dans la journée (pics à midi et à 18 h) serait plus réaliste.
-- **Estimation de l'écran** : l'écran connaît parfaitement la durée de passage de chaque client.
-- Caisses rapides ou automatiques, coût du personnel dans la recommandation.
-- Extension facultative en Scala.
-
-## Répartition des tâches
-
-| Membre | Périmètre |
+| Document | Contenu |
 |---|---|
-| Billal | Moteur : configuration, exceptions, domaine, génération, stratégies, moteur, résultat, tests, `docs/moteur.md` |
-| Yanis | Animation 2D : `StoreLayout` (logique pure et tests), rendu Plotly animé, suivi d'un client |
-| Nithilan | Barre latérale et validation, écran client (`client_board`, `client_screen`), assemblage `app.py`, tests |
-| Can | KPI, comparaisons, recommandation, dashboard, README, `docs/conception.md`, présentation |
+| [Architecture et conception](docs/conception.md) | Modules, responsabilités et principes de conception |
+| [Moteurs de simulation](docs/moteur.md) | Hypothèses, règles FIFO et limites |
+| [Guide d'intégration des équipes](docs/TRANSMISSION_EQUIPE_V2.md) | Contrat dynamique prioritaire pour la 2D et l'analytics |
+| [Contrat historique V1](docs/CONTRAT_INTEGRATION_V1.md) | Référence conservée pour la compatibilité |
+| [Rapport de développement H1-H7](docs/RAPPORT_ETAPE_H1_H7.md) | Audit, extensions et vérifications |
+| [Interface RetailFlow](docs/REFONTE_UI_RETAILFLOW_V4.md) | Historique des évolutions UI et limites |
+| [Pratiques Clean Code](docs/clean_code_examples.md) | Exemples de refactorisation |
+
+## Organisation GitHub
+
+- `main` : version commune, fusion après revue.
+- `feature/simulation-2d` : scène animée, déplacements et files.
+- `feature/dashboard-analytics` : indicateurs, comparaisons et exports.
+
+Chaque membre travaille sur sa branche et propose une **Pull Request** vers `main`. Ne pas fusionner de changements sans exécuter les tests et vérifier les contrats de données.
+
+## Contributions et attribution
+
+La base initiale QueueSmart a été réalisée en équipe et a fourni le moteur FIFO, les stratégies, les KPI et une première interface. L'évolution RetailFlow comprend l'audit, le moteur événementiel, des tests additionnels, une nouvelle interface et les contrats de transmission. La scène 2D et le dashboard définitif sont des contributions séparées en cours. Pour une attribution individuelle précise, consulter l'historique Git et les Pull Requests plutôt que d'attribuer tout le code à une seule personne.
+
+## Limites
+
+Les données sont simulées, l'estimation d'attente peut exploiter une information parfaite sur les durées de service, et les résultats ne sont pas des prévisions opérationnelles pour un magasin réel. Le moteur dynamique est actuellement séparé de l'interface principale. Les ouvertures/fermetures y sont **programmées avant exécution**, non pilotées en direct depuis la scène. Le périmètre 1 à 5 caisses doit encore être harmonisé avec certains modules historiques pouvant aller jusqu'à 8.
+
+**Technologies :** Python, Streamlit, pandas, Plotly, pytest, ruff.
