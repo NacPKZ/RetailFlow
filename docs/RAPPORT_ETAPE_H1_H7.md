@@ -1,7 +1,7 @@
-# SuperQueue : rapport de fin d'étape H1 à H7
+# RetailFlow | Rapport technique des étapes H1 à H7
 
 **Date :** 17 novembre 2026  
-**Statut :** base technique à transmettre aux membres 2 et 3, sous réserve des tests Streamlit sur Windows.  
+**Statut :** base technique transmise, tests automatisés de l'application mis à jour et exécutés localement le 17 novembre 2026 ; intégration 2D et analytics finale encore en attente.  
 **Nature des heures :** H1 à H7 sont sept créneaux de travail planifiés, pas un relevé chronométré des heures effectivement passées.
 
 ## 1. Objectif et périmètre
@@ -94,6 +94,17 @@ Pour le banc d'essai dynamique, arrêter le premier serveur puis exécuter :
 .\.venv\Scripts\python.exe -m streamlit run dynamic_demo.py
 ```
 
-## 10. Publication GitHub
+## 10. Publication GitHub et collaboration
 
 Cette archive est une **base de travail commune**, pas la version finale après intégration des camarades. Publier le code sans `.venv`, caches, fichiers `.coverage` ni données sensibles. Vérifier les tests, les licences des futurs sprites et la cohérence du README avant la mise en ligne publique.
+
+
+## 11. Mise à jour après H7 (17 novembre 2026)
+
+- Le projet public porte désormais le nom **RetailFlow** ; le package technique conserve `queuesmart`.
+- L'interface principale `app.py` a été remaniée autour de quatre vues : Vue d'ensemble, Simulation, Analyse et Comparaison.
+- Les tests `tests/test_app.py` ont été adaptés à cette navigation. L'exécution locale `python -m pytest -q` communiquée le 17 novembre affiche 100 % de tests réussis, sans échec ; ce résultat ne vaut pas validation visuelle dans un navigateur.
+- Le dépôt GitHub et les branches `feature/simulation-2d` et `feature/dashboard-analytics` ont été créés.
+- La synchronisation du moteur dynamique avec la scène 2D et le dashboard final reste à effectuer.
+
+Les chiffres de couverture et de tests indiqués dans les sections précédentes sont des **mesures historiques**, non recalculées dans cette mise à jour.
