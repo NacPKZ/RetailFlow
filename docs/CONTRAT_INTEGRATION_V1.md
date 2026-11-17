@@ -1,10 +1,10 @@
-# SuperQueue - Contrat d'intégration V1
+# RetailFlow | Contrat historique d'intégration (V1)
 
-## Statut
+## 1. Statut et portée historique
 
 Le moteur historique calcule des files FIFO fixes. Les modules `queuesmart.simulation.events` et `queuesmart.analytics.mean_wait_optimizer` ont été ajoutés sans modifier les calculs existants.
 
-## Pour le membre 2 : visualisation 2D
+## 2. Visualisation 2D historique
 
 Importer `events_from_result(result)` après `SimulationEngine.run(config)`.
 
@@ -18,7 +18,7 @@ Attention : les événements de file peuvent partager le même instant. Ils sont
 
 Non disponible en V1 : `queue_switched`, `customer_abandoned`, `register_opened`, `register_closed`. Ne pas prétendre que ces comportements sont déjà simulés.
 
-## Pour le membre 3 : dashboard
+## 3. Dashboard historique
 
 Utiliser `KpiCalculator().compute(result)` pour les KPI historiques et `recommend_by_mean_wait(engine, calculator, config, threshold_min, max_registers=5)` pour l'objectif du nouveau cahier des charges.
 
@@ -26,11 +26,11 @@ Utiliser `KpiCalculator().compute(result)` pour les KPI historiques et `recommen
 
 Les simulations comparées utilisent la même graine, mais les temps de service et arrivées sont seulement comparables dans les limites du générateur historique. L'optimisation V1 utilise une seule réplication : signaler cette limite. Ne pas afficher de taux d'abandon ou de changements de file calculés tant que le moteur ne les gère pas.
 
-## Pour le responsable intégration
+## 4. Responsable de l'intégration
 
 Ne pas remplacer les modules historiques. Exécuter les tests de non-régression avant toute fusion. Conserver Streamlit pour le conteneur principal. La visualisation 2D peut être un composant JavaScript embarqué, mais elle ne doit jamais recalculer les événements métier.
 
-## Démonstration minimale
+## 5. Démonstration minimale
 
 ```python
 from queuesmart.config import ScenarioConfig
@@ -48,10 +48,13 @@ recommendation = recommend_by_mean_wait(engine, KpiCalculator(), config, 5.0)
 print(len(events), recommendation.recommended_registers)
 ```
 
-## Reste à faire avant livraison complète
+## 6. Liste historique des évolutions envisagées
 
 1. Concevoir un moteur dynamique avec une véritable horloge d'événements, gestion des files, patience et changements de file.
 2. Définir et tester l'ouverture et fermeture des caisses pendant l'exécution.
 3. Vérifier les KPI et leur définition en présence d'abandons.
 4. Tester l'intégration Streamlit et le rendu 2D en navigateur.
 5. Ajouter les tests d'interface et de bout en bout.
+
+
+> **Note de version :** ce document décrit le contrat V1 basé sur `SimulationResult`. Plusieurs éléments alors absents sont désormais disponibles dans le moteur dynamique `queuesmart/simulation/dynamic.py`. Pour les nouveaux modules 2D et analytics, consulter en priorité [le guide V2](TRANSMISSION_EQUIPE_V2.md). La liste ci-dessus est conservée comme historique, et non comme état actuel de toutes les fonctionnalités.
