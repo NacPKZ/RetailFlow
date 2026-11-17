@@ -1,4 +1,4 @@
-# Documentation de conception
+# RetailFlow | Architecture et choix de conception
 
 ## Architecture en couches
 
@@ -226,7 +226,7 @@ Fonctions (hors classes) : `build_strategy` et le registre `STRATEGIES` (straté
    nombre de caisses qui respecte la cible, car chaque caisse coûte du personnel.
 7. **Constantes centralisées.** Les valeurs métier sont dans `config.py`. Les constantes
    d'affichage (couleurs, tailles, pas d'animation) sont nommées en tête de leur module `ui/`.
-8. **Simplicité.** Il n'y a pas de simulation à événements discrets : en FIFO sans abandon,
+8. **Simplicité.** Dans le moteur historique, il n'y a pas de simulation à événements discrets : en FIFO sans abandon,
    le début de service se calcule à l'arrivée, et une boucle suffit.
 
 ## Extensions au contrat d'interface initial
@@ -239,3 +239,10 @@ Elles ajoutent des éléments sans rien modifier de l'existant :
 - module `analytics/comparison.py` : répétition de simulations et comparaisons, partagées par
   le recommandeur et le dashboard (DRY) ;
 - `wait_level`, `describe_status` et `animation_step` dans `ui/store_layout.py` : logique pure de l'animation.
+
+
+## Évolution de l'architecture
+
+RetailFlow conserve le package Python historique `queuesmart` afin de préserver les imports et les tests. Deux moteurs coexistent : `SimulationEngine` (FIFO historique, utilisé dans `app.py`) et `DynamicSimulationEngine` (événements discrets, validé dans `dynamic_demo.py`). Les résultats `SimulationResult` et `DynamicResult` ne sont pas interchangeables : les analyses dynamiques doivent utiliser un adaptateur ou des KPI dédiés.
+
+Le schéma et les choix précédents documentent surtout l'architecture initiale. La scène pixel art et le dashboard dynamique définitif ne sont pas encore fusionnés dans l'application principale.
