@@ -1,4 +1,4 @@
-# Exemples Clean Code : avant / après
+# RetailFlow | Exemples de Clean Code et de refactorisation
 
 > **Origine des exemples.** Le moteur a d'abord été écrit volontairement sous une forme
 > naïve (une seule fonction `run`), puis exécuté sur les 3 scénarios. Il a ensuite été
@@ -185,3 +185,8 @@ aussi citer ces choix de conception, sans les présenter comme des refactorings 
 
 - `format_minutes` est l'unique formatage des durées, utilisé par les 3 onglets (DRY) ;
 - `Customer.wait_time` est l'unique définition de l'attente (DRY).
+
+
+## Application à RetailFlow
+
+Les exemples ci-dessus documentent la base historique `queuesmart`. La nouvelle architecture distingue en outre les calculs métier du rendu : le moteur dynamique fournit des événements, la 2D les rejoue et l'analytics calcule des indicateurs sans modifier les décisions de simulation. Les nouvelles contributions doivent préserver cette séparation et être vérifiées par des tests et une Pull Request.
