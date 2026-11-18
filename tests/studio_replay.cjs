@@ -17,3 +17,15 @@ s=replay.at(1);assert.equal(s.present,2);assert.equal(s.abandoned,0);assert.equa
 for(const time of [0,1,3,4,6,7,8,9]){const s=replay.at(time);assert.equal(s.arrivals,s.waiting+s.inService+s.served+s.abandoned);}
 assert.equal(env.RF.minutes(1.5),'1:30');
 console.log('Atelier : temps, compteurs, transfert, fermeture, abandon et retour arrière OK.');
+// Instantanés indépendants, recherche sans divulgation et curseur ponctuel.
+const earlier=replay.at(2),serialized=JSON.stringify(earlier);replay.at(9);
+assert.equal(JSON.stringify(earlier),serialized);
+const view=env.RF.clientAt(data,2,2,replay.at(2));
+assert.equal(view.start,null);assert.equal(view.end,null);assert.equal(view.switches,0);assert.equal(view.position,1);
+assert.equal(env.RF.clientAt(data,2,8,replay.at(8)).end,7);
+assert.equal(env.RF.cursorTime({end_time:20,cursor:{token:'a',time:3}},{time:12,cursorToken:'a'}),12);
+assert.equal(env.RF.cursorTime({end_time:20,cursor:{token:'b',time:3}},{time:12,cursorToken:'a'}),3);
+const crossingData={people:{1:{arrival_time:0,service_start:6},2:{arrival_time:1,abandoned_at:4}}};
+assert.ok(env.RF.waitCrossing(crossingData,4,9)>5);
+assert.equal(env.RF.waitCrossing(crossingData,6,9),null);
+console.log('V6.1 : instantanés indépendants, inspecteur temporel, curseur ponctuel et seuil x50 OK.');
