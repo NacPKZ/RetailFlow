@@ -4,6 +4,8 @@
 
 Projet universitaire de Master 2 BIDABI (Big Data, Analyse & Business Intelligence), consacré à la simulation de flux de clients, à la mesure de la qualité de service et à l'aide à la décision sur le nombre de caisses.
 
+> **Finalisation V6.1 :** inspecteur temporel avec recherche, réaffectation par sélection, journal des décisions réellement appliquées, comparaison détaillée et mode soutenance reproductible. Voir [le bilan de validation](docs/FINALISATION_RETAILFLOW_V6_1.md).
+
 > **Atelier interactif V6 :** scène en grande largeur et immersion, caisses cliquables, clients réaffectables à la souris, annulation et comparaison au témoin. Voir [le guide complet](docs/ATELIER_INTERACTIF_V6.md).
 
 > **Version intégrée :** `app.py` donne accès aux analyses FIFO et à la scène pixel art dynamique dans l’espace Simulation. La scène et ses graphiques utilisent le même résultat Python. `dynamic_demo.py` reste un raccourci vers cette scène.
@@ -57,8 +59,22 @@ les arrivants comme dénominateur : un abandon reste un échec, même après une
 L’application démarre dans Simulation. Le bouton « Plein écran » agrandit le magasin ;
 « Voir le pic » permet d’explorer rapidement sa congestion maximale. Cliquez une caisse
 pour l’ouvrir ou la fermer. Glissez un client en file vers une caisse ouverte pour le
-réaffecter. Les sections Interventions et Journal permettent de comparer et exporter
+réaffecter. Une alternative clavier et tactile est disponible : recherchez son identifiant,
+choisissez une caisse de destination et appuyez sur « Réaffecter ». Les sections Interventions et Journal permettent de comparer et exporter
 l’expérience. Les réglages et deux situations d’affluence sont disponibles sous la scène.
+
+## Démonstration universitaire
+
+Dans les réglages de l'atelier, choisissez **Soutenance reproductible** : 110 clients,
+arrivées sur 60 min, service moyen 1,7 min, deux caisses initiales, graine 42.
+Conservez patience 12 min, abandons et rééquilibrage activés. Activez **Mode soutenance**
+pour parcourir situation, congestion, décision, comparaison et conclusion.
+Le bouton « Voir le pic » évite une attente pendant l'oral.
+
+Un résultat de secours et son CSV sont fournis dans `docs/validation_v6_1/`.
+Pour les reproduire : `python scripts/prepare_soutenance.py`.
+Le protocole de trois à cinq minutes et les limites figurent dans
+[le bilan V6.1](docs/FINALISATION_RETAILFLOW_V6_1.md).
 
 ## Démarrage rapide
 
@@ -84,7 +100,10 @@ Sur macOS/Linux, l'activation est `source .venv/bin/activate`.
 ```powershell
 python -m pytest -q
 python -m pytest --cov=queuesmart
+node tests/scene_controls.cjs
+node tests/studio_replay.cjs
 ruff check .
+git diff --check
 ```
 
 Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. La refonte du 18 novembre 2026 ajoute des tests des flux, des abandons, des seuils exacts, des filtres et de l’invalidation des résultats. Le lecteur JavaScript est vérifié avec `node tests/scene_controls.cjs` et `node tests/studio_replay.cjs`. Voir [le bilan de refonte](docs/REFONTE_VISUELLE_V5.md) pour le périmètre de validation et ses limites.
@@ -93,7 +112,7 @@ Les tests couvrent la génération, les stratégies, les invariants de simulatio
 
 ```text
 RetailFlow/
-├── app.py                        Interface principale (moteur historique)
+├── app.py                        Interface principale, deux moteurs
 ├── dynamic_demo.py               Banc d'essai du moteur événementiel
 ├── queuesmart/                   Nom technique conservé du package Python
 │   ├── config.py                 Paramètres et scénarios

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "1920 x 1080",
+    "height": 1080,
+    "scrollWidth": 1920,
+    "width": 1920,
+    "studio": {
+      "scrollWidth": 1847,
+      "width": 1847
+    }
+  },
+  {
+    "name": "1366 x 768",
+    "height": 768,
+    "scrollWidth": 1366,
+    "width": 1366,
+    "studio": {
+      "scrollWidth": 1313,
+      "width": 1313
+    }
+  },
+  {
+    "name": "1024 x 768",
+    "height": 768,
+    "scrollWidth": 1024,
+    "width": 1024,
+    "studio": {
+      "scrollWidth": 971,
+      "width": 971
+    }
+  },
+  {
+    "name": "768 x 1024",
+    "height": 1024,
+    "scrollWidth": 768,
+    "width": 768,
+    "studio": {
+      "scrollWidth": 731,
+      "width": 731
+    }
+  },
+  {
+    "name": "390 x 844",
+    "height": 844,
+    "scrollWidth": 390,
+    "width": 390,
+    "studio": {
+      "scrollWidth": 354,
+      "width": 354
+    }
+  }
+]

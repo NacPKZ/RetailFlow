@@ -1,0 +1,83 @@
+{
+  "schema": "retailflow-soutenance/6.1",
+  "configuration": {
+    "name": "Soutenance reproductible",
+    "customer_count": 110,
+    "arrival_window_min": 60.0,
+    "mean_service_time_min": 1.7,
+    "open_registers": 2,
+    "seed": 42
+  },
+  "options": {
+    "patience_min": 12.0,
+    "switching_enabled": true,
+    "switching_interval_min": 1.0,
+    "switching_gain_min": 1.0,
+    "register_changes": [],
+    "customer_moves": [],
+    "manual_actions": []
+  },
+  "minute_du_pic_temoin": 16.678416186605528,
+  "intervention": {
+    "time": 16.678416186605528,
+    "kind": "register",
+    "register_id": 3,
+    "customer_id": null,
+    "opened": true
+  },
+  "bilans_finaux_apparies": [
+    {
+      "Indicateur": "Attente moyenne des servis (min)",
+      "Témoin": 9.526700906802414,
+      "Avec décisions": 8.397830458745545,
+      "Écart": -1.128870448056869
+    },
+    {
+      "Indicateur": "P90 des servis (min)",
+      "Témoin": 11.638624037935614,
+      "Avec décisions": 10.959775844069918,
+      "Écart": -0.6788481938656954
+    },
+    {
+      "Indicateur": "Clients servis",
+      "Témoin": 76,
+      "Avec décisions": 110,
+      "Écart": 34
+    },
+    {
+      "Indicateur": "Abandons",
+      "Témoin": 34,
+      "Avec décisions": 0,
+      "Écart": -34
+    },
+    {
+      "Indicateur": "Niveau de service (%)",
+      "Témoin": 4.545454545454546,
+      "Avec décisions": 4.545454545454546,
+      "Écart": 0.0
+    },
+    {
+      "Indicateur": "Occupation des ressources (%)",
+      "Témoin": 98.92006226297289,
+      "Avec décisions": 98.26642718448396,
+      "Écart": -0.6536350784889322
+    },
+    {
+      "Indicateur": "Ressources mobilisées (caisse-min)",
+      "Témoin": 145.75734891533165,
+      "Avec décisions": 201.07834617593903,
+      "Écart": 55.320997260607385
+    }
+  ],
+  "issues": [
+    {
+      "index": 0,
+      "time": 16.678416186605528,
+      "applied": true,
+      "reason": "Appliquée",
+      "before": "Caisse 3 : fermée, 0 en file, libre",
+      "after": "Caisse 3 : ouverte, 0 en file, libre"
+    }
+  ],
+  "limites": "Une graine synthétique, effet combiné, aucune généralisation statistique."
+}

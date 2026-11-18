@@ -114,3 +114,23 @@ les réaffectations sur une file. Les défis sont dans « Réglages de l'atelier
 - Les trajets sont visuels. Les décisions et les temps métier viennent du moteur.
 - Les repères temporels et la caméra sont conservés localement dans l'onglet. Pour
   archiver une expérience reproductible, exporter le JSON des paramètres et interventions.
+
+
+## Complément V6.1
+
+La finalisation conserve cet atelier. Le curseur serveur est désormais consommé une
+seule fois ; les retours temporels ne modifient plus les instantanés déjà lus.
+Les commandes sont appliquées après les événements automatiques déjà connus au même
+instant. Leur ordre de saisie est conservé lorsqu'elles partagent cet instant.
+
+Recherchez un client par identifiant pour consulter son état et sa chronologie connus
+à l'instant affiché. Le champ de destination et le bouton Réaffecter proposent une
+alternative au glisser-déposer. Un client en service ne peut pas être déplacé.
+
+Le journal distingue décisions appliquées, futures et devenues inapplicables après
+une modification du passé. Les états avant et après sont issus du moteur. La comparaison
+présente l'effet combiné face au témoin, sans l'attribuer à la dernière décision.
+
+Le mode soutenance guide l'oral sans cacher les contrôles. Les cinq formats CSS testés,
+les mesures, les captures et les limites sont détaillés dans
+[le rapport V6.1](FINALISATION_RETAILFLOW_V6_1.md).
