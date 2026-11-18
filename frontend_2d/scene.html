@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {box-sizing:border-box} body {margin:0;font-family:Inter,system-ui,sans-serif;color:#162c46;background:transparent}
+.rf-scene {background:#fff;border:1px solid #e3eaf2;border-radius:16px;padding:14px;outline:none}
+.rf-bar {display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:10px}
+button,select {font:inherit;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid #dce5ef;background:#fff;color:#162c46;cursor:pointer}
+button:hover {background:#edf3fa} button:focus-visible,select:focus-visible,input:focus-visible {outline:2px solid #3979ce;outline-offset:2px}
+button[data-role=play] {background:#244f7f;color:#fff;border-color:#244f7f;min-width:95px}
+.rf-bar input[type=range] {flex:1 1 140px;accent-color:#3979ce;min-width:100px}
+.rf-hud {display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.rf-hud div {padding:9px 12px;background:#f4f7fb;border-radius:9px;font-size:11px;color:#62758a}
+.rf-hud b {display:block;color:#162c46;font-size:18px;font-variant-numeric:tabular-nums;margin-top:3px}
+.rf-workspace {display:flex;gap:14px;align-items:stretch;justify-content:center}
+.rf-map {flex:1;min-width:0;display:flex;justify-content:center;align-items:center;background:#eef2f5;border-radius:12px;overflow:hidden;position:relative}
+canvas {display:block;cursor:pointer;image-rendering:pixelated}
+.rf-empty {position:absolute;background:#162c46ed;color:white;padding:12px 18px;border-radius:10px;pointer-events:none;font-size:14px;text-align:center;box-shadow:0 5px 30px #162c4640}
+.rf-monitor {flex:0 0 230px;min-width:0;font-size:13px}
+.rf-monitor h3 {margin:2px 0 10px;font-size:15px}.rf-lane {padding:9px 0;border-bottom:1px solid #edf1f5;display:flex;justify-content:space-between;gap:6px}
+.rf-lane b {font-weight:600}.rf-lane span {color:#63778b;font-size:12px}.rf-lane[data-open=false] span {color:#c35465}
+.rf-note {padding:11px;background:#f5f7fb;border-radius:9px;color:#546b83;margin-top:12px;line-height:1.5;font-size:12px}
+.rf-event {margin-top:10px;min-height:48px;line-height:1.5;font-size:12px;color:#546b83}
+.rf-legend {margin-top:10px;font-size:11px;line-height:1.6;color:#62758a}
+.rf-legend b {color:#162c46}.rf-follow {margin-top:10px;width:100%}
+@media(max-width:650px) {.rf-monitor{display:none}.rf-hud{gap:4px}.rf-hud div{padding:7px;font-size:10px}.rf-hud b{font-size:15px}.rf-scene{padding:8px}.rf-bar button{padding:7px;font-size:12px}.rf-legend{font-size:10px}}
+</style>
+</head>
+<body>
+<div class="rf-scene" id="rf-scene" tabindex="0" aria-label="Rejeu du magasin. Espace pour lecture ou pause, flèches pour naviguer.">
+  <div class="rf-bar">
+    <button data-role="play">▶ Lecture</button>
+    <button data-role="restart" aria-label="Revenir au début">↺ Début</button>
+    <button data-role="next">Événement suivant</button>
+    <select data-role="speed" aria-label="Vitesse de lecture">
+      <option value="1">x1</option><option value="2">x2</option><option value="5" selected>x5</option>
+      <option value="10">x10</option><option value="20">x20</option>
+    </select>
+    <input data-role="slider" type="range" min="0" max="1000" value="0" aria-label="Temps simulé">
+  </div>
+  <div class="rf-hud">
+    <div>Temps simulé<b data-role="clock">0 min 00 s</b></div>
+    <div>Présents (moteur)<b data-role="in-store">0</b></div>
+    <div>Servis et sortis<b data-role="served">0</b></div>
+    <div>Abandons<b data-role="abandoned">0</b></div>
+  </div>
+  <div class="rf-workspace">
+    <div class="rf-map"><canvas aria-label="Magasin vu du dessus, cinq caisses et parcours des clients"></canvas><div class="rf-empty" data-role="empty">Le magasin est prêt.<br>Lance la lecture pour suivre les clients.</div></div>
+    <aside class="rf-monitor">
+      <h3>Les caisses en direct</h3><div data-role="lanes"></div>
+      <select class="rf-follow" data-role="follow" aria-label="Client à suivre"><option value="">Suivre un client</option></select>
+      <div class="rf-note">Suivi : <b data-role="followed">aucun</b><br>Les compteurs lisent les événements Python. Les trajets restent visuels.</div>
+      <div class="rf-event" data-role="last-event">Aucun événement pour l'instant.</div>
+    </aside>
+  </div>
+  <div class="rf-legend"><b>€</b> en service / <b>⇄</b> changement de file / <b>✕</b> abandon / fermeture : le service en cours se termine.<br>Raccourcis dans la scène : espace (lecture/pause), flèches (± 1 min). x1 = 1 minute simulée en 2 secondes réelles.</div>
+</div>
+<script>/*__RF_SCRIPTS__*/</script>
+<script>
+  RF.mountScene(document.getElementById("rf-scene"), /*__RF_DATA__*/);
+</script>
+</body>
+</html>

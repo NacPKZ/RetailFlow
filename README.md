@@ -4,7 +4,7 @@
 
 Projet universitaire de Master 2 BIDABI (Big Data, Analyse & Business Intelligence), consacré à la simulation de flux de clients, à la mesure de la qualité de service et à l'aide à la décision sur le nombre de caisses.
 
-> **État du projet : version de travail collaborative.** L'interface analytique et le moteur FIFO historique fonctionnent dans `app.py`. Le moteur événementiel dynamique est disponible dans `dynamic_demo.py`. La scène pixel art et le dashboard dynamique définitif restent à intégrer.
+> **Version intégrée :** `app.py` donne accès aux analyses FIFO et à la scène pixel art dynamique dans l’espace Simulation. La scène et ses graphiques utilisent le même résultat Python. `dynamic_demo.py` reste un raccourci vers cette scène.
 
 ## Le problème étudié
 
@@ -15,15 +15,15 @@ Un magasin doit limiter les temps d'attente sans mobiliser inutilement trop de c
 | | Moteur historique | Moteur dynamique |
 |---|---|---|
 | Entrée | `queuesmart/simulation/engine.py` | `queuesmart/simulation/dynamic.py` |
-| Interface | `app.py` | `dynamic_demo.py` |
+| Interface | `app.py` | `app.py`, espace Simulation, ou `dynamic_demo.py` |
 | Files FIFO | Oui | Oui |
 | Stratégies | File la plus courte, attente estimée minimale | Choix de caisse avec réévaluation |
 | Changement de file | Non | Oui |
 | Abandon selon la patience | Non | Oui |
 | Ouverture et fermeture programmées | Non | Oui, de 1 à 5 caisses |
-| Statut | Interface principale | Banc d'essai technique |
+| Statut | Analyse et comparaison | Scène intégrée avec indicateurs et exports |
 
-Le moteur historique calcule les affectations et permet les comparaisons de scénarios. Le moteur dynamique produit des **événements horodatés** (`customer_arrived`, `queue_joined`, `service_started`, `queue_switched`, `customer_abandoned`, `register_opened`, `register_closed`, `customer_departed`). Ces événements doivent alimenter la future animation 2D, sans recalculer les décisions métier dans le navigateur.
+Le moteur historique calcule les affectations et permet les comparaisons de scénarios. Le moteur dynamique produit des **événements horodatés** (`customer_arrived`, `queue_joined`, `service_started`, `queue_switched`, `customer_abandoned`, `register_opened`, `register_closed`, `customer_departed`). Ces événements alimentent la scène 2D, sans recalculer les décisions métier dans le navigateur. Le lecteur propose pause, reprise, déplacement dans le temps, vitesses x1 à x20, état des caisses et suivi d’un client.
 
 ## Application et analyses
 
@@ -32,6 +32,23 @@ L'interface RetailFlow propose quatre espaces : **Vue d'ensemble**, **Simulation
 Le projet conserve deux approches de recommandation distinctes :
 - une recommandation historique fondée sur le 90e percentile (P90) et un seuil de service ;
 - un optimiseur expérimental fondé sur l'attente moyenne (`queuesmart/analytics/mean_wait_optimizer.py`), actuellement appliqué au moteur historique.
+
+
+### Graphiques et lecture des résultats
+
+- Congestion calculée à chaque événement : clients en attente et en service.
+- Nuages de points par caisse, palette catégorielle stable et détails au survol.
+- Histogramme des attentes, seuil de 5 minutes et courbe de répartition cumulée.
+- Charge des caisses, chronologie des services à leur durée réelle et carte des attentes par tranche.
+- Analyse filtrable par caisse, avec message explicite si le filtre ne contient aucun client.
+- Comparaison de 1 à 8 caisses sur 5, 10 ou 20 graines identiques entre capacités.
+- Comparaison des comportements avec et sans écran, sans imposer un gain positif.
+- Exports CSV pour Excel et JSON des paramètres. La barre Plotly permet l’export PNG et le zoom.
+
+Le graphique de comparaison montre l’étendue observée des moyennes selon les graines,
+qui n’est pas un intervalle de confiance. La cible combine P90 ≤ 5 min et au moins
+90 % des attentes ≤ 5 min. Dans la scène dynamique, le niveau de service utilise tous
+les arrivants comme dénominateur : un abandon reste un échec, même après une attente courte.
 
 ## Démarrage rapide
 
@@ -60,7 +77,7 @@ python -m pytest --cov=queuesmart
 ruff check .
 ```
 
-Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. **La suite locale a été signalée comme réussie le 17 novembre 2026 après adaptation des tests d'interface** ; les contrôles visuels et l'intégration des modules des autres membres restent à réaliser.
+Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. La refonte du 18 novembre 2026 ajoute des tests des flux, des abandons, des seuils exacts, des filtres et de l’invalidation des résultats. Le lecteur JavaScript est vérifié avec `node tests/scene_controls.cjs`. Voir [le bilan de refonte](docs/REFONTE_VISUELLE_V5.md) pour le périmètre de validation et ses limites.
 
 ## Architecture
 
@@ -103,10 +120,10 @@ Chaque membre travaille sur sa branche et propose une **Pull Request** vers `mai
 
 ## Contributions et attribution
 
-La base initiale QueueSmart a été réalisée en équipe et a fourni le moteur FIFO, les stratégies, les KPI et une première interface. L'évolution RetailFlow comprend l'audit, le moteur événementiel, des tests additionnels, une nouvelle interface et les contrats de transmission. La scène 2D et le dashboard définitif sont des contributions séparées en cours. Pour une attribution individuelle précise, consulter l'historique Git et les Pull Requests plutôt que d'attribuer tout le code à une seule personne.
+La base initiale QueueSmart a été réalisée en équipe et a fourni le moteur FIFO, les stratégies, les KPI et une première interface. L'évolution RetailFlow comprend l'audit, le moteur événementiel, des tests additionnels, une nouvelle interface et les contrats de transmission. La scène 2D de la branche `feature/scene-2d-turbo` est intégrée en conservant sa contribution dans l’historique Git. Les graphiques partagés et les analyses dynamiques complètent cette intégration. Pour une attribution individuelle précise, consulter l'historique Git et les Pull Requests plutôt que d'attribuer tout le code à une seule personne.
 
 ## Limites
 
-Les données sont simulées, l'estimation d'attente peut exploiter une information parfaite sur les durées de service, et les résultats ne sont pas des prévisions opérationnelles pour un magasin réel. Le moteur dynamique est actuellement séparé de l'interface principale. Les ouvertures/fermetures y sont **programmées avant exécution**, non pilotées en direct depuis la scène. Le périmètre 1 à 5 caisses doit encore être harmonisé avec certains modules historiques pouvant aller jusqu'à 8.
+Les données sont simulées, l'estimation d'attente peut exploiter une information parfaite sur les durées de service, et les résultats ne sont pas des prévisions opérationnelles pour un magasin réel. Les deux moteurs sont accessibles dans la même interface, avec des périmètres explicitement indiqués. Les ouvertures/fermetures y sont **programmées avant exécution**, non pilotées en direct depuis la scène. Le périmètre 1 à 5 caisses doit encore être harmonisé avec certains modules historiques pouvant aller jusqu'à 8.
 
 **Technologies :** Python, Streamlit, pandas, Plotly, pytest, ruff.
