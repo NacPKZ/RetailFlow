@@ -1,0 +1,51 @@
+<div class="studio" tabindex="0" aria-label="Atelier de simulation interactif RetailFlow">
+  <header class="studio-head">
+    <div><span class="eyebrow">ATELIER INTERACTIF</span><h2>Le magasin est entre vos mains.</h2><p>Cliquez une caisse. Déplacez un client. Mesurez la différence.</p></div>
+    <button class="fullscreen secondary" data-role="fullscreen" title="Afficher la scène sur tout l'écran">⛶ Plein écran</button>
+  </header>
+  <div class="controls">
+    <button data-role="play" class="primary">▶ Démarrer</button>
+    <button data-role="restart" title="Revenir au début de la lecture">↺</button>
+    <button data-role="next" title="Aller au prochain événement">Pas suivant</button>
+    <select data-role="speed" aria-label="Vitesse de lecture"><option value="1">x1</option><option value="2">x2</option><option value="5" selected>x5</option><option value="10">x10</option><option value="20">x20</option><option value="50">x50</option></select>
+    <div class="scrubber"><span data-role="clock">00:00</span><input data-role="slider" type="range" min="0" max="10000" value="0" aria-label="Instant de la simulation"><span data-role="end">00:00</span></div>
+    <button data-role="peak" title="Visiter le moment où la file est la plus longue">Voir le pic</button>
+    <button data-role="help" aria-label="Afficher l'aide et les raccourcis">?</button>
+  </div>
+  <div class="live-metrics" aria-label="Indicateurs à l'instant affiché">
+    <div><span>Dans le magasin</span><b data-role="present">0</b></div>
+    <div><span>Dans les rayons</span><b data-role="shopping">0</b></div>
+    <div><span>En file</span><b data-role="waiting">0</b></div>
+    <div><span>En service</span><b data-role="serving">0</b></div>
+    <div><span>Servis et sortis</span><b data-role="served">0</b></div>
+    <div><span>Abandons</span><b data-role="abandoned">0</b></div>
+    <div><span>Plus longue attente actuelle</span><b data-role="longest">0:00</b></div>
+  </div>
+  <div class="workspace">
+    <div class="scene-viewport" data-role="viewport">
+      <canvas class="store-canvas" aria-label="Plan du magasin, caisses cliquables et clients à déplacer"></canvas>
+      <div class="scene-chip"><span class="live-dot"></span><span data-role="mode-label">Pilotage / cliquez ou glissez</span></div>
+      <div class="start-overlay" data-role="start"><div class="start-icon">▶</div><h3>Le magasin est ouvert.</h3><p>Des clients font leurs courses, d'autres se présentent aux caisses. Lancez la lecture pour suivre le magasin.</p><button data-role="start-play" class="primary">Lancer la simulation</button><button data-role="start-peak">Explorer le pic</button></div>
+      <div class="toast" data-role="toast" role="status" hidden></div>
+      <div class="canvas-bottom"><span data-role="hover-hint">Une caisse se ferme au clic. Un client en file se déplace vers une autre caisse.</span><div class="zoom-controls"><button data-role="zoom-out" aria-label="Dézoomer">−</button><span data-role="zoom-label">100 %</span><button data-role="zoom-in" aria-label="Zoomer">+</button><button data-role="fit" title="Recentrer la caméra">Recentrer</button></div></div>
+    </div>
+    <aside class="inspector">
+      <div class="aside-title"><h3>Les caisses</h3><span>Clic = ouvrir / fermer</span></div>
+      <div class="register-list" data-role="registers"></div>
+      <button class="open-next" data-role="open-next">+ Ouvrir la prochaine caisse</button>
+      <div class="client-inspector" data-role="client-inspector"><span class="eyebrow">INSPECTEUR CLIENT</span><h3>Chaque parcours compte.</h3><p>Cliquez sur un client pour lire son attente et sa situation. Glissez un client en file vers une autre caisse.</p></div>
+      <div class="event-list"><span class="eyebrow">DERNIERS ÉVÉNEMENTS</span><div data-role="events"></div></div>
+    </aside>
+  </div>
+  <div class="tools">
+    <label><input type="checkbox" data-role="heat" checked> Couleurs d'attente</label>
+    <label><input type="checkbox" data-role="labels"> Numéros clients</label>
+    <label><input type="checkbox" data-role="trails"> Trajets</label>
+    <label><input type="checkbox" data-role="auto-pause"> Pause si attente &gt; 5 min</label>
+    <button data-role="bookmark">☆ Marquer l'instant</button>
+    <select data-role="bookmarks" aria-label="Instants marqués"><option value="">Mes repères</option></select>
+    <button data-role="capture">↓ Capture PNG</button>
+  </div>
+  <div class="live-analysis"><span class="analysis-icon">↗</span><p data-role="analysis">Le diagnostic évolue avec l'instant affiché.</p><span data-role="request-state"></span></div>
+  <details class="help-panel" data-role="help-panel"><summary>Comment piloter la scène</summary><div><p><b>Caisse :</b> cliquez sur son panneau ou sur sa carte pour l'ouvrir ou la fermer. Une fermeture laisse finir le service en cours et réaffecte la file.</p><p><b>Client :</b> cliquez pour l'inspecter. Glissez un client qui attend vers la zone d'une caisse ouverte. Son heure d'arrivée et sa patience restent inchangées.</p><p><b>Caméra :</b> boutons + / −, molette pour zoomer, Maj + glisser pour déplacer la vue. Une zone vide se déplace aussi à la souris.</p><p><b>Clavier :</b> espace lecture/pause, flèches ± 1 min, + / − zoom, F plein écran. Les compteurs lisent les événements Python. Le dessin illustre les trajets.</p><p><b>Actions :</b> chaque intervention recalcule le futur avec la même clientèle. Le passé avant l'instant de l'action est conservé. La dernière caisse ouverte et les clients en service sont protégés.</p></div></details>
+</div>

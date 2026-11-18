@@ -4,6 +4,8 @@
 
 Projet universitaire de Master 2 BIDABI (Big Data, Analyse & Business Intelligence), consacré à la simulation de flux de clients, à la mesure de la qualité de service et à l'aide à la décision sur le nombre de caisses.
 
+> **Atelier interactif V6 :** scène en grande largeur et immersion, caisses cliquables, clients réaffectables à la souris, annulation et comparaison au témoin. Voir [le guide complet](docs/ATELIER_INTERACTIF_V6.md).
+
 > **Version intégrée :** `app.py` donne accès aux analyses FIFO et à la scène pixel art dynamique dans l’espace Simulation. La scène et ses graphiques utilisent le même résultat Python. `dynamic_demo.py` reste un raccourci vers cette scène.
 
 ## Le problème étudié
@@ -23,7 +25,7 @@ Un magasin doit limiter les temps d'attente sans mobiliser inutilement trop de c
 | Ouverture et fermeture programmées | Non | Oui, de 1 à 5 caisses |
 | Statut | Analyse et comparaison | Scène intégrée avec indicateurs et exports |
 
-Le moteur historique calcule les affectations et permet les comparaisons de scénarios. Le moteur dynamique produit des **événements horodatés** (`customer_arrived`, `queue_joined`, `service_started`, `queue_switched`, `customer_abandoned`, `register_opened`, `register_closed`, `customer_departed`). Ces événements alimentent la scène 2D, sans recalculer les décisions métier dans le navigateur. Le lecteur propose pause, reprise, déplacement dans le temps, vitesses x1 à x20, état des caisses et suivi d’un client.
+Le moteur historique calcule les affectations et permet les comparaisons de scénarios. Le moteur dynamique produit des **événements horodatés** (`customer_arrived`, `queue_joined`, `service_started`, `queue_switched`, `customer_abandoned`, `register_opened`, `register_closed`, `customer_departed`). Ces événements alimentent la scène 2D. Les clics de caisse et réaffectations à la souris remontent au moteur Python, qui recalcule le futur avec la même clientèle. Le lecteur propose pause, reprise, zoom, immersion, repères et vitesses jusqu’à x50.
 
 ## Application et analyses
 
@@ -49,6 +51,14 @@ Le graphique de comparaison montre l’étendue observée des moyennes selon les
 qui n’est pas un intervalle de confiance. La cible combine P90 ≤ 5 min et au moins
 90 % des attentes ≤ 5 min. Dans la scène dynamique, le niveau de service utilise tous
 les arrivants comme dénominateur : un abandon reste un échec, même après une attente courte.
+
+## Utiliser l’atelier
+
+L’application démarre dans Simulation. Le bouton « Plein écran » agrandit le magasin ;
+« Voir le pic » permet d’explorer rapidement sa congestion maximale. Cliquez une caisse
+pour l’ouvrir ou la fermer. Glissez un client en file vers une caisse ouverte pour le
+réaffecter. Les sections Interventions et Journal permettent de comparer et exporter
+l’expérience. Les réglages et deux situations d’affluence sont disponibles sous la scène.
 
 ## Démarrage rapide
 
@@ -77,7 +87,7 @@ python -m pytest --cov=queuesmart
 ruff check .
 ```
 
-Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. La refonte du 18 novembre 2026 ajoute des tests des flux, des abandons, des seuils exacts, des filtres et de l’invalidation des résultats. Le lecteur JavaScript est vérifié avec `node tests/scene_controls.cjs`. Voir [le bilan de refonte](docs/REFONTE_VISUELLE_V5.md) pour le périmètre de validation et ses limites.
+Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. La refonte du 18 novembre 2026 ajoute des tests des flux, des abandons, des seuils exacts, des filtres et de l’invalidation des résultats. Le lecteur JavaScript est vérifié avec `node tests/scene_controls.cjs` et `node tests/studio_replay.cjs`. Voir [le bilan de refonte](docs/REFONTE_VISUELLE_V5.md) pour le périmètre de validation et ses limites.
 
 ## Architecture
 
@@ -124,6 +134,6 @@ La base initiale QueueSmart a été réalisée en équipe et a fourni le moteur 
 
 ## Limites
 
-Les données sont simulées, l'estimation d'attente peut exploiter une information parfaite sur les durées de service, et les résultats ne sont pas des prévisions opérationnelles pour un magasin réel. Les deux moteurs sont accessibles dans la même interface, avec des périmètres explicitement indiqués. Les ouvertures/fermetures y sont **programmées avant exécution**, non pilotées en direct depuis la scène. Le périmètre 1 à 5 caisses doit encore être harmonisé avec certains modules historiques pouvant aller jusqu'à 8.
+Les données sont simulées, l'estimation d'attente peut exploiter une information parfaite sur les durées de service, et les résultats ne sont pas des prévisions opérationnelles pour un magasin réel. Les deux moteurs sont accessibles dans la même interface, avec des périmètres explicitement indiqués. Les ouvertures/fermetures et réaffectations peuvent être déclenchées dans la scène ; elles sont validées et recalculées par le moteur Python. Le périmètre 1 à 5 caisses doit encore être harmonisé avec certains modules historiques pouvant aller jusqu'à 8.
 
 **Technologies :** Python, Streamlit, pandas, Plotly, pytest, ruff.

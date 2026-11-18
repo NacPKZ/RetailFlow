@@ -9,3 +9,7 @@ Aucun fichier image externe n'est utilisé par la scène 2D.
 
 Comme tout est dessiné en code, il n'y a pas d'asset qui puisse échouer au chargement :
 l'affichage dégradé demandé par la mission n'est pas nécessaire.
+
+## Atelier interactif V6
+
+Les personnages arrondis, comptoirs, rayons, ombres et tapis sont dessinés en JavaScript dans `frontend_studio/painter.js`. Aucun asset image, police externe ou bibliothèque graphique tiers n’est chargé pour cette scène.

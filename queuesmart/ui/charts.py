@@ -1,5 +1,7 @@
 """Fabriques Plotly communes aux deux moteurs, sans rendu Streamlit."""
 
+import textwrap
+
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
@@ -21,18 +23,18 @@ PLOT_CONFIG = {
 }
 
 
-def style(fig: go.Figure, title: str, height: int = 370) -> go.Figure:
+def style(fig: go.Figure, title: str, height: int = 470) -> go.Figure:
     fig.update_layout(
         template="plotly_white",
-        title=dict(text=title, x=0, font=dict(size=19)),
+        title=dict(text="<br>".join(textwrap.wrap(title, 32)), x=0, font=dict(size=22)),
         height=height,
-        margin=dict(l=24, r=26, t=82, b=55),
+        margin=dict(l=24, r=26, t=105, b=85),
         paper_bgcolor="white",
         plot_bgcolor="white",
-        font=dict(family="Inter, Arial, sans-serif", size=14, color=NAVY),
+        font=dict(family="Inter, Arial, sans-serif", size=16, color=NAVY),
         colorway=PALETTE,
         separators=", ",
-        legend=dict(orientation="h", y=1.02, yanchor="bottom", x=0, font=dict(size=12)),
+        legend=dict(orientation="h", y=-0.24, yanchor="top", x=0, font=dict(size=14)),
         hoverlabel=dict(bgcolor=NAVY, font_color="white", font_size=14),
         transition=dict(duration=300),
     )
@@ -86,7 +88,7 @@ def wait_scatter(clients: pd.DataFrame, x: str = "Arrivée") -> go.Figure:
     )
     fig.update_yaxes(title="Attente avant service ou abandon (min)", rangemode="tozero")
     return style(
-        fig, "Quand l'attente s'accumule" if x == "Arrivée" else "Service prévu et attente", 420
+        fig, "Quand l'attente s'accumule" if x == "Arrivée" else "Service prévu et attente", 540
     )
 
 
@@ -158,7 +160,7 @@ def congestion(clients: pd.DataFrame) -> go.Figure:
     fig.update_layout(hovermode="x unified")
     fig.update_xaxes(title="Temps depuis l'ouverture (min)")
     fig.update_yaxes(title="Clients présents", rangemode="tozero")
-    return style(fig, "La congestion, minute par minute", 390)
+    return style(fig, "La congestion, minute par minute", 500)
 
 
 def cumulative_flow(clients: pd.DataFrame) -> go.Figure:
@@ -213,7 +215,7 @@ def register_load(registers: pd.DataFrame) -> go.Figure:
         title="Part de la durée totale consacrée au service", range=[0, 105], ticksuffix=" %"
     )
     fig.update_yaxes(autorange="reversed", showgrid=False)
-    return style(fig, "Comment la charge est répartie", max(330, len(labels) * 42 + 120))
+    return style(fig, "Comment la charge est répartie", max(450, len(labels) * 52 + 150))
 
 
 def service_timeline(clients: pd.DataFrame) -> go.Figure:
@@ -242,7 +244,7 @@ def service_timeline(clients: pd.DataFrame) -> go.Figure:
     fig.update_layout(barmode="overlay")
     fig.update_xaxes(title="Temps depuis l'ouverture (min)")
     fig.update_yaxes(title="", autorange="reversed", showgrid=False)
-    return style(fig, "Les passages en caisse, à leur durée réelle", 400)
+    return style(fig, "Les passages en caisse, à leur durée réelle", 520)
 
 
 def wait_heatmap(clients: pd.DataFrame, count: int) -> go.Figure:
@@ -267,7 +269,7 @@ def wait_heatmap(clients: pd.DataFrame, count: int) -> go.Figure:
     )
     fig.update_xaxes(title="Tranche d'arrivée (min)")
     fig.update_yaxes(autorange="reversed", showgrid=False)
-    return style(fig, "Où se concentrent les attentes ?", 370)
+    return style(fig, "Où se concentrent les attentes ?", 500)
 
 
 def arrival_chart(clients: pd.DataFrame) -> go.Figure:
@@ -340,4 +342,27 @@ def capacity_chart(data: pd.DataFrame) -> go.Figure:
     fig.update_layout(hovermode="x unified")
     fig.update_xaxes(title="Nombre de caisses ouvertes", dtick=1)
     fig.update_yaxes(title="Attente (min)", rangemode="tozero")
-    return style(fig, "Combien de caisses pour atteindre l'objectif ?", 440)
+    return style(fig, "Combien de caisses pour atteindre l'objectif ?", 560)
+
+
+def intervention_comparison(reference: pd.DataFrame, changed: pd.DataFrame) -> go.Figure:
+    """Écart de congestion à un témoin utilisant les mêmes arrivants."""
+    fig = go.Figure()
+    for clients, label, color in [
+        (reference, "Témoin sans vos actions", "#92A8B9"),
+        (changed, "Votre expérience", BLUE),
+    ]:
+        flow = flow_frame(clients)
+        fig.add_trace(
+            go.Scatter(
+                x=flow["Minute"],
+                y=flow["En attente"],
+                mode="lines",
+                name=label,
+                line=dict(color=color, width=3, shape="hv"),
+            )
+        )
+    fig.update_layout(hovermode="x unified")
+    fig.update_xaxes(title="Temps simulé (min)")
+    fig.update_yaxes(title="Clients en file", rangemode="tozero")
+    return style(fig, "Vos interventions changent-elles la file ?", 510)

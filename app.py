@@ -10,6 +10,7 @@ import streamlit as st
 
 from queuesmart.analytics.comparison import compare_strategies
 from queuesmart.analytics.kpi import KpiCalculator
+from queuesmart.analytics.narrative import describe_result
 from queuesmart.analytics.visual_data import compare_capacity, customer_frame, register_frame
 from queuesmart.config import ScenarioConfig
 from queuesmart.simulation.engine import SimulationEngine
@@ -107,6 +108,8 @@ def overview(config: ScenarioConfig, result: SimulationResult, clients: pd.DataF
             "Vert : tranches sous le seuil de 5 min. Rose : tranches au-delà. Les "
             "données sont simulées."
         )
+    for title, text in describe_result(result)[:2]:
+        st.markdown(f"**{title}.** {text}")
     section(
         "Repères", f"{config.open_registers} caisses / {result.end_time:.1f} minutes de simulation"
     )
@@ -121,15 +124,12 @@ def overview(config: ScenarioConfig, result: SimulationResult, clients: pd.DataF
 
 
 def simulation(config: ScenarioConfig, result: SimulationResult) -> None:
-    section(
-        "Le magasin, en mouvement",
-        "La scène dynamique et ses indicateurs utilisent les mêmes événements Python.",
-    )
     tab_scene, tab_client = st.tabs(["Magasin", "Écran client"])
     with tab_scene:
-        mode = st.radio(
-            "Vue du magasin", ["Scène 2D dynamique", "Rejeu FIFO historique"], horizontal=True
-        )
+        with st.expander("Modes d'affichage"):
+            mode = st.radio(
+                "Vue du magasin", ["Scène 2D dynamique", "Rejeu FIFO historique"], horizontal=True
+            )
         if mode == "Scène 2D dynamique":
             render_dynamic(config)
         else:
@@ -322,17 +322,30 @@ def comparison(config: ScenarioConfig, strategy_name: str, clients: pd.DataFrame
 
 
 def main() -> None:
-    st.set_page_config(page_title="RetailFlow | Simulateur", page_icon="🛒", layout="wide")
+    st.set_page_config(
+        page_title="RetailFlow | Simulateur",
+        page_icon="🛒",
+        layout="wide",
+        initial_sidebar_state="collapsed",
+    )
     theme()
     config, strategy_name = render_sidebar()
     result = run_simulation(config, strategy_name)
-    hero(config, strategy_name)
     page = st.radio(
         "Navigation",
         ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison"],
         horizontal=True,
         label_visibility="collapsed",
+        index=1,
     )
+    if page == "Simulation":
+        st.markdown(
+            '<div class="rf-lab-head"><strong>RetailFlow.</strong>'
+            "<span>Observer. Intervenir. Comprendre.</span></div>",
+            unsafe_allow_html=True,
+        )
+    else:
+        hero(config, strategy_name)
     if page != "Simulation":
         st.markdown(
             '<div class="rf-source"><b>Moteur FIFO historique</b> / sans abandon ni '

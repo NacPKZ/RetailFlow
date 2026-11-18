@@ -1,6 +1,6 @@
 :root {--rf-navy:#162c46;--rf-muted:#62758a;--rf-border:#e3eaf2;--rf-blue:#3979ce;}
 .stApp {background:#f5f7fb;color:var(--rf-navy);}
-.block-container {max-width:1540px;padding:1.2rem 1.5rem 2rem;}
+.block-container {max-width:none;padding:.6rem 1.1rem 2rem;}
 h1,h2,h3 {letter-spacing:-.035em;color:var(--rf-navy);}
 p {line-height:1.55;}
 [data-testid="stSidebar"] {background:#fff;border-right:1px solid var(--rf-border);}
@@ -38,3 +38,14 @@ p {line-height:1.55;}
 @keyframes rf-appear {from {opacity:0;transform:translateY(6px)}to {opacity:1;transform:none}}
 }
 @media(max-width:800px) {.block-container {padding:1rem .75rem;}.rf-hero {padding:20px;}.rf-hero h1 {font-size:2.1rem!important;}.rf-context {display:none;}.rf-card {min-height:120px;padding:12px;}.rf-card .value {font-size:1.8rem;}}
+
+/* Lecture à distance et espace de travail sur toute la largeur. */
+html {font-size:18px;}
+.rf-lab-head {display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:4px 0 8px;color:#59778e;font-size:.85rem;}
+.rf-lab-head strong {font-size:1.65rem;color:#1c465f;letter-spacing:-.04em;}
+
+[data-testid="stWidgetLabel"] p {font-size:1rem;}
+[data-testid="stCaptionContainer"] p {font-size:.9rem;}
+[data-testid="stTabs"] [role="tab"] {font-size:1.06rem;}
+@media(min-width:1800px) {html {font-size:20px;}.block-container {padding:1rem 1.5rem 2rem;}}
+@media(max-width:800px) {html {font-size:16px;}.rf-lab-head span {display:none;}}

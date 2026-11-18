@@ -46,3 +46,40 @@ def test_single_customer_is_valid_in_all_analysis_views():
     select_page(app, "Analyse")
     for view in ["Attentes", "Caisses", "Flux", "Clients"]:
         choose(app, "Analyse détaillée", view)
+
+
+def test_interactive_command_recomputes_and_can_be_undone(monkeypatch):
+    from queuesmart.ui import dynamic_view
+
+    app = run_app()
+    context = app.session_state["studio_context"]
+    command = {
+        "kind": "register",
+        "register_id": 4,
+        "opened": True,
+        "time": 0.0,
+        "id": "open-four",
+        "run_id": context["run_id"],
+        "revision": 0,
+    }
+    monkeypatch.setattr(dynamic_view, "render_studio", lambda *args: command)
+    app.run()
+    assert not app.exception
+    assert len(app.session_state["studio_context"]["actions"]) == 1
+    assert "ouverte" in app.session_state["studio_context"]["feedback"]
+    # Le même identifiant ne doit jamais être appliqué deux fois.
+    app.run()
+    assert len(app.session_state["studio_context"]["actions"]) == 1
+    next(b for b in app.button if b.label == "Annuler la dernière intervention").click().run()
+    assert not app.exception
+    assert len(app.session_state["studio_context"]["actions"]) == 0
+
+
+def test_dynamic_challenge_and_comparison_page():
+    app = run_app()
+    scenario = next(w for w in app.selectbox if w.label == "Situation à explorer")
+    scenario.select("Pic du samedi").run()
+    assert not app.exception
+    choose(app, "Analyse de la scène", "Interventions")
+    assert any("110 clients" in caption.value for caption in app.caption)
+    assert app.session_state["studio_context"]["actions"] == []

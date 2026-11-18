@@ -6,8 +6,8 @@ Repère en « cases » (unités de plan), origine en haut à gauche, y vers le b
     y = 1.8    couloir de sortie (après les caisses)
     y = 4      poste de service : le client est servi à côté du tapis
     y = 6.2+   files d'attente, qui descendent vers les rayons
-    y = 15     allée principale (on y arrive depuis l'ENTRÉE, à gauche)
-    y > 16     rayons (décor)
+    y = 11.8   allée principale (on y arrive depuis l'ENTRÉE, à gauche)
+    y > 13     rayons et meubles froids
 
 Chaque caisse a sa propre allée verticale (x de la caisse) : les clients n'y
 croisent ni tapis ni caissier. Les trajets passent par l'allée principale.
@@ -19,15 +19,15 @@ REGISTER_COUNT = 5  # le moteur dynamique gère 1 à 5 caisses : on les dessine 
 FIRST_LANE_X = 4.0
 LANE_SPACING = 4.0
 STORE_WIDTH = 24.0
-STORE_HEIGHT = 20.0
+STORE_HEIGHT = 24.0
 
 FRONT_CORRIDOR_Y = 1.8
 SERVICE_Y = 4.0
 FIRST_SLOT_Y = 6.2
-SLOT_SPACING = 0.9
-SLOTS_PER_COLUMN = 10  # au-delà, la file continue dans une 2e colonne
+SLOT_SPACING = 0.78
+SLOTS_PER_COLUMN = 6  # puis la file continue dans une colonne parallèle
 COLUMN_SPACING = 1.0
-MAIN_AISLE_Y = 15.0
+MAIN_AISLE_Y = 11.8
 
 ENTRANCE = (0.3, MAIN_AISLE_Y)
 EXIT = (STORE_WIDTH - 1.0, 0.2)

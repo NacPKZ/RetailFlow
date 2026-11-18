@@ -17,11 +17,12 @@ def test_scene_page_embeds_all_modules_and_data() -> None:
     page = build_scene_html(result)
     assert SCRIPTS_MARKER not in page and DATA_MARKER not in page
     assert page.count("window.RF = window.RF || {};") == len(SCRIPT_ORDER)
-    data = page.split("RF.mountScene(document.getElementById(\"rf-scene\"), ")[1].split(");")[0]
+    data = page.split('RF.mountScene(document.getElementById("rf-scene"), ')[1].split(");")[0]
     assert len(json.loads(data)["customers"]) == 20
 
 
 def test_dynamic_demo_renders_with_scene() -> None:
     app = AppTest.from_file(str(DEMO_PATH), default_timeout=60).run()
     assert not app.exception
-    assert any(header.value == "Scène 2D" for header in app.subheader)
+    assert len(app.get("bidi_component")) == 1
+    assert app.get("bidi_component")[0].key == "retailflow_studio"
