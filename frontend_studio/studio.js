@@ -5,7 +5,7 @@ RF.mountStudio = (root,data,onAction) => {
   const controls=Object.fromEntries(['play','restart','next','speed','slider','clock','end','peak','help','fullscreen',
     'present','shopping','waiting','serving','served','abandoned','longest','start','start-play','start-peak','toast','viewport',
     'registers','open-next','client-inspector','events','heat','labels','trails','auto-pause','bookmark','bookmarks',
-    'capture','analysis','request-state','zoom-in','zoom-out','zoom-label','fit','help-panel','hover-hint'].map(k=>[k,find(k)]));
+    'guide','guide-panel','guide-steps','guide-text','client-search','client-id','target-register','move-client','move-help','decisions','decision-count','capture','analysis','request-state','zoom-in','zoom-out','zoom-label','fit','help-panel','hover-hint'].map(k=>[k,find(k)]));
   root.classList.remove('pending','dragging');
   controls.registers.replaceChildren();
   controls['request-state'].textContent='';
@@ -15,14 +15,29 @@ RF.mountStudio = (root,data,onAction) => {
   const storedKey=`retailflow_studio_${data.run_id}`;
   let saved={};try{saved=JSON.parse(sessionStorage.getItem(storedKey)||'{}');}catch{}
   const cursor=data.cursor || {};
-  let time=Math.max(0,Math.min(data.end_time,cursor.revision===data.revision?Number(cursor.time)||0:Number(saved.time)||0));
+  let time=RF.cursorTime(data,saved);
+  const cursorToken=cursor.token||saved.cursorToken||null;
   if(saved.immersive)root.classList.add('immersive');
   painter.zoom=Math.max(1,Math.min(3,Number(saved.zoom)||1));
   if(saved.pan)painter.pan=saved.pan;
   painter.reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let playing=false,speed=Number(saved.speed)||5,selected=cursor.followed??saved.selected??null,hover=null;
+  let playing=false,speed=Number(saved.speed)||5,selected=(cursor.token && cursor.token!==saved.cursorToken?cursor.followed:null)??saved.selected??null,hover=null;
   let snapshot=replay.at(time),lastStamp=null,raf=0,alive=true,dirty=true,lastHud=-1,lastSave=0,drag=null,pending=false;
-  let pauseFired=false,toastTimer=0;
+  let pauseFired=false,toastTimer=0,inspectorSignature='',decisionSignature='';
+  let sampleStart=performance.now(),drawCount=0,drawTotal=0,drawMax=0;
+  let guideStep=Number(saved.guideStep)||0,guideOpen=Boolean(saved.guideOpen);
+  function showGuide(){
+    controls['guide-panel'].hidden=!guideOpen;controls.guide.setAttribute('aria-expanded',String(guideOpen));
+    const descriptions=[
+      'Situation : observez les paramètres, la graine et les caisses ouvertes. Les courses sont illustratives ; les événements aux caisses viennent du moteur.',
+      'Congestion : la lecture est placée au pic. Identifiez les files et l’attente actuelle dans l’inspecteur.',
+      'Décision : ouvrez une caisse fermée ou sélectionnez un client en file, puis choisissez une autre caisse. Python valide et recalcule le futur.',
+      'Comparaison : sous l’atelier, ouvrez l’analyse Interventions. Comparez les bilans finaux au témoin, avec les mêmes arrivants et services prévus.',
+      'Conclusion : commentez les écarts de moyenne, P90, abandons, service et ressources mobilisées. Plusieurs actions ont un effet combiné ; une graine ne suffit pas à généraliser.'
+    ];
+    controls['guide-text'].textContent=descriptions[guideStep];
+    controls['guide-steps'].querySelectorAll('button').forEach((b,i)=>{b.setAttribute('aria-current',String(i===guideStep));b.onclick=()=>{guideStep=i;if(i===0){playing=false;seek(0);}if(i===1)peak();showGuide();save();};});
+  }
   let bookmarks=Array.isArray(saved.bookmarks)?saved.bookmarks:[];
   controls.speed.value=String(speed);controls.end.textContent=RF.minutes(data.end_time);
   root.querySelector('.studio-head p').textContent=`${data.scenario} / ${data.customers.length} clients / ${data.initially_open} caisses initiales / graine ${data.seed}`;
@@ -36,7 +51,7 @@ RF.mountStudio = (root,data,onAction) => {
     return {id:r.id,button,title,meta,fill};
   });
   function save(){
-    try{sessionStorage.setItem(storedKey,JSON.stringify({time,speed,selected,bookmarks,zoom:painter.zoom,pan:painter.pan,
+    try{sessionStorage.setItem(storedKey,JSON.stringify({time,speed,selected,cursorToken,feedbackToken:saved.feedbackToken,guideStep,guideOpen,bookmarks,zoom:painter.zoom,pan:painter.pan,
       immersive:root.classList.contains('immersive')||document.fullscreenElement===root}));}catch{}
   }
   function toast(text) {controls.toast.textContent=text;controls.toast.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>controls.toast.hidden=true,4500);}
@@ -83,19 +98,33 @@ RF.mountStudio = (root,data,onAction) => {
       const person=cid?data.people[cid]:null;
       fill.style.width=person?`${Math.max(0,Math.min(100,(time-person.service_start)/person.service_duration*100))}%`:'0%';
     });
-    const inspector=controls['client-inspector'];
-    if(selected!=null && data.people[selected]){
-      const person=data.people[selected],status=state.status[selected]||'future';
-      const statusName={waiting:'En file',service:'En service',served:'Servi et sorti',abandoned:'A abandonné',future:shoppers.some(c=>c.id===selected)?'Dans les rayons':'Pas encore entré'}[status];
-      const currentWait=status==='future'?0:status==='waiting'?time-person.arrival_time:(person.service_start??person.abandoned_at)-person.arrival_time;
-      inspector.replaceChildren();
-      const tag=document.createElement('span');tag.className='eyebrow';tag.textContent='INSPECTEUR CLIENT';
-      const h=document.createElement('h3');h.textContent=`Client #${selected}`;inspector.append(tag,h);
-      [['Situation',statusName],['Arrivée aux caisses',RF.minutes(person.arrival_time)],['Attente',RF.minutes(Math.max(0,currentWait))],['Service prévu',`${person.service_duration.toFixed(2)} min`]].forEach(([label,value])=>{
-        const div=document.createElement('div');div.className='fact';const left=document.createElement('span'),right=document.createElement('b');left.textContent=label;right.textContent=value;div.append(left,right);inspector.append(div);
-      });
-      const note=document.createElement('p');note.textContent=status==='waiting'?'Glissez ce client vers la zone d’une caisse ouverte.':'Ce client peut être suivi ; seuls les clients en file se déplacent.';inspector.append(note);
+    const signature=JSON.stringify([selected,state.status[selected],state.queues,time.toFixed(2)]);
+    if(signature!==inspectorSignature){
+      RF.inspect(controls['client-inspector'],data,selected,time,state);inspectorSignature=signature;
     }
+    const destination=controls['target-register'];
+    const previous=destination.value;
+    const targetSignature=JSON.stringify([state.open,selected,state.queues]);
+    if(destination.dataset.signature!==targetSignature){
+    destination.dataset.signature=targetSignature;
+    destination.replaceChildren();
+    for(const r of data.layout.registers){
+      const o=document.createElement('option');o.value=String(r.id);
+      o.textContent=`Caisse ${r.id} / ${state.open[r.id]?'ouverte':'fermée'}`;
+      o.disabled=!state.open[r.id]||state.queues[r.id].includes(selected);destination.append(o);
+    }
+    if([...destination.options].some(o=>o.value===previous&&!o.disabled))destination.value=previous;
+    else destination.value=[...destination.options].find(o=>!o.disabled)?.value||'';
+    }
+    const movable=state.status[selected]==='waiting';
+    controls['move-client'].disabled=pending||!movable||!destination.value;
+    controls['move-help'].textContent=movable?'Arrivée et patience conservées. Validation par Python.':'Sélectionnez un client actuellement en file, hors service.';
+    const nextDecisionSignature=JSON.stringify((data.decisions||[]).map(o=>o.time<=time));
+    if(nextDecisionSignature!==decisionSignature){
+      RF.renderDecisions(controls.decisions,data,time,t=>{playing=false;seek(t);});
+      decisionSignature=nextDecisionSignature;
+    }
+    controls['decision-count'].textContent=`(${(data.decisions||[]).length})`;
     controls.events.replaceChildren();
     state.recent.forEach(e=>{
       const row=document.createElement('div');row.className='event';const t=document.createElement('b');t.textContent=RF.minutes(e.time);
@@ -109,16 +138,36 @@ RF.mountStudio = (root,data,onAction) => {
   function frame(stamp){
     if(!alive)return;
     const dt=lastStamp==null?0:Math.min(.12,(stamp-lastStamp)/1000);lastStamp=stamp;
-    if(playing&&!document.hidden){time=Math.min(data.end_time,time+dt*speed*.5);dirty=true;if(time>=data.end_time)playing=false;}
+    if(playing&&!document.hidden){
+      let next=Math.min(data.end_time,time+dt*speed*.5);
+      const crossing=controls['auto-pause'].checked&&!pauseFired?RF.waitCrossing(data,time,next):null;
+      if(crossing!==null){next=crossing;playing=false;pauseFired=true;toast('Pause automatique : une attente vient de dépasser 5 min.');}
+      time=next;dirty=true;if(time>=data.end_time)playing=false;
+    }
     if(dirty){snapshot=replay.at(time);
       if(controls['auto-pause'].checked && snapshot.longest>5 && !pauseFired && playing){playing=false;pauseFired=true;toast('Pause automatique : un client en file dépasse 5 minutes d’attente.');}
+      const drawStart=performance.now();
       painter.draw(time,snapshot,selected,hover,drag);
+      const elapsed=performance.now()-drawStart;
+      drawCount++;drawTotal+=elapsed;drawMax=Math.max(drawMax,elapsed);
+      if(stamp-sampleStart>=1000){
+        root.dataset.renderStats=JSON.stringify({speed,playing,frames:drawCount,
+          duration_ms:stamp-sampleStart,mean_draw_ms:drawTotal/drawCount,max_draw_ms:drawMax});
+        sampleStart=stamp;drawCount=0;drawTotal=0;drawMax=0;
+      }
       if(stamp-lastHud>100||!playing){hud();lastHud=stamp;}
       dirty=false;
     }
-    if(stamp-lastSave>1200){save();lastSave=stamp;}
+    if(playing && stamp-lastSave>1200){save();lastSave=stamp;}
     raf=requestAnimationFrame(frame);
   }
+  controls.guide.onclick=()=>{guideOpen=!guideOpen;showGuide();save();};
+  controls['client-search'].onsubmit=e=>{
+    e.preventDefault();const id=Number(controls['client-id'].value);
+    if(!data.people[id]){toast('Identifiant absent de ce scénario.');return;}
+    selected=id;playing=false;dirty=true;save();toast(`Client #${id} sélectionné. Son état correspond à l'instant affiché.`);
+  };
+  controls['move-client'].onclick=()=>{if(snapshot.status[selected]==='waiting'&&controls['target-register'].value)request({kind:'move',customer_id:selected,register_id:Number(controls['target-register'].value)});};
   controls.play.onclick=play;controls['start-play'].onclick=play;
   controls.restart.onclick=()=>{playing=false;seek(0);};
   controls.next.onclick=()=>{playing=false;seek(data.events.find(e=>e.time>time)?.time??data.end_time);};
@@ -184,7 +233,7 @@ RF.mountStudio = (root,data,onAction) => {
   const resize=new ResizeObserver(()=>{painter.resize();dirty=true;});resize.observe(controls.viewport);
   painter.resize();controls['zoom-label'].textContent=`${Math.round(painter.zoom*100)} %`;
   if(root.classList.contains('immersive'))controls.fullscreen.textContent='⛶ Quitter le plein écran';
-  updateBookmarks();hud();raf=requestAnimationFrame(frame);
-  if(data.feedback)toast(data.feedback);
+  showGuide();updateBookmarks();hud();raf=requestAnimationFrame(frame);
+  if(data.feedback && cursor.token!==saved.feedbackToken){toast(data.feedback);saved.feedbackToken=cursor.token;}
   return ()=>{alive=false;cancelAnimationFrame(raf);clearTimeout(toastTimer);resize.disconnect();document.removeEventListener('visibilitychange',onVisibility);root.removeEventListener('keydown',onKey);save();};
 };

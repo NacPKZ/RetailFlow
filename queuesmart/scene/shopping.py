@@ -15,8 +15,8 @@ def shopping_tracks(result: DynamicResult) -> list[dict]:
     for c in result.customers:
         duration = 4.0 + c.customer_id % 7
         start = c.arrival_time - duration
-        x = aisles[c.customer_id % len(aisles)]
-        y = 15.2 + (c.customer_id % 4) * 1.4
+        x = aisles[c.customer_id % len(aisles)] + ((c.customer_id // 6) % 3 - 1) * 0.12
+        y = 14.8 + (c.customer_id % 11) * 0.48
         waypoints = [
             (0.0, layout.entrance.x, layout.entrance.y),
             (0.16, x, layout.entrance.y),

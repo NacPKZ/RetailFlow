@@ -1,11 +1,17 @@
 <div class="studio" tabindex="0" aria-label="Atelier de simulation interactif RetailFlow">
   <header class="studio-head">
     <div><span class="eyebrow">ATELIER INTERACTIF</span><h2>Le magasin est entre vos mains.</h2><p>Cliquez une caisse. Déplacez un client. Mesurez la différence.</p></div>
+    <button data-role="guide" aria-expanded="false">Mode soutenance</button>
     <button class="fullscreen secondary" data-role="fullscreen" title="Afficher la scène sur tout l'écran">⛶ Plein écran</button>
   </header>
+  <section class="defense-guide" data-role="guide-panel" hidden aria-label="Démonstration guidée">
+    <div class="guide-steps" data-role="guide-steps">
+      <button data-step="0">1. Situation</button><button data-step="1">2. Congestion</button><button data-step="2">3. Décision</button><button data-step="3">4. Comparaison</button><button data-step="4">5. Conclusion</button>
+    </div><p data-role="guide-text" role="status"></p>
+  </section>
   <div class="controls">
     <button data-role="play" class="primary">▶ Démarrer</button>
-    <button data-role="restart" title="Revenir au début de la lecture">↺</button>
+    <button data-role="restart" title="Revenir au début de la lecture" aria-label="Revenir au début">↺</button>
     <button data-role="next" title="Aller au prochain événement">Pas suivant</button>
     <select data-role="speed" aria-label="Vitesse de lecture"><option value="1">x1</option><option value="2">x2</option><option value="5" selected>x5</option><option value="10">x10</option><option value="20">x20</option><option value="50">x50</option></select>
     <div class="scrubber"><span data-role="clock">00:00</span><input data-role="slider" type="range" min="0" max="10000" value="0" aria-label="Instant de la simulation"><span data-role="end">00:00</span></div>
@@ -13,8 +19,8 @@
     <button data-role="help" aria-label="Afficher l'aide et les raccourcis">?</button>
   </div>
   <div class="live-metrics" aria-label="Indicateurs à l'instant affiché">
-    <div><span>Dans le magasin</span><b data-role="present">0</b></div>
-    <div><span>Dans les rayons</span><b data-role="shopping">0</b></div>
+    <div><span>Présents dans le dessin</span><b data-role="present">0</b></div>
+    <div><span>Courses illustratives</span><b data-role="shopping">0</b></div>
     <div><span>En file</span><b data-role="waiting">0</b></div>
     <div><span>En service</span><b data-role="serving">0</b></div>
     <div><span>Servis et sortis</span><b data-role="served">0</b></div>
@@ -33,7 +39,11 @@
       <div class="aside-title"><h3>Les caisses</h3><span>Clic = ouvrir / fermer</span></div>
       <div class="register-list" data-role="registers"></div>
       <button class="open-next" data-role="open-next">+ Ouvrir la prochaine caisse</button>
+      <form data-role="client-search" class="client-search">
+        <label for="customer-id">Rechercher un client</label><div><input id="customer-id" data-role="client-id" type="number" min="1" step="1" placeholder="Identifiant" required><button type="submit">Suivre</button></div>
+      </form>
       <div class="client-inspector" data-role="client-inspector"><span class="eyebrow">INSPECTEUR CLIENT</span><h3>Chaque parcours compte.</h3><p>Cliquez sur un client pour lire son attente et sa situation. Glissez un client en file vers une autre caisse.</p></div>
+      <div class="move-controls"><label for="target-register">Réaffecter le client sélectionné</label><select id="target-register" data-role="target-register" aria-label="Caisse de destination"></select><button data-role="move-client">Réaffecter</button><p data-role="move-help">Sélectionnez un client en file.</p></div>
       <div class="event-list"><span class="eyebrow">DERNIERS ÉVÉNEMENTS</span><div data-role="events"></div></div>
     </aside>
   </div>
@@ -47,5 +57,6 @@
     <button data-role="capture">↓ Capture PNG</button>
   </div>
   <div class="live-analysis"><span class="analysis-icon">↗</span><p data-role="analysis">Le diagnostic évolue avec l'instant affiché.</p><span data-role="request-state"></span></div>
+  <details class="decision-log"><summary>Journal des décisions <span data-role="decision-count"></span></summary><p>État calculé après recalcul. Cliquez pour revoir l'instant. Le bilan final apparié est disponible dans l'analyse Interventions, sous l'atelier.</p><div data-role="decisions"></div></details>
   <details class="help-panel" data-role="help-panel"><summary>Comment piloter la scène</summary><div><p><b>Caisse :</b> cliquez sur son panneau ou sur sa carte pour l'ouvrir ou la fermer. Une fermeture laisse finir le service en cours et réaffecte la file.</p><p><b>Client :</b> cliquez pour l'inspecter. Glissez un client qui attend vers la zone d'une caisse ouverte. Son heure d'arrivée et sa patience restent inchangées.</p><p><b>Caméra :</b> boutons + / −, molette pour zoomer, Maj + glisser pour déplacer la vue. Une zone vide se déplace aussi à la souris.</p><p><b>Clavier :</b> espace lecture/pause, flèches ± 1 min, + / − zoom, F plein écran. Les compteurs lisent les événements Python. Le dessin illustre les trajets.</p><p><b>Actions :</b> chaque intervention recalcule le futur avec la même clientèle. Le passé avant l'instant de l'action est conservé. La dernière caisse ouverte et les clients en service sont protégés.</p></div></details>
 </div>

@@ -18,9 +18,9 @@ SCRIPTS_MARKER = "/*__RF_SCRIPTS__*/"
 DATA_MARKER = "/*__RF_DATA__*/"
 
 
-def scene_data(result: DynamicResult) -> dict:
+def scene_data(result: DynamicResult, layout: SceneLayout | None = None) -> dict:
     """Trajectoires et états des caisses, prêts à être rejoués par le navigateur."""
-    layout = SceneLayout()
+    layout = layout or SceneLayout()
     data = SceneTimelineBuilder(layout).build(result).to_dict(layout)
     data["events"] = result.events_as_dicts()
     return data
@@ -29,8 +29,6 @@ def scene_data(result: DynamicResult) -> dict:
 def build_scene_html(result: DynamicResult) -> str:
     """Page HTML complète et autonome (aucun fichier externe à charger)."""
     template = (FRONTEND_DIR / "scene.html").read_text(encoding="utf-8")
-    scripts = "\n".join(
-        (FRONTEND_DIR / name).read_text(encoding="utf-8") for name in SCRIPT_ORDER
-    )
+    scripts = "\n".join((FRONTEND_DIR / name).read_text(encoding="utf-8") for name in SCRIPT_ORDER)
     data = json.dumps(scene_data(result), ensure_ascii=False).replace("</", "<\\/")
     return template.replace(SCRIPTS_MARKER, scripts).replace(DATA_MARKER, data)

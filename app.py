@@ -211,6 +211,14 @@ def comparison(config: ScenarioConfig, strategy_name: str, clients: pd.DataFrame
         "Tester une décision",
         "Même clientèle et mêmes graines pour comparer les capacités équitablement.",
     )
+    st.caption(
+        "Moteur FIFO historique, sans abandon ni intervention dynamique. "
+        f"Scénario {config.name}, {config.customer_count} clients, "
+        f"arrivées sur {config.arrival_window_min:g} min, service moyen "
+        f"{config.mean_service_time_min:g} min, comportement {strategy_name}. "
+        "Les configurations utilisent les mêmes graines. Cette recommandation ne remplace "
+        "pas une validation avec le moteur dynamique et ses hypothèses."
+    )
     with st.form("capacity_form"):
         left, right = st.columns(2)
         maximum = left.slider("Nombre maximal de caisses à comparer", 2, 8, 8)

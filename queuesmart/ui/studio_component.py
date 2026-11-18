@@ -3,10 +3,12 @@
 from dataclasses import asdict
 from pathlib import Path
 
+import streamlit as st
 import streamlit.components.v2 as components
 
 from queuesmart.analytics.visual_data import customer_frame, flow_frame
 from queuesmart.scene.html import scene_data
+from queuesmart.scene.layout import SceneLayout
 from queuesmart.scene.shopping import shopping_tracks
 from queuesmart.simulation.dynamic import DynamicResult
 
@@ -19,7 +21,7 @@ def javascript() -> str:
     sampler = sampler.replace("window.RF = window.RF || {};", "")
     scripts = [sampler] + [
         (ASSETS / name).read_text(encoding="utf-8")
-        for name in ("replay.js", "painter.js", "studio.js")
+        for name in ("replay.js", "painter.js", "inspector.js", "studio.js")
     ]
     return (
         "const RF = {};\n"
@@ -41,10 +43,10 @@ studio = components.component(
 )
 
 
-def studio_payload(
-    result: DynamicResult, run_id: str, revision: int, cursor: dict, feedback: str = ""
-) -> dict:
-    data = scene_data(result)
+@st.cache_data(show_spinner=False, max_entries=8)
+def _scene_payload(result: DynamicResult) -> dict:
+    """Trajectoires coûteuses, indépendantes du curseur et des messages de la session."""
+    data = scene_data(result, SceneLayout(compact=True))
     flow = flow_frame(customer_frame(result))
     peak = flow.loc[flow["En attente"].idxmax()]
     data.update(
@@ -56,20 +58,41 @@ def studio_payload(
             "seed": result.config.seed,
             "horizon": max(e.time for e in result.events),
             "peak_time": float(peak["Minute"]),
-            "run_id": run_id,
-            "revision": revision,
-            "cursor": cursor,
-            "feedback": feedback,
         }
     )
     return data
 
 
+def studio_payload(
+    result: DynamicResult,
+    run_id: str,
+    revision: int,
+    cursor: dict,
+    feedback: str = "",
+    decisions: list | None = None,
+) -> dict:
+    # cache_data renvoie une copie : aucune session ne partage un curseur mutable.
+    data = _scene_payload(result)
+    data.update(
+        run_id=run_id,
+        revision=revision,
+        cursor=cursor,
+        feedback=feedback,
+        decisions=decisions or [],
+    )
+    return data
+
+
 def render_studio(
-    result: DynamicResult, run_id: str, revision: int, cursor: dict, feedback: str = ""
+    result: DynamicResult,
+    run_id: str,
+    revision: int,
+    cursor: dict,
+    feedback: str = "",
+    decisions: list | None = None,
 ):
     response = studio(
-        data=studio_payload(result, run_id, revision, cursor, feedback),
+        data=studio_payload(result, run_id, revision, cursor, feedback, decisions),
         key="retailflow_studio",
         on_command_change=lambda: None,
         width="stretch",

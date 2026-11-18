@@ -38,6 +38,15 @@ def style(fig: go.Figure, title: str, height: int = 470) -> go.Figure:
         hoverlabel=dict(bgcolor=NAVY, font_color="white", font_size=14),
         transition=dict(duration=300),
     )
+    if not any(len(trace.x) if trace.x is not None else 0 for trace in fig.data):
+        fig.add_annotation(
+            text="Aucune observation dans ce périmètre",
+            x=0.5,
+            y=0.5,
+            xref="paper",
+            yref="paper",
+            showarrow=False,
+        )
     fig.update_xaxes(showgrid=False, zeroline=False, automargin=True, title_standoff=14)
     fig.update_yaxes(gridcolor="#EDF1F5", zeroline=False, automargin=True, title_standoff=12)
     return fig
@@ -94,6 +103,8 @@ def wait_scatter(clients: pd.DataFrame, x: str = "Arrivée") -> go.Figure:
 
 def wait_histogram(clients: pd.DataFrame) -> go.Figure:
     waits = clients["Attente"].dropna().to_numpy(dtype=float)
+    if not len(waits):
+        return style(go.Figure(), "Comment se répartissent les attentes")
     upper = max(6.0, float(waits.max()) if len(waits) else 0.0)
     edges = np.linspace(0, upper, min(25, max(6, int(np.sqrt(len(waits))) + 1)))
     edges = np.unique(np.append(edges, WAIT_THRESHOLD_MIN))
@@ -160,7 +171,7 @@ def congestion(clients: pd.DataFrame) -> go.Figure:
     fig.update_layout(hovermode="x unified")
     fig.update_xaxes(title="Temps depuis l'ouverture (min)")
     fig.update_yaxes(title="Clients présents", rangemode="tozero")
-    return style(fig, "La congestion, minute par minute", 500)
+    return style(fig, "À quel moment les files deviennent-elles trop longues ?", 500)
 
 
 def cumulative_flow(clients: pd.DataFrame) -> go.Figure:
@@ -248,8 +259,10 @@ def service_timeline(clients: pd.DataFrame) -> go.Figure:
 
 
 def wait_heatmap(clients: pd.DataFrame, count: int) -> go.Figure:
+    if clients.empty:
+        return style(go.Figure(), "Quelles caisses concentrent les attentes ?", 500)
     data = clients.assign(Tranche=(clients["Arrivée"] // 10 * 10).astype(int))
-    bins = list(range(0, int(data["Tranche"].max()) + 10, 10))
+    bins = list(range(0, (int(data["Tranche"].max()) if len(data) else 0) + 10, 10))
     grid = data.pivot_table(index="Caisse", columns="Tranche", values="Attente", aggfunc="mean")
     grid = grid.reindex(index=range(1, count + 1), columns=bins)
     fig = go.Figure(
@@ -269,7 +282,7 @@ def wait_heatmap(clients: pd.DataFrame, count: int) -> go.Figure:
     )
     fig.update_xaxes(title="Tranche d'arrivée (min)")
     fig.update_yaxes(autorange="reversed", showgrid=False)
-    return style(fig, "Où se concentrent les attentes ?", 500)
+    return style(fig, "Quelles caisses concentrent les attentes ?", 500)
 
 
 def arrival_chart(clients: pd.DataFrame) -> go.Figure:

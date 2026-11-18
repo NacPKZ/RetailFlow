@@ -27,6 +27,7 @@ FIRST_SLOT_Y = 6.2
 SLOT_SPACING = 0.78
 SLOTS_PER_COLUMN = 6  # puis la file continue dans une colonne parallèle
 COLUMN_SPACING = 1.0
+COMPACT_COLUMN_SPACING = 0.9
 MAIN_AISLE_Y = 11.8
 
 ENTRANCE = (0.3, MAIN_AISLE_Y)
@@ -45,6 +46,9 @@ class Point:
 class SceneLayout:
     """Points d'ancrage (entrée, sortie, poste de service, places de file) et trajets."""
 
+    def __init__(self, compact: bool = False):
+        self.compact = compact
+
     entrance = Point(*ENTRANCE)
     exit = Point(*EXIT)
 
@@ -59,13 +63,22 @@ class SceneLayout:
         return Point(self.lane_x(register_id), SERVICE_Y)
 
     def queue_slot(self, register_id: int, rank: int) -> Point:
-        """Place du ``rank``-ième client en attente (1 = tête de file)."""
+        """Place du client en attente (1 = tête de file).
+
+        En mode compact, au-delà de 18 clients, coordonnées virtuelles bornées et distinctes.
+        L'atelier agrège ces clients en un badge ; le moteur les conserve tous.
+        """
         if rank < 1:
             raise ValueError("Le rang dans la file commence à 1.")
         column, row = divmod(rank - 1, SLOTS_PER_COLUMN)
+        if not self.compact:
+            return Point(
+                self.lane_x(register_id) + column * COLUMN_SPACING,
+                FIRST_SLOT_Y + row * SLOT_SPACING,
+            )
         return Point(
-            self.lane_x(register_id) + column * COLUMN_SPACING,
-            FIRST_SLOT_Y + row * SLOT_SPACING,
+            self.lane_x(register_id) + (column % 3) * COMPACT_COLUMN_SPACING,
+            FIRST_SLOT_Y + row * SLOT_SPACING + (column // 3) * 0.002,
         )
 
     def route(self, start: Point, end: Point) -> list[Point]:

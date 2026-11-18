@@ -2,7 +2,7 @@
 RF.StorePainter = class {
   constructor(canvas,data) {
     this.canvas=canvas; this.ctx=canvas.getContext('2d');this.data=data;
-    this.width=0;this.height=0;this.zoom=1;this.pan={x:0,y:0};this.people=[];
+    this.width=0;this.height=0;this.transitions={};this.zoom=1;this.pan={x:0,y:0};this.people=[];
     this.options={heat:true,labels:false,trails:false};this.selected=null;this.hover=null;this.drag=null;
     this.bg=null;
   }
@@ -112,8 +112,8 @@ RF.StorePainter = class {
     this.data.layout.registers.forEach(r=>{
       const x=r.lane_x*ux,col=RF.colours[r.id-1],q=snapshot.queues[r.id],open=snapshot.open[r.id],cid=snapshot.serving[r.id];
       const wait=q.length ? Math.max(...q.map(id=>time-model[id].arrival_time)) : 0;
-      const heat=wait>5?'#c87883':wait>2.5?'#d4ad5d':'#6fbbaa';
-      this.round(c,(r.lane_x-1.8)*ux,5.7*uy,3.5*ux,(aisle-6.45)*uy,12,
+      const heat=wait>5?'#b94e63':wait>2.5?'#c89831':'#258e78';
+      this.round(c,(r.lane_x-1.8)*ux,5.7*uy,3.5*ux,Math.max(1.1,Math.min(aisle-6.45,Math.min(q.length,6)*.78+.4))*uy,12,
         this.options.heat&&open?heat+'1a':'#ffffff20',open?col+'35':'#d5c9cc');
       if(drag?.kind==='person' && drag.target===r.id) {
         c.save();c.setLineDash([8,5]);c.strokeStyle=open?'#337b9b':'#bd6073';c.lineWidth=3;
@@ -135,21 +135,35 @@ RF.StorePainter = class {
       c.fillStyle=cid?'#79d6b2':'#97b4c3';c.fillRect((r.lane_x-1.58)*ux,3.5*uy,.27*ux,.13*uy);
       if(open||cid) this.person(c,(r.lane_x-1.7)*ux,4.05*uy,u*.105,0,true,'#d6ad58',false);
       if(cid) {
+        // Produits sur le tapis, puis paiement en fin de service.
+        const phase=Math.max(0,Math.min(1,(time-model[cid].service_start)/model[cid].service_duration));
+        if(phase<.8){
+          const shift=this.reduceMotion?0:(time*2)%1;
+          this.round(c,(r.lane_x-1.07)*ux,(3.85+shift*.65)*uy,.34*ux,.24*uy,2,'#d9b576');
+          this.text(c,'SCAN',(r.lane_x+.6)*ux,4.9*uy,Math.max(9,u*.22),'#33836f','center');
+        }else{
+          this.round(c,(r.lane_x+.2)*ux,4.5*uy,.8*ux,.45*uy,4,'#e8f7f0');
+          this.text(c,'CB ✓',(r.lane_x+.6)*ux,4.82*uy,Math.max(10,u*.25),'#22765f','center');
+        }
         c.fillStyle='#96caae';c.globalAlpha=this.reduceMotion?.5:.35+.2*Math.sin(time*5);
         c.fillRect((r.lane_x-1.22)*ux,4.1*uy,.62*ux,.14*uy);c.globalAlpha=1;
         const p=model[cid],progress=Math.max(0,Math.min(1,(time-p.service_start)/p.service_duration));
         this.round(c,(r.lane_x-.38)*ux,5.12*uy,1.2*ux,.12*uy,2,'#cfdddc');
         this.round(c,(r.lane_x-.38)*ux,5.12*uy,1.2*ux*progress,.12*uy,2,col);
       }
-      this.text(c,`${q.length} en file`,x,(aisle-.9)*uy,Math.max(10,u*.27),'#73928d','center');
+      this.text(c,`${q.length} en file${q.length>18?` (+${q.length-18} regroupés)`:''}`,x,(aisle-.9)*uy,Math.max(10,u*.27),'#73928d','center');
     });
     if(this.options.trails && selected!=null) {
       const person=this.data.customers.find(p=>p.id===selected);
-      if(person){c.save();c.setLineDash([5,5]);c.lineWidth=2;c.strokeStyle='#478eaa80';c.beginPath();person.keyframes.forEach((k,i)=>i?c.lineTo(k[1]*ux,k[2]*uy):c.moveTo(k[1]*ux,k[2]*uy));c.stroke();c.restore();}
+      if(person){c.save();c.setLineDash([5,5]);c.lineWidth=2;c.strokeStyle='#478eaa80';c.beginPath();person.keyframes.filter(k=>k[0]<=time).forEach((k,i)=>i?c.lineTo(k[1]*ux,k[2]*uy):c.moveTo(k[1]*ux,k[2]*uy));c.stroke();c.restore();}
     }
     this.people=[];
     for(const person of this.data.shopping_customers||[]){if(time>=person.end)continue;const p=RF.anim.sample(person.keyframes,time);if(p)this.people.push({id:person.id,...p,shopping:true});}
     for(const person of this.data.customers){const p=RF.anim.sample(person.keyframes,time);if(p)this.people.push({id:person.id,...p});}
+    // Pour une file extrême : 18 sprites au maximum et un total explicite.
+    // L'inspecteur reste accessible pour tous les identifiants, même regroupés.
+    const grouped=new Set(Object.values(snapshot.queues).flatMap(q=>q.slice(18)));
+    this.people=this.people.filter(p=>!grouped.has(p.id));
     this.people.sort((a,b)=>a.y-b.y).forEach(p=>{
       if(drag?.kind==='person'&&drag.id===p.id)return;
       const meta=model[p.id],waiting=snapshot.status[p.id]==='waiting',wait=Math.max(0,time-meta.arrival_time);
@@ -157,8 +171,8 @@ RF.StorePainter = class {
       const x=p.x*ux,y=p.y*uy;
       c.save();c.globalAlpha=snapshot.status[p.id]==='abandoned'?.65:1;
       c.fillStyle='#3659491c';c.beginPath();c.ellipse(x,y+.25*uy,u*.32,u*.13,0,0,Math.PI*2);c.fill();
-      if(ring||p.id===selected||p.id===hover){c.strokeStyle=p.id===selected?'#305c9f':ring||'#6c9bb6';c.lineWidth=p.id===selected?3:2;c.beginPath();c.ellipse(x,y+.23*uy,u*.42,u*.2,0,0,Math.PI*2);c.stroke();}
-      this.person(c,x,y,u*.115,p.id,false,RF.colours[p.id%5],p.moving&&!this.reduceMotion?Math.sin(time*8+p.id):0);
+      if(ring||p.id===selected||p.id===hover){c.strokeStyle=p.id===selected?'#305c9f':ring||'#6c9bb6';c.lineWidth=p.id===selected?4:2;c.beginPath();c.ellipse(x,y+.23*uy,u*.42,u*.2,0,0,Math.PI*2);c.stroke();}
+      this.person(c,x,y,u*.108,p.id,false,RF.colours[p.id%5],p.moving&&!this.reduceMotion?Math.sin(time*8+p.id):0);
       if(this.options.labels||p.id===selected) {
         this.round(c,x-u*.44,y-u*1.15,u*.88,u*.4,5,'#ffffffee');
         this.text(c,`#${p.id}`,x,y-u*.86,Math.max(10,u*.25),'#34556d','center');
@@ -175,6 +189,11 @@ RF.StorePainter = class {
       c.restore();
     }
     c.restore();
+    if(selected!=null && grouped.has(selected)){
+      const rid=Object.keys(snapshot.queues).find(r=>snapshot.queues[r].includes(selected));
+      this.round(c,12,h-78,w-24,30,7,'#ffffffed');
+      this.text(c,`Client #${selected} : groupe caisse ${rid}, rang ${snapshot.queues[rid].indexOf(selected)+1}`,w/2,h-58,13,'#245787','center');
+    }
     this.round(c,w-205,14,189,34,8,'#ffffffed');
     this.text(c,`${RF.minutes(time)} / ${snapshot.waiting} en file`,w-110,36,13,'#375f73','center');
   }

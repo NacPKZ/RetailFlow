@@ -1,6 +1,6 @@
 {
   "name": "retailflow-studio",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "description": "Atelier universitaire de simulation des files d'attente",
   "scripts": {

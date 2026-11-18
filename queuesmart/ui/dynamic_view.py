@@ -2,11 +2,13 @@
 
 import hashlib
 import json
+import uuid
 from dataclasses import asdict, replace
 
 import pandas as pd
 import streamlit as st
 
+from queuesmart.analytics.dynamic_metrics import final_metrics, paired_metrics, resource_frame
 from queuesmart.analytics.interventions import apply_interventions, validate_intervention
 from queuesmart.analytics.narrative import compare_results, describe_result
 from queuesmart.analytics.visual_data import customer_frame, service_level
@@ -28,7 +30,7 @@ EVENT_LABELS = {
 }
 
 
-@st.cache_data(show_spinner="Calcul de la simulation...")
+@st.cache_data(show_spinner="Calcul de la simulation...", max_entries=64)
 def run_dynamic(config: ScenarioConfig, options: DynamicOptions):
     return DynamicSimulationEngine().run(config, options)
 
@@ -36,7 +38,13 @@ def run_dynamic(config: ScenarioConfig, options: DynamicOptions):
 def _controls(config: ScenarioConfig) -> tuple[ScenarioConfig, DynamicOptions]:
     with st.expander("Réglages de l'atelier et défis d'affluence"):
         situation = st.selectbox(
-            "Situation à explorer", ["Paramètres latéraux", "Affluence soutenue", "Pic du samedi"]
+            "Situation à explorer",
+            [
+                "Paramètres latéraux",
+                "Affluence soutenue",
+                "Pic du samedi",
+                "Soutenance reproductible",
+            ],
         )
         if situation == "Affluence soutenue":
             config = replace(
@@ -55,6 +63,21 @@ def _controls(config: ScenarioConfig) -> tuple[ScenarioConfig, DynamicOptions]:
                 arrival_window_min=60.0,
                 mean_service_time_min=1.7,
                 open_registers=4,
+            )
+        elif situation == "Soutenance reproductible":
+            config = replace(
+                config,
+                name=situation,
+                customer_count=110,
+                arrival_window_min=60.0,
+                mean_service_time_min=1.7,
+                open_registers=2,
+                seed=42,
+            )
+            st.caption(
+                "Profil dérivé du Pic du samedi, avec deux caisses et graine 42. "
+                "Conservez patience 12 min, abandons et rééquilibrage activés "
+                "pour reproduire le scénario de secours documenté."
             )
         if config.open_registers > 5:
             st.info("L'atelier représente 5 caisses. La capacité historique reste inchangée.")
@@ -113,6 +136,10 @@ def render_dynamic(config: ScenarioConfig) -> None:
             len(context["actions"]),
             context["cursor"],
             context["feedback"],
+            [
+                asdict(o) | {"action": asdict(context["actions"][o.index])}
+                for o in result.action_outcomes
+            ],
         )
     if action and action.get("id") != context["last_id"]:
         context["last_id"] = action.get("id")
@@ -139,6 +166,7 @@ def render_dynamic(config: ScenarioConfig) -> None:
             except ValueError as error:
                 context["feedback"] = str(error)
             context["cursor"] = {
+                "token": uuid.uuid4().hex,
                 "time": action.get("time", 0),
                 "revision": len(context["actions"]),
                 "followed": action.get("followed"),
@@ -149,12 +177,18 @@ def render_dynamic(config: ScenarioConfig) -> None:
         "Annuler la dernière intervention", disabled=not context["actions"], width="stretch"
     ):
         removed = context["actions"].pop()
-        context["cursor"] = {"time": removed.time, "revision": len(context["actions"])}
+        context["cursor"] = {
+            "time": removed.time,
+            "revision": len(context["actions"]),
+            "token": uuid.uuid4().hex,
+        }
         context["feedback"] = "La dernière intervention a été annulée."
         st.rerun()
     if b.button("Réinitialiser l'expérience", disabled=not context["actions"], width="stretch"):
         context.update(
-            actions=[], cursor={"time": 0, "revision": 0}, feedback="Expérience réinitialisée."
+            actions=[],
+            cursor={"time": 0, "revision": 0, "token": uuid.uuid4().hex},
+            feedback="Expérience réinitialisée.",
         )
         st.rerun()
     c.caption(
@@ -191,6 +225,12 @@ def render_dynamic(config: ScenarioConfig) -> None:
         plot(charts.cumulative_flow(data), "dynamic_outcomes")
         plot(charts.arrival_chart(data), "dynamic_arrivals")
     elif view == "Attentes":
+        st.caption(
+            "La caisse désigne la dernière affectation du client. Son attente couvre "
+            "tout le parcours aux caisses, y compris les éventuels changements de file. "
+            "La heatmap associe cette attente à la caisse finale, sans attribuer "
+            "tout ce temps à cette seule caisse."
+        )
         plot(charts.wait_scatter(data), "dynamic_scatter")
         served = data.loc[data["Statut"] == "Servi"]
         if len(served):
@@ -239,23 +279,44 @@ def _render_interventions(context: dict, reference, result) -> None:
         )
         rows = [
             {
-                "Minute": a.time,
-                "Action": "Ouvrir"
-                if a.opened
-                else "Fermer"
-                if a.kind == "register"
-                else "Réaffecter",
-                "Caisse": a.register_id,
-                "Client": a.customer_id,
+                "Minute": outcome.time,
+                "Action": "Réaffecter"
+                if action.kind == "move"
+                else ("Ouvrir" if action.opened else "Fermer"),
+                "Caisse": action.register_id,
+                "Client": action.customer_id,
+                "Avant": outcome.before,
+                "Après": outcome.after,
+                "Résultat du recalcul": outcome.reason,
             }
-            for a in context["actions"]
+            for outcome in result.action_outcomes
+            for action in [context["actions"][outcome.index]]
         ]
         st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+        skipped = sum(not o.applied for o in result.action_outcomes)
+        if skipped:
+            st.warning(
+                f"{skipped} décision(s) devenue(s) impossible(s) après recalcul. "
+                "Consultez le journal avant de conclure sur leur effet."
+            )
     else:
         st.info(
             "Cliquez sur une caisse ou réaffectez un client "
             "pour comparer votre expérience au témoin."
         )
+
+    st.dataframe(pd.DataFrame(paired_metrics(reference, result)), hide_index=True, width="stretch")
+    st.caption(
+        "Bilan final apparié, effet combiné de toutes les décisions. Les écarts sont en minutes, "
+        "clients ou points de pourcentage selon la ligne. Moyenne et P90 : servis seulement. "
+        "Niveau de service : tous les arrivants. Occupation : service / durée mobilisée "
+        "(caisse ouverte ou terminant un client), jusqu'à la dernière sortie. "
+        "La mobilisation indique le coût en capacité. Une hausse de l'occupation n'est pas "
+        "un gain en soi. Une seule graine ne permet pas de généraliser. "
+        "L'effet individuel d'une décision n'est pas isolé par cette comparaison."
+    )
+    with st.expander("Vérifier les ressources mobilisées par caisse"):
+        st.dataframe(resource_frame(result), hide_index=True, width="stretch")
 
 
 def _exports(config, options, result, context) -> None:
@@ -278,6 +339,10 @@ def _exports(config, options, result, context) -> None:
         "text/csv",
     )
     payload = {
+        "schema": "retailflow-experience/6.1",
+        "perimetre": "Bilan final du moteur dynamique, temps en minutes",
+        "indicateurs_finaux": final_metrics(result),
+        "resultats_interventions": [asdict(o) for o in result.action_outcomes],
         "configuration": asdict(config),
         "options": asdict(options),
         "interventions": [asdict(a) for a in context["actions"]],

@@ -48,9 +48,16 @@ class DynamicOptions:
                 raise ValueError("État de caisse invalide.")
             if kind == "move" and (type(cid) is not int or cid < 1):
                 raise ValueError("Client invalide.")
-        if self.patience_min is not None and self.patience_min <= 0:
+        if self.patience_min is not None and (
+            not math.isfinite(self.patience_min) or self.patience_min <= 0
+        ):
             raise ValueError("La patience doit être positive.")
-        if self.switching_interval_min <= 0 or self.switching_gain_min < 0:
+        if (
+            not math.isfinite(self.switching_interval_min)
+            or not math.isfinite(self.switching_gain_min)
+            or self.switching_interval_min <= 0
+            or self.switching_gain_min < 0
+        ):
             raise ValueError("Intervalle de réévaluation ou gain invalide.")
         for t, register, opened in self.register_changes:
             if (
@@ -98,11 +105,22 @@ class DynamicCustomerResult:
 
 
 @dataclass(frozen=True)
+class ActionOutcome:
+    index: int
+    time: float
+    applied: bool
+    reason: str
+    before: str
+    after: str
+
+
+@dataclass(frozen=True)
 class DynamicResult:
     config: ScenarioConfig
     options: DynamicOptions
     events: tuple[DynamicEvent, ...]
     customers: tuple[DynamicCustomerResult, ...]
+    action_outcomes: tuple[ActionOutcome, ...] = ()
 
     @property
     def served_count(self):
@@ -140,6 +158,7 @@ class DynamicSimulationEngine:
         assigned = {}
         manually_assigned = set()
         events = []
+        outcomes = []
         agenda = []
         sequence = itertools.count()
         epsilon = 1e-9
@@ -180,15 +199,10 @@ class DynamicSimulationEngine:
             schedule(t, 1, "register", (rid, opened))
         for t, cid, target in options.customer_moves:
             schedule(t, 2.5, "manual_move", (cid, target))
-        # Même priorité pour les gestes : leur ordre reste celui de l'utilisateur,
-        # même si deux interventions sont faites à la même minute de pause.
-        for t, kind, rid, cid, opened in options.manual_actions:
-            schedule(
-                t,
-                2.75,
-                "register" if kind == "register" else "manual_move",
-                (rid, opened) if kind == "register" else (cid, rid),
-            )
+        # Les commandes suivent TOUS les événements déjà observés à cet instant.
+        # Une priorité commune conserve aussi l'ordre des gestes simultanés.
+        for index, action in enumerate(options.manual_actions):
+            schedule(action[0], 5, "manual_action", (index, action))
         if options.switching_enabled:
             schedule(options.switching_interval_min, 4, "review")
 
@@ -196,6 +210,45 @@ class DynamicSimulationEngine:
         while agenda:
             time, _, _, kind, payload = heapq.heappop(agenda)
             last_event_time = max(last_event_time, time)
+            manual = None
+            if kind == "manual_action":
+                index, (_, action, rid, cid, opened) = payload
+
+                def description(rid=rid, cid=cid):
+                    source = assigned.get(cid) if cid is not None else None
+                    position = (
+                        queues[source].index(cid) + 1
+                        if source is not None and cid in queues[source]
+                        else None
+                    )
+                    return (
+                        f"Caisse {rid} : {'ouverte' if active[rid] else 'fermée'}, "
+                        f"{len(queues[rid])} en file, "
+                        f"{'occupée' if serving[rid] is not None else 'libre'}"
+                        + (f" ; client {cid} : caisse {source}, rang {position}" if cid else "")
+                    )
+
+                before = description()
+                reason = ""
+                if action == "register":
+                    if active[rid] == opened:
+                        reason = "Caisse déjà dans cet état après recalcul."
+                    elif not opened and sum(active.values()) == 1:
+                        reason = "La dernière caisse ouverte est protégée."
+                else:
+                    source = assigned.get(cid)
+                    if source is None or cid not in queues[source]:
+                        reason = "Client absent de la file après recalcul."
+                    elif not active[rid]:
+                        reason = "Destination fermée après recalcul."
+                    elif source == rid:
+                        reason = "Client déjà dans la file de destination."
+                if reason:
+                    outcomes.append(ActionOutcome(index, time, False, reason, before, before))
+                    continue
+                manual = (index, before)
+                kind = "register" if action == "register" else "manual_move"
+                payload = (rid, opened) if action == "register" else (cid, rid)
             if kind == "complete":
                 rid, cid = payload
                 if serving[rid] != cid:
@@ -284,6 +337,11 @@ class DynamicSimulationEngine:
                     for c in people
                 ) or any(serving.values()):
                     schedule(time + options.switching_interval_min, 4, "review")
+            if manual is not None:
+                index, before = manual
+                outcomes.append(
+                    ActionOutcome(index, time, True, "Appliquée", before, description())
+                )
         results = tuple(
             DynamicCustomerResult(
                 p.customer_id,
@@ -298,4 +356,4 @@ class DynamicSimulationEngine:
         )
         if len(results) != len(service_start) + len(abandoned):
             raise RuntimeError("Des clients n’ont pas été traités.")
-        return DynamicResult(config, options, tuple(events), results)
+        return DynamicResult(config, options, tuple(events), results, tuple(outcomes))

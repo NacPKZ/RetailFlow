@@ -109,6 +109,8 @@ def compare_capacity(
 
 def service_level(clients: pd.DataFrame) -> float:
     """Part de TOUS les arrivants servis avec une attente <= seuil."""
+    if clients.empty:
+        return 0.0
     return (
         100 * ((clients["Statut"] == "Servi") & (clients["Attente"] <= WAIT_THRESHOLD_MIN)).mean()
     )
