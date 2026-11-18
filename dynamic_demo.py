@@ -10,6 +10,7 @@ import streamlit as st
 
 from queuesmart.config import ScenarioConfig
 from queuesmart.simulation.dynamic import DynamicOptions, DynamicSimulationEngine
+from queuesmart.ui.scene_view import render_scene_2d
 
 st.set_page_config(page_title='RetailFlow | Validation dynamique', layout='wide')
 apply_theme()
@@ -39,6 +40,8 @@ c2.metric('Servis', result.served_count)
 c3.metric('Abandons', result.abandoned_count)
 c4.metric('Attente moyenne des servis', f'{result.mean_wait_served:.2f} min' if result.mean_wait_served is not None else 'N/A')
 st.caption(f'Graine : {int(seed)} | Caisses initiales : {registers} | Durée des arrivées : {arrivals} min')
+st.subheader('Scène 2D')
+render_scene_2d(result)
 st.subheader('Vue analytique')
 left, right = st.columns(2)
 with left:

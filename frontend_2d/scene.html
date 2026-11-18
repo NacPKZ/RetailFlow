@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; color: #14233b; background: transparent; }
+  .rf-scene { max-width: 1100px; margin: 0 auto; }
+  .rf-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 0; }
+  .rf-bar button, .rf-bar select { font: inherit; padding: 6px 12px; border-radius: 8px;
+    border: 1px solid #c9d5e3; background: #ffffff; cursor: pointer; }
+  .rf-bar button[data-role="play"] { background: #2862a4; color: #ffffff; border-color: #2862a4; }
+  .rf-bar input[type="range"] { flex: 1 1 200px; accent-color: #2862a4; }
+  .rf-hud { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; padding: 4px 0 8px; }
+  .rf-hud b { font-variant-numeric: tabular-nums; }
+  canvas { display: block; border-radius: 10px; box-shadow: 0 4px 18px #14233b22;
+    cursor: pointer; image-rendering: pixelated; }
+  .rf-legend { font-size: 12px; color: #536b87; padding-top: 8px; line-height: 1.6; }
+  .rf-legend span { display: inline-block; padding: 0 6px; border-radius: 4px; color: #ffffff; }
+</style>
+</head>
+<body>
+<div class="rf-scene" id="rf-scene">
+  <div class="rf-bar">
+    <button data-role="play">▶ Lecture</button>
+    <button data-role="restart">⟲ Redémarrer</button>
+    <select data-role="speed" aria-label="Vitesse">
+      <option value="1">x1</option><option value="2">x2</option><option value="3">x3</option>
+      <option value="4">x4</option><option value="5">x5</option>
+    </select>
+    <input data-role="slider" type="range" min="0" max="1000" value="0" aria-label="Temps">
+  </div>
+  <div class="rf-hud">
+    <div>Temps : <b data-role="clock">0 min 00 s</b></div>
+    <div>Dans le magasin : <b data-role="in-store">0</b></div>
+    <div>Servis : <b data-role="served">0</b></div>
+    <div>Abandons : <b data-role="abandoned">0</b></div>
+    <div>Suivi : <b data-role="followed">aucun</b></div>
+  </div>
+  <canvas></canvas>
+  <div class="rf-legend">
+    <span style="background:#3fae5a">€</span> en caisse ·
+    <span style="background:#f2b84b">⇄</span> change de file ·
+    <span style="background:#c4473a">✕</span> abandonne (repart par l'entrée, sans payer) ·
+    caisse rouge « FERMÉE » : plus de nouveaux clients, le client en cours termine son passage.
+    Les trajets sont visuels : les temps d'attente et les KPI viennent du moteur Python.
+  </div>
+</div>
+<script>/*__RF_SCRIPTS__*/</script>
+<script>
+  RF.mountScene(document.getElementById("rf-scene"), /*__RF_DATA__*/);
+</script>
+</body>
+</html>
