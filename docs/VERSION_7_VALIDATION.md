@@ -10,8 +10,7 @@ Les branches historiques `feature/retailflow-v6-1` et `feature/retailflow-v7-fin
 initialement vers `4ac03698f204d119a5d81fc540c971b1a3c4a948`.
 La V7 prolonge cette base. Elle conserve les contributions, le moteur FIFO
 historique, le moteur dynamique, les contrats et l'ancien lecteur autonome.
-La PR V7 cible V6.1 pour présenter uniquement ce complément. La fusion des
-branches précédentes et de cette PR reste une décision de l'équipe.
+Historiquement, la PR V7 ciblait V6.1 pour isoler les changements. La V7 est désormais intégrée dans `main` via la PR #6.
 
 ## Ce qui est livré
 
