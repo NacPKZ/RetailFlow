@@ -1,4 +1,4 @@
-# RetailFlow V6.1 : finalisation et validation
+# RetailFlow | Archives V6.1 : finalisation et validation
 
 ## Référence auditée
 
