@@ -1,6 +1,6 @@
 # RetailFlow | Index de la documentation
 
-**Version de référence : V7, intégrée dans `main` le 19 novembre 2026.**
+**Documentation de la V8. La V7 est documentée dans les archives de validation.**
 
 RetailFlow est un prototype universitaire de simulation et d'aide à la décision sur les files d'attente en supermarché. Les données, les coûts et les scénarios sont synthétiques. La documentation distingue la version actuelle de l'historique de développement.
 
@@ -9,7 +9,9 @@ RetailFlow est un prototype universitaire de simulation et d'aide à la décisio
 | Document | Objet |
 | --- | --- |
 | [Présentation du projet](../README.md) | Problématique, application, installation, architecture et limites |
-| [Version 7 et validation](VERSION_7_VALIDATION.md) | Fonctionnalités livrées, hypothèses, tests et réserves |
+| [Version 8 et validation](VERSION_8_VALIDATION.md) | Fonctionnalités, tests et réserves |
+| [Dictionnaire des KPI dynamiques](DICTIONNAIRE_KPI_DYNAMIQUES.md) | Calculs, alertes, comparaisons et exports |
+| [Intégration de la mission 3](INTEGRATION_MISSION_3.md) | Analyse des branches et matrice d’arbitrage |
 | [Architecture](ARCHITECTURE.md) | Modules, dépendances et conception |
 | [Moteurs de simulation](MOTEURS_SIMULATION.md) | FIFO historique et simulation dynamique |
 | [Scène 2D](SCENE_2D.md) | Rendu, interactions et limites |
@@ -34,16 +36,14 @@ Ces documents retracent les étapes du projet et ne constituent pas les instruct
 | V5 | [Refonte visuelle](ARCHIVES_V5_REFONTE_VISUELLE.md) |
 | V6 | [Atelier interactif](ARCHIVES_V6_ATELIER_INTERACTIF.md) |
 | V6.1 | [Finalisation et validation](ARCHIVES_V6_1_FINALISATION.md) |
+| V7 | [Livraison et validation historique](VERSION_7_VALIDATION.md) |
 | H1 à H7 | [Rapport technique de développement](ARCHIVES_RAPPORT_H1_H7.md) |
 
 Les mesures de validation historiques sont conservées dans `validation_v6_1/` et les contrôles V7 dans `validation_v7/`.
 
 ## État GitHub et déploiement
 
-- `main` contient la V7 et constitue la branche de référence pour le code et les documents.
-- `feature/retailflow-v7-final` a été restaurée pour préserver la configuration existante de Streamlit Community Cloud.
-- Les changements effectués sur `main` ne sont pas automatiquement visibles dans l'application tant que Streamlit déploie l'autre branche.
-- Les vérifications de navigateur sont ciblées ; elles ne prouvent pas la compatibilité de tous les appareils ni la validation de bout en bout des exports PNG/JSON.
+Consulter le [guide de déploiement](DEPLOIEMENT.md) pour les branches et la validation publique.
 
 ## Conventions
 

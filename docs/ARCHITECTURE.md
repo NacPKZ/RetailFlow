@@ -1,5 +1,14 @@
 # RetailFlow | Architecture et choix de conception
 
+## Architecture de l’application V8
+
+`app.py` est l’entrée Streamlit. Les cinq espaces partagent configuration latérale, thème et historique de navigation. La scène utilise `ui/dynamic_view.py` pour ses réglages et actions. `ui/dynamic_dashboard.py` analyse le même résultat, et les deux objectifs d’optimisation utilisent les tirages de `analytics/decision_lab.py`. Les analyses et comparaisons FIFO restent accessibles avec leur propre périmètre.
+
+Le journal dynamique alimente les trajectoires et les séries KPI en Python. Le Canvas lit les trajectoires et émet les commandes. Les exports reprennent les tables affichées. Voir [les contrats analytiques](DICTIONNAIRE_KPI_DYNAMIQUES.md) et [les arbitrages](INTEGRATION_MISSION_3.md).
+
+Les sections suivantes documentent aussi les choix et contrats historiques du moteur FIFO.
+
+
 ## Architecture en couches
 
 Les dépendances vont **dans un seul sens**. Une couche n'importe jamais une couche située au-dessus d'elle.

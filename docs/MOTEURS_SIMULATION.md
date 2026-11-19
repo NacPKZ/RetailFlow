@@ -84,8 +84,8 @@ Toutes les erreurs métier héritent de `QueueSmartError`.
 | Heures normales | 90 | 60 min | 2,0 min | 4 | 3,0 |
 | Heure de pointe | 145 | 60 min | 2,0 min | 5 | 4,8 |
 
-La « charge » est le nombre moyen de caisses nécessaires. Il faut toujours en ouvrir davantage
-pour absorber les arrivées groupées, d'où les recommandations de 3, 4 et 6 caisses.
+La charge estime la demande moyenne en équivalents caisses. La capacité recommandée dépend du
+seuil, des graines et du moteur retenus.
 
 ## Démo terminal
 
@@ -106,7 +106,7 @@ Heure de pointe  shortest_queue         5     145          2.25        10.23    
 Heure de pointe  least_wait             5     145          1.91         4.38    64.1
 ```
 
-L'écran client réduit l'attente moyenne et, surtout, l'attente maximale.
+Sur ces tirages historiques, l’écran client réduit l’attente moyenne et maximale.
 
 ## Limites connues
 
@@ -120,6 +120,8 @@ L'écran client réduit l'attente moyenne et, surtout, l'attente maximale.
 
 Le module `queuesmart/simulation/dynamic.py` ajoute une seconde implémentation, indépendante du moteur FIFO historique. Il prend en charge 1 à 5 caisses, les changements de file, les abandons selon une patience configurable et les ouvertures/fermetures programmées. Il produit un `DynamicResult` avec `events` et `customers`.
 
-Le banc d'essai est `dynamic_demo.py`. L'interface principale `app.py` repose encore principalement sur le moteur historique. Les invariants de cette documentation concernant « tous les clients servis » s'appliquent **uniquement au moteur historique** : dans le moteur dynamique, certains clients peuvent abandonner.
+Le banc d'essai est `dynamic_demo.py`. `app.py` utilise ce moteur pour la scène, les analyses dynamiques et les deux objectifs du laboratoire. Les invariants de cette documentation concernant « tous les clients servis » s'appliquent **uniquement au moteur historique** : dans le moteur dynamique, certains clients peuvent abandonner.
 
 Pour les contrats de données et limites d'intégration, voir [la transmission V2](ARCHIVES_V2_TRANSMISSION.md).
+
+Voir le [dictionnaire des KPI dynamiques](DICTIONNAIRE_KPI_DYNAMIQUES.md).

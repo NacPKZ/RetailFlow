@@ -116,3 +116,10 @@ html {font-size:18px;}
     animation:none!important;transition:none!important;scroll-behavior:auto!important;
   }
 }
+@media (max-width:650px) {
+  .st-key-topbar [data-testid="stHorizontalBlock"] {
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem;
+  }
+  .st-key-topbar [data-testid="stColumn"] {width:100%;min-width:0;}
+  .st-key-topbar [data-testid="stColumn"]:last-child {grid-column:1/-1;}
+}

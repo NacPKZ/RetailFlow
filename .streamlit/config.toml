@@ -6,3 +6,6 @@ textColor = "#14233B"
 font = "sans serif"
 [server]
 headless = true
+
+[client]
+toolbarMode = "minimal"

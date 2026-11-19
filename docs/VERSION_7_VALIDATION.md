@@ -1,5 +1,8 @@
 # RetailFlow | Version 7 : périmètre et validation
 
+> Archive V7. Voir [la validation V8](VERSION_8_VALIDATION.md) pour les parcours actuels.
+
+
 Prototype universitaire d'aide à la décision, Master 2 BIDABI. Données synthétiques.
 Le nom de l'édition décrit une ambition de présentation et de méthode ; aucun
 usage commercial ni déploiement chez un distributeur n'est revendiqué.

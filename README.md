@@ -4,9 +4,11 @@
 
 Projet universitaire réalisé en Master 2 Big Data, Analyse & Business Intelligence (BIDABI), à l'Université Sorbonne Paris Nord. RetailFlow étudie le compromis entre temps d'attente, qualité de service et mobilisation des caisses à partir de **données synthétiques**.
 
-**[Accéder à l'application Streamlit](https://retailflow-nacpkz.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/VERSION_7_VALIDATION.md)
+**[Accéder à l'application Streamlit](https://retailflow-nacpkz.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/VERSION_8_VALIDATION.md)
 
-![Capture réelle de RetailFlow déployé](docs/validation_v7/retailflow_public.jpg)
+![Capture réelle des analyses V8 dans Chromium](docs/validation_v8/analyses-desktop.jpg)
+
+[Scène 2D](docs/validation_v8/scene-desktop.jpg) | [Analyses sur mobile émulé](docs/validation_v8/analyses-mobile.jpg)
 
 ## Problématique
 
@@ -18,8 +20,8 @@ Combien de caisses faut-il mobiliser pour limiter l'attente des clients sans aug
 | --- | --- |
 | **Accueil** | Comprendre le problème, la démarche et les limites |
 | **Simulation** | Observer les files en 2D, piloter la lecture et intervenir sur les caisses ou les clients |
-| **Analyses** | Explorer les indicateurs, les distributions et les évolutions des files |
-| **Optimisation** | Comparer plusieurs capacités et le compromis coût/service |
+| **Analyses** | Analyser le scénario joué, ses interventions, ses files et ses alertes, puis exporter le bilan |
+| **Optimisation** | Comparer les capacités selon le coût et le niveau de service, ou selon l’attente moyenne |
 | **Méthodologie** | Comprendre les hypothèses, le calcul et la reproductibilité |
 
 La scène 2D affiche une ligne par caisse, jusqu'à six clients visibles, puis un compteur de surplus. Tous les clients restent présents dans le modèle. Le lecteur propose notamment pause, accélération, zoom, mini-carte, suivi et inspection des clients. Les ouvertures, fermetures et réaffectations sont validées par le moteur Python.
@@ -39,11 +41,17 @@ Les analyses comprennent, selon le moteur utilisé, l'attente moyenne, les perce
 
 Le laboratoire compare de **1 à 5 caisses**, sur **5, 10 ou 20 graines** communes entre capacités. Il sélectionne le coût moyen minimal parmi les configurations qui respectent la cible sur chaque tirage testé ; si aucune ne convient, il ne produit pas de recommandation. Les coûts de personnel et d'abandon sont **des hypothèses ajustables**, pas des coûts observés. Les intervalles min/max ne constituent pas des intervalles de confiance.
 
+Le second objectif retient la plus petite capacité dont l’attente moyenne des servis respecte le seuil sur chaque tirage. Le taux d’abandon est affiché séparément. Voir le [dictionnaire des KPI dynamiques](docs/DICTIONNAIRE_KPI_DYNAMIQUES.md) pour les formules et les populations.
+
+### Exports
+
+Dans **Analyses > Journal et exports**, récupérez le classeur Excel à six onglets, les CSV clients, KPI, événements et files, ou le JSON de l’expérience. Les exports partagent les chiffres du bilan. La scène permet aussi d’exporter un PNG et un JSON du moment affiché. Le laboratoire économique produit un ZIP reproductible.
+
 ## Démonstration reproductible
 
 Le préréglage **Soutenance reproductible** utilise 110 clients, 60 minutes d'arrivées, un service moyen de 1,7 minute, deux caisses initiales et la graine 42. La patience de 12 minutes, les abandons et le rééquilibrage sont activés. Le bouton **Voir le pic** permet d'atteindre rapidement une situation de congestion.
 
-La démonstration recommandée : observer le pic, ouvrir une caisse, réaffecter un client, comparer avec le témoin, puis examiner une recommandation du laboratoire. Les cinq scénarios calculés et leurs paramètres sont conservés dans [`docs/demonstration/`](docs/demonstration/). Le [guide de soutenance](docs/SOUTENANCE.md) propose un déroulé de cinq minutes et les questions du jury.
+Observez le pic, ouvrez une caisse, réaffectez un client, puis utilisez **Analyser ce scénario**. Comparez l’effet de vos décisions au témoin et testez un objectif de capacité dans **Optimisation**. Les cinq scénarios calculés et leurs paramètres sont conservés dans [`docs/demonstration/`](docs/demonstration/). Le [guide de soutenance](docs/SOUTENANCE.md) propose un déroulé de cinq minutes et les questions du jury.
 
 ## Installation locale
 
@@ -58,17 +66,19 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-**Version officielle :** la V7 est intégrée dans `main`. Streamlit reste connecté à la branche restaurée `feature/retailflow-v7-final` pour préserver le déploiement existant. Le point d'entrée officiel est `app.py` ; `dynamic_demo.py` reste un banc d'essai historique.
+Le point d’entrée officiel est `app.py`. `dynamic_demo.py` sert de banc d’essai historique. L’état de publication et la branche Streamlit sont détaillés dans le [guide de déploiement](docs/DEPLOIEMENT.md).
 
 ## Tests et qualité
 
 ```bash
 python -m pytest -q
+python -m compileall -q app.py queuesmart tests
+python -m ruff check .
 npm run test:scene
 git diff --check
 ```
 
-La livraison documente **287 tests Python réussis**, **trois suites JavaScript réussies** et une **GitHub Actions au vert**. Les tests portent notamment sur FIFO, conservation des clients, interventions, cohérence des KPI, comparaisons appariées, scène et exports. Voir [validation détaillée](docs/VERSION_7_VALIDATION.md) et [contrôle du déploiement](docs/DEPLOIEMENT.md). Ces résultats ne constituent pas une garantie d'absence de bugs.
+Les contrôles couvrent les moteurs, les interventions, les KPI, les comparaisons appariées, les exports et la navigation. Les résultats et la portée du lint sont consignés dans la [validation V8](docs/VERSION_8_VALIDATION.md).
 
 ## Architecture
 
@@ -77,6 +87,7 @@ app.py                    Application Streamlit officielle
 queuesmart/
   simulation/             Moteurs historique et événementiel
   analytics/              KPI, comparaisons et laboratoire de décision
+  exports/                CSV, JSON et classeur d’analyse dynamique
   scene/                  Géométrie et chronologie
   ui/                     Interfaces Streamlit
 frontend_studio/          Scène interactive JavaScript / Canvas
@@ -94,7 +105,7 @@ Les guides actuels sont séparés des archives historiques. Les noms des fichier
 
 | Document | Contenu |
 | --- | --- |
-| [Méthodologie et validation finale](docs/VERSION_7_VALIDATION.md) | Hypothèses, KPI, limites, architecture et contrôles |
+| [Méthodologie et validation finale](docs/VERSION_8_VALIDATION.md) | Hypothèses, KPI, limites, architecture et contrôles |
 | [Déploiement](docs/DEPLOIEMENT.md) | Application publique et vérifications réelles |
 | [Soutenance](docs/SOUTENANCE.md) | Pitchs, plan des douze diapositives et démonstration |
 | [Conception](docs/ARCHITECTURE.md) | Architecture et responsabilités |
@@ -111,11 +122,10 @@ Les documents V1 à V6.1 restent disponibles dans `docs/` comme **archives de d�
 - Coûts hypothétiques, sans chiffre d'affaires ni marge observés.
 - Courses en rayons, scan et paiement visuels partiellement illustratifs ; pas de simulation physique de collisions.
 - Projection de file à cinq minutes fondée sur une extrapolation simple, pas sur un modèle prédictif validé.
-- Contrôle navigateur réalisé sur ordinateur ; tests mobiles et audit exhaustif d'accessibilité non documentés.
-- Les exports PNG et JSON de scène n'ont pas été vérifiés de bout en bout dans le navigateur lors du dernier contrôle.
+- Les limites des contrôles navigateur sont documentées dans la [validation V8](docs/VERSION_8_VALIDATION.md).
 
 RetailFlow constitue un **outil d'expérimentation et d'aide à la réflexion**, pas une recommandation opérationnelle garantie.
 
 ## Équipe et contributions
 
-Projet collectif de **quatre étudiants**. Les contributions individuelles doivent être présentées conformément au travail réellement réalisé et à l'historique Git, sans attribution artificielle. Les [PR de livraison](https://github.com/NacPKZ/RetailFlow/pull/4) et [d'intégration](https://github.com/NacPKZ/RetailFlow/pull/6) conservent la traçabilité des changements. La V7 est intégrée dans `main`.
+Projet collectif de **quatre étudiants**. Les contributions individuelles doivent être présentées conformément au travail réellement réalisé et à l'historique Git, sans attribution artificielle. Les [PR de livraison](https://github.com/NacPKZ/RetailFlow/pull/4) et [d'intégration](https://github.com/NacPKZ/RetailFlow/pull/6) conservent la traçabilité des changements. La [matrice d’intégration](docs/INTEGRATION_MISSION_3.md) retrace la contribution analytics dans la V8.

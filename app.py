@@ -338,18 +338,20 @@ def main() -> None:
     elif destination in ("Analyses", "Optimisation"):
         _navigate(destination)
     config, strategy_name = render_sidebar()
-    back, home, heading = st.columns([1, 1, 4])
-    back.button(
-        "← Retour",
-        on_click=_back,
-        width="stretch",
-        disabled=not st.session_state.get("page_history"),
-    )
-    home.button("⌂ Accueil", on_click=_navigate, args=("Accueil",), width="stretch")
-    heading.markdown(
-        '<div class="rf-topbrand">RetailFlow <span>Simulation et aide à la décision</span></div>',
-        unsafe_allow_html=True,
-    )
+    with st.container(key="topbar"):
+        back, home, heading = st.columns([1, 1, 4])
+        back.button(
+            "← Retour",
+            on_click=_back,
+            width="stretch",
+            disabled=not st.session_state.get("page_history"),
+        )
+        home.button("⌂ Accueil", on_click=_navigate, args=("Accueil",), width="stretch")
+        heading.markdown(
+            '<div class="rf-topbrand">RetailFlow '
+            "<span>Simulation et aide à la décision</span></div>",
+            unsafe_allow_html=True,
+        )
     page = st.radio(
         "Navigation",
         ["Accueil", "Simulation", "Analyses", "Optimisation", "Méthodologie"],

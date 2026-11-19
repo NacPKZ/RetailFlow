@@ -7,7 +7,11 @@ Dépôt NacPKZ/RetailFlow, branche feature/retailflow-v7-final, entrée officiel
 Python 3.12.16 observé dans les journaux. Aucun secret applicatif requis.
 La version V7 a été intégrée dans `main` le 19 novembre 2026. La branche `feature/retailflow-v7-final` a été restaurée et reste la source configurée pour le déploiement Streamlit. Les mises à jour de `main` ne sont pas automatiquement déployées tant que la configuration Streamlit pointe vers cette branche.
 
-## Contrôle réel en navigateur
+## Validation V8
+
+Le candidat V8 est préparé sur `integration/retailflow-v8-analytics`. Voir [la validation V8](VERSION_8_VALIDATION.md) pour les contrôles locaux. Après validation GitHub, vérifier la branche configurée dans Streamlit Community Cloud. Si la configuration pointe toujours vers `feature/retailflow-v7-final`, publier le commit validé sur cette branche par avance rapide. Conserver `app.py` et l’URL existante. Contrôler ensuite le titre V8, le chargement de la scène et le téléchargement Excel depuis cette URL.
+
+## Contrôle historique V7 en navigateur
 
 Accueil chargé. Navigation Simulation, Analyses, Optimisation et Méthodologie vérifiée.
 Lecture et pause observées avec avancement du temps, zoom à 120 %, recentrage à 100 %,
