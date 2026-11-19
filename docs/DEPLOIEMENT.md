@@ -1,15 +1,12 @@
 # RetailFlow | Déploiement Streamlit
 
-Application : https://retailflow-bidabi.streamlit.app/
+La V8 est en ligne depuis le 19 novembre 2026 sur [RetailFlow](https://retailflow-bidabi.streamlit.app/). La [PR #7](https://github.com/NacPKZ/RetailFlow/pull/7) a intégré le [commit de livraison `c73fc65`](https://github.com/NacPKZ/RetailFlow/commit/c73fc65a80f5a74379dc610eca42c6e65a23261f) dans `main`.
 
-Déployée et démarrée le 19 novembre 2026 sur Streamlit Community Cloud.
-Dépôt NacPKZ/RetailFlow, branche feature/retailflow-v7-final, entrée officielle app.py.
-Python 3.12.16 observé dans les journaux. Aucun secret applicatif requis.
-La version V7 a été intégrée dans `main` le 19 novembre 2026. La branche `feature/retailflow-v7-final` a été restaurée et reste la source configurée pour le déploiement Streamlit. Les mises à jour de `main` ne sont pas automatiquement déployées tant que la configuration Streamlit pointe vers cette branche.
+Streamlit utilise `app.py` sur la branche `feature/retailflow-v7-final`. Cette branche porte le commit de livraison V8. Pour une prochaine mise en ligne, avancer la branche Streamlit vers le commit validé dans `main`, puis vérifier la version affichée. Si Streamlit sert encore l’ancienne version, un redémarrage depuis le tableau de bord entraîne une brève interruption des sessions en cours.
 
-## Validation V8
+## Contrôle de la V8 en production
 
-Le tableau de bord Streamlit confirme que l’application active RetailFlow utilise `feature/retailflow-v7-final` et l’entrée `app.py`. Après validation GitHub, livrer par avance rapide de cette branche vers le commit validé. L’application conserve son adresse. Contrôler ensuite le titre V8, le chargement de la scène et le téléchargement Excel depuis cette URL. Le [rapport V8](VERSION_8_VALIDATION.md) documente la validation locale.
+Après le redémarrage, les journaux ont confirmé la récupération du code et le chargement des dépendances. Le navigateur a affiché **RetailFlow V8**, le pic d’affluence dans **Simulation**, le bilan dynamique dans **Analyses** et le bouton **Classeur Excel** dans **Journal et exports**. L’ouverture et la cohérence du classeur ont été contrôlées dans l’environnement local. Voir le [rapport de validation V8](VERSION_8_VALIDATION.md).
 
 ## Contrôle historique V7 en navigateur
 
@@ -25,7 +22,7 @@ caisses. Le téléchargement du dossier ZIP retourne un chemin de téléchargeme
 
 Capture réelle : validation_v7/retailflow_public.jpg.
 
-## Limites du contrôle
+### Limites du contrôle V7
 
 Contrôle ciblé sur ordinateur, sans audit exhaustif d'accessibilité ni appareil mobile.
 La récupération automatisée de l'état JSON a expiré. Les exports PNG et JSON de scène

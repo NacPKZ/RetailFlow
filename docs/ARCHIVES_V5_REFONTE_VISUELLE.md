@@ -1,6 +1,6 @@
 # RetailFlow | Archives V5 : refonte visuelle
 
-> **Document historique.** Ce texte décrit l'état du projet au moment de cette étape. Les branches, commandes, chiffres de tests et tâches « à faire » peuvent être obsolètes. Pour la version actuelle, consulter [l'index documentaire](README.md) et [la validation V7](VERSION_7_VALIDATION.md).
+> **Document historique.** Ce texte décrit l'état du projet au moment de cette étape. Les branches, commandes, chiffres de tests et tâches « à faire » peuvent être obsolètes. Pour la version actuelle, consulter [l’index documentaire](README.md) et [la validation V8](VERSION_8_VALIDATION.md).
 
 Date : 18 novembre 2026.
 

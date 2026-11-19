@@ -2,15 +2,16 @@
 
 Les cinq espaces de `app.py` donnent accès à une scène interactive, un bilan dynamique du scénario joué, l’analyse FIFO historique, deux objectifs d’optimisation et leur méthodologie. La [matrice d’intégration](INTEGRATION_MISSION_3.md) documente les choix par fonctionnalité. Le [dictionnaire](DICTIONNAIRE_KPI_DYNAMIQUES.md) précise les calculs, populations, seuils, fenêtres et exports.
 
-## Contrôles locaux du candidat
+## Validation avant la mise en ligne
 
 | Contrôle | Résultat |
 | --- | --- |
 | Pytest sous Python 3.12 | 301 tests réussis. Un avertissement de dépréciation dans le plugin pytest d’AnyIO de l’environnement |
+| GitHub Actions | Workflow Qualité RetailFlow validé pour la [PR #7](https://github.com/NacPKZ/RetailFlow/pull/7/checks) |
 | Compilation Python | `python -m compileall -q app.py queuesmart tests` réussi |
 | JavaScript | Les trois scripts de `npm run test:scene` réussis |
 | Ruff ciblé | Fichiers Python modifiés et périmètre historique du workflow valides |
-| Ruff global | 96 diagnostics historiques, identiques sur la base `main` et sur le candidat V8 |
+| Ruff global | 96 diagnostics historiques, identiques à la base précédant la V8 |
 | Dépendances | `python -m pip check` réussi |
 | Navigateurs | Chromium local à 1 440 px et mobile émulé à 390 px, avec préférence de mouvement réduit |
 
@@ -24,6 +25,10 @@ Dans Chromium sur ordinateur, les cinq pages, la pause, le pic, le zoom, le rece
 - [Analyses sur ordinateur](validation_v8/analyses-desktop.jpg)
 - [Analyses sur mobile émulé](validation_v8/analyses-mobile.jpg)
 
+## Contrôle en production
+
+Le 19 novembre 2026, après redémarrage de [RetailFlow sur Streamlit](https://retailflow-bidabi.streamlit.app/), le navigateur a confirmé la V8, l’accès au pic de la simulation, le chargement du bilan dynamique et la présence de l’action **Classeur Excel**. Le [guide de déploiement](DEPLOIEMENT.md) indique la branche de production et le commit livré.
+
 ## Limites
 
-Le parcours Chromium est ciblé. Les autres navigateurs, les appareils mobiles physiques, l’accessibilité exhaustive et une cadence garantie ne sont pas couverts. Le tableau de bord Streamlit confirme l’application active `retailflow-bidabi.streamlit.app`, liée à `feature/retailflow-v7-final`. L’adresse indiquée dans le brief et les anciennes archives renvoie vers une page d’accès indisponible. Voir le [guide de déploiement](DEPLOIEMENT.md).
+Le parcours navigateur est ciblé. Les contrôles couvrent Chromium sur ordinateur et un mobile émulé en local. La cadence de rendu, l’accessibilité complète et les appareils mobiles physiques restent à évaluer.

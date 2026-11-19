@@ -29,18 +29,20 @@ La principale limite est que les données sont synthétiques. Les parcours en ra
 | 7. Simulation | Une ligne par caisse, six clients visibles, surplus exact | Passer à la démonstration. |
 | 8. Interventions | Même clientèle avant et après décision | Ne pas confondre effet combiné et effet individuel. |
 | 9. Indicateurs | Attente moyenne, médiane, P90, P95 et niveau de service | Dénominateurs : servis pour les attentes, tous les arrivants pour le service. |
-| 10. Optimisation | Capacité admissible au coût moyen minimal | Plusieurs graines, coût horaire et abandon hypothétiques. |
+| 10. Optimisation | Coût minimal sous contrainte de service ou capacité minimale sous seuil d’attente | Comparer les objectifs sur les mêmes graines et commenter le taux d’abandon. |
 | 11. Résultats | Tableau dans docs/demonstration/scenarios.json et E_capacites.csv | Utiliser les chiffres calculés, conserver les unités et le scénario. |
 | 12. Limites et conclusion | Données synthétiques, information parfaite, aucune calibration terrain | Expliquer ce que démontre l'expérimentation et ses limites. |
 
 ## Démonstration de cinq minutes
+
+[Ouvrir la V8 sur Streamlit](https://retailflow-bidabi.streamlit.app/)
 
 - 0:00 à 0:40 : accueil, question métier et méthode.
 - 0:40 à 1:20 : Simulation, réglages, Soutenance reproductible, graine 42, patience 12, deux caisses. Cliquer Voir le pic.
 - 1:20 à 2:10 : inspecter un client en file puis ouvrir la caisse 3. Attendre la confirmation Python. Montrer le rang et le journal.
 - 2:10 à 3:00 : sélectionner un client encore en file et choisir une autre caisse ouverte. Montrer l'alternative au glisser-déposer.
 - 3:00 à 4:10 : Cliquer sur **Analyser ce scénario**, puis **Interventions**. Comparer le bilan au témoin. Ouvrir **Optimisation** et comparer les deux objectifs sur cinq graines.
-- 4:10 à 5:00 : commenter la recommandation conditionnelle, exporter le ZIP, conclure sur les limites.
+- 4:10 à 5:00 : commenter la recommandation et ses limites. Montrer l’export **Classeur Excel** dans **Analyses > Journal et exports**.
 
 En cas d'indisponibilité réseau, utiliser l'application locale déjà préparée ou les CSV et le rapport dans docs/demonstration. Les résultats de secours ne remplacent pas une démonstration interactive.
 

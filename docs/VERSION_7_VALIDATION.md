@@ -204,7 +204,7 @@ visuel réel supplémentaire n’est revendiqué.
 
 ## Mise en ligne et contrôle du 19 novembre
 
-Application déployée : https://retailflow-nacpkz.streamlit.app/.
+Ancienne adresse de livraison, consignée ici pour l’historique : `retailflow-nacpkz.streamlit.app`. Voir le [guide de déploiement](DEPLOIEMENT.md) pour l’adresse active.
 Le blocage de connexion mentionné dans les étapes précédentes est levé.
 Le contrôle ciblé réel, sa capture et ses limites sont décrits dans DEPLOIEMENT.md.
 Les anciennes limites de validation consignées ci-dessus décrivent les étapes antérieures.

@@ -4,7 +4,7 @@
 
 Projet universitaire réalisé en Master 2 Big Data, Analyse & Business Intelligence (BIDABI), à l'Université Sorbonne Paris Nord. RetailFlow étudie le compromis entre temps d'attente, qualité de service et mobilisation des caisses à partir de **données synthétiques**.
 
-**[Accéder à l'application Streamlit](https://retailflow-bidabi.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/VERSION_8_VALIDATION.md)
+**[Ouvrir RetailFlow V8 sur Streamlit](https://retailflow-bidabi.streamlit.app/)** | [Livraison V8 sur GitHub](https://github.com/NacPKZ/RetailFlow/pull/7) | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/VERSION_8_VALIDATION.md)
 
 ![Capture réelle des analyses V8 dans Chromium](docs/validation_v8/analyses-desktop.jpg)
 
@@ -105,6 +105,7 @@ Les guides actuels sont séparés des archives historiques. Les noms des fichier
 
 | Document | Contenu |
 | --- | --- |
+| [Dictionnaire des KPI dynamiques](docs/DICTIONNAIRE_KPI_DYNAMIQUES.md) | Définitions, calculs, alertes et formats d’export |
 | [Méthodologie et validation finale](docs/VERSION_8_VALIDATION.md) | Hypothèses, KPI, limites, architecture et contrôles |
 | [Déploiement](docs/DEPLOIEMENT.md) | Application publique et vérifications réelles |
 | [Soutenance](docs/SOUTENANCE.md) | Pitchs, plan des douze diapositives et démonstration |
@@ -113,7 +114,7 @@ Les guides actuels sont séparés des archives historiques. Les noms des fichier
 | [Scène 2D](docs/SCENE_2D.md) | Fonctionnement de la visualisation |
 | [Résultats reproductibles](docs/demonstration/scenarios.json) | Paramètres et résultats des scénarios |
 
-Les documents V1 à V6.1 restent disponibles dans `docs/` comme **archives de développement** ; ils ne décrivent pas nécessairement le comportement final. Les titres des documents ont été harmonisés pour distinguer les guides actuels des archives.
+Les documents V1 à V7 restent disponibles dans `docs/` comme **archives de développement** ; ils ne décrivent pas nécessairement le comportement final. Les titres des documents ont été harmonisés pour distinguer les guides actuels des archives.
 
 ## Limites et perspectives
 

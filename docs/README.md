@@ -1,6 +1,6 @@
 # RetailFlow | Index de la documentation
 
-**Documentation de la V8. La V7 est documentée dans les archives de validation.**
+**Documentation de la V8 en production.** [Ouvrir l’application Streamlit](https://retailflow-bidabi.streamlit.app/)
 
 RetailFlow est un prototype universitaire de simulation et d'aide à la décision sur les files d'attente en supermarché. Les données, les coûts et les scénarios sont synthétiques. La documentation distingue la version actuelle de l'historique de développement.
 
@@ -22,7 +22,7 @@ RetailFlow est un prototype universitaire de simulation et d'aide à la décisio
 | [Scénarios de démonstration](demonstration/scenarios.json) | Paramètres et scénarios reproductibles |
 | [Rapport de décision simulé](demonstration/E_rapport.md) | Exemple de résultats et recommandations conditionnelles |
 
-La présentation [PowerPoint](RetailFlow_Soutenance.pptx) est disponible séparément.
+Le [PowerPoint de soutenance](RetailFlow_Soutenance.pptx) présente le scénario économique. Le [guide oral](SOUTENANCE.md) couvre les deux objectifs de la V8 et l’export Excel.
 
 ## Archives historiques
 
