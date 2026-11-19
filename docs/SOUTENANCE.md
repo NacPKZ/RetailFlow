@@ -1,4 +1,4 @@
-# Soutenance RetailFlow
+# RetailFlow | Guide de soutenance
 
 ## Pitch de trente secondes
 
