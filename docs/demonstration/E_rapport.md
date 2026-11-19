@@ -1,4 +1,4 @@
-# RetailFlow V7.0 : rapport de décision
+# RetailFlow | Démonstration V7 : rapport de décision
 
 Projet universitaire de Master 2 BIDABI. Scénarios synthétiques.
 
