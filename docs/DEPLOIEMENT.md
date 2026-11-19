@@ -1,11 +1,11 @@
-# Déploiement Streamlit
+# RetailFlow | Déploiement Streamlit
 
 Application : https://retailflow-nacpkz.streamlit.app/
 
 Déployée et démarrée le 19 novembre 2026 sur Streamlit Community Cloud.
 Dépôt NacPKZ/RetailFlow, branche feature/retailflow-v7-final, entrée officielle app.py.
 Python 3.12.16 observé dans les journaux. Aucun secret applicatif requis.
-La PR reste séparée de main, sans fusion automatique.
+La version V7 a été intégrée dans `main` le 19 novembre 2026. La branche `feature/retailflow-v7-final` a été restaurée et reste la source configurée pour le déploiement Streamlit. Les mises à jour de `main` ne sont pas automatiquement déployées tant que la configuration Streamlit pointe vers cette branche.
 
 ## Contrôle réel en navigateur
 
