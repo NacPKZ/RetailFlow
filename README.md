@@ -1,12 +1,14 @@
 # RetailFlow V7.0
 
+**[Ouvrir RetailFlow](https://retailflow-nacpkz.streamlit.app/)**
+
 **Prototype universitaire d’aide à la décision.**
 
 **Simulation et optimisation des files d'attente en supermarché**
 
 Projet universitaire de Master 2 BIDABI (Big Data, Analyse & Business Intelligence), consacré à la simulation de flux de clients, à la mesure de la qualité de service et à l'aide à la décision sur le nombre de caisses.
 
-> **V7.0 :** une seule ligne par caisse (six clients visibles, surplus compté), centre de contrôle synchronisé, mini-carte et caméra bornée, suivi client, projection de tendance explicite, laboratoire dynamique coût / service sur plusieurs graines et dossier de décision exportable. [Guide et validation V7](docs/RETAILFLOW_V7.md). La vérification visuelle en navigateur de cette version reste à réaliser.
+> **V7.0 :** une seule ligne par caisse (six clients visibles, surplus compté), centre de contrôle synchronisé, mini-carte et caméra bornée, suivi client, projection de tendance explicite, laboratoire dynamique coût / service sur plusieurs graines et dossier de décision exportable. [Guide et validation V7](docs/RETAILFLOW_V7.md). Un contrôle ciblé en navigateur sur la version publiée est consigné dans docs/DEPLOIEMENT.md.
 
 > **Finalisation V6.1 :** inspecteur temporel avec recherche, réaffectation par sélection, journal des décisions réellement appliquées, comparaison détaillée et mode soutenance reproductible. Voir [le bilan de validation](docs/FINALISATION_RETAILFLOW_V6_1.md).
 

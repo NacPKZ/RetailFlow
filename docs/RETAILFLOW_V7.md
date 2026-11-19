@@ -199,3 +199,10 @@ démonstration actualisés, paramètres inchangés. Suivi avant arrivée aux cai
 corrigé : la caméra utilise aussi les trajectoires de courses. Une caméra immobile
 ne force plus un redessin à chaque frame. Aucun gain en millisecondes ni contrôle
 visuel réel supplémentaire n’est revendiqué.
+
+## Mise en ligne et contrôle du 19 novembre
+
+Application déployée : https://retailflow-nacpkz.streamlit.app/.
+Le blocage de connexion mentionné dans les étapes précédentes est levé.
+Le contrôle ciblé réel, sa capture et ses limites sont décrits dans DEPLOIEMENT.md.
+Les anciennes limites de validation consignées ci-dessus décrivent les étapes antérieures.

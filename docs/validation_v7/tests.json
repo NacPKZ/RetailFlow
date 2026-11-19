@@ -15,7 +15,8 @@
   "component_unit_test": "studio_mount.cjs, exécuté par pytest, DOM simulé",
   "lint": "Ruff ciblé sur les fichiers Python modifiés et ajoutés : réussi",
   "diff_check": "réussi",
-  "browser_visual_review": "non réalisée, aperçu local inaccessible au navigateur de contrôle",
-  "end_to_end_downloads": "non vérifiés dans un navigateur",
-  "node_dom_checks_are_visual_validation": false
+  "browser_visual_review": "contrôle ciblé ordinateur sur https://retailflow-nacpkz.streamlit.app/, voir docs/DEPLOIEMENT.md",
+  "end_to_end_downloads": "ZIP : événement de téléchargement terminé ; PNG et JSON de scène non validés",
+  "node_dom_checks_are_visual_validation": false,
+  "deployment_url": "https://retailflow-nacpkz.streamlit.app/"
 }
