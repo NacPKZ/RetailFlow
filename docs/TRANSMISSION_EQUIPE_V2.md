@@ -1,4 +1,4 @@
-# RetailFlow | Guide de transmission et d'intégration dynamique (V2)
+# RetailFlow | Archives V2 : transmission et intégration
 
 ## 1. Modules disponibles
 
