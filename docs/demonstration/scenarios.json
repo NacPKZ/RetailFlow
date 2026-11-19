@@ -20,6 +20,9 @@
     },
     "resultats": {
       "Attente moyenne des servis (min)": 0.09255770772038868,
+      "Médiane des servis (min)": 0.0,
+      "P95 des servis (min)": 0.6985567776480532,
+      "Taux d'abandon (%)": 0.0,
       "P90 des servis (min)": 0.5082979735118455,
       "Clients servis": 50,
       "Abandons": 0,
@@ -49,6 +52,9 @@
     },
     "resultats": {
       "Attente moyenne des servis (min)": 0.44610271421193437,
+      "Médiane des servis (min)": 0.023081126141362596,
+      "P95 des servis (min)": 1.485485451767205,
+      "Taux d'abandon (%)": 0.0,
       "P90 des servis (min)": 1.2610579864772031,
       "Clients servis": 110,
       "Abandons": 0,
@@ -78,6 +84,9 @@
     },
     "resultats": {
       "Attente moyenne des servis (min)": 9.526700906802414,
+      "Médiane des servis (min)": 10.34232208012984,
+      "P95 des servis (min)": 11.758084334831963,
+      "Taux d'abandon (%)": 30.90909090909091,
       "P90 des servis (min)": 11.638624037935614,
       "Clients servis": 76,
       "Abandons": 34,
@@ -115,6 +124,9 @@
     },
     "resultats": {
       "Attente moyenne des servis (min)": 8.836150768851075,
+      "Médiane des servis (min)": 9.517513428834008,
+      "P95 des servis (min)": 11.596083749613555,
+      "Taux d'abandon (%)": 0.9090909090909091,
       "P90 des servis (min)": 11.387228872224998,
       "Clients servis": 109,
       "Abandons": 1,

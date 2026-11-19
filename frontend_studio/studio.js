@@ -535,11 +535,12 @@ RF.mountStudio = (root, data, onAction) => {
       if (time >= data.end_time) playing = false;
     }
     if (following && selected != null) {
-      const track =
-        data.customers.find((p) => p.id === selected) ||
-        data.shopping_customers?.find((p) => p.id === selected);
-      const position = track ? RF.anim.sample(track.keyframes, time) : null;
+      const track = data.customers.find((p) => p.id === selected);
+      const shoppingTrack = data.shopping_customers?.find((p) => p.id === selected);
+      const position = (track ? RF.anim.sample(track.keyframes, time) : null)
+        || (shoppingTrack ? RF.anim.sample(shoppingTrack.keyframes, time) : null);
       if (position) {
+        const previousCamera = {zoom:painter.zoom, x:painter.pan.x, y:painter.pan.y};
         painter.zoom = Math.max(1.4, painter.zoom);
         const target = {
           x:
@@ -555,7 +556,9 @@ RF.mountStudio = (root, data, onAction) => {
         painter.pan.x += (target.x - painter.pan.x) * easing;
         painter.pan.y += (target.y - painter.pan.y) * easing;
         painter.clampCamera();
-        dirty = true;
+        if (Math.abs(painter.pan.x-previousCamera.x) > .02
+          || Math.abs(painter.pan.y-previousCamera.y) > .02
+          || painter.zoom !== previousCamera.zoom) dirty = true;
       }
     }
     if (dirty) {

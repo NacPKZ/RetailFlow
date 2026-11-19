@@ -56,6 +56,9 @@ def final_metrics(result: DynamicResult) -> dict[str, float | int | None]:
     denominator = resources["Mobilisation (min)"].sum()
     return {
         "Attente moyenne des servis (min)": float(served.mean()) if len(served) else None,
+        "Médiane des servis (min)": float(served.median()) if len(served) else None,
+        "P95 des servis (min)": float(served.quantile(0.95)) if len(served) else None,
+        "Taux d'abandon (%)": 100 * result.abandoned_count / len(clients) if len(clients) else 0.0,
         "P90 des servis (min)": float(served.quantile(0.9)) if len(served) else None,
         "Clients servis": result.served_count,
         "Abandons": result.abandoned_count,

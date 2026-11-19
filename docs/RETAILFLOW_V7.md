@@ -154,7 +154,7 @@ son graphique HTML embarque Plotly et fonctionne sans CDN.
 
 ## Validation et limites de cette livraison
 
-286 tests Python réussis, sans échec ni test ignoré. Trois suites JavaScript
+287 tests Python réussis, sans échec ni test ignoré. Trois suites JavaScript
 réussies, Ruff ciblé et `git diff --check` réussis.
 Les résultats de tests et les mesures sont consignés dans `validation_v7/`.
 Les tests couvrent notamment :
@@ -190,3 +190,12 @@ Accueil et méthodologie intégrés. Interventions isolées dans un fragment Str
 Exports lourds mis en cache. Médiane et P95 ajoutés aux résultats dynamiques.
 Cinq scénarios calculés dans demonstration/, scripts et contenu oral dans SOUTENANCE.md.
 Le déploiement public nécessite une connexion au compte Streamlit, page de connexion observée.
+
+## Revue de clôture ciblée
+
+Médiane, P95 et taux d’abandon inclus dans les bilans exportés. Les percentiles
+portent sur les servis et le taux d’abandon sur tous les arrivants. Résultats de
+démonstration actualisés, paramètres inchangés. Suivi avant arrivée aux caisses
+corrigé : la caméra utilise aussi les trajectoires de courses. Une caméra immobile
+ne force plus un redessin à chaque frame. Aucun gain en millisecondes ni contrôle
+visuel réel supplémentaire n’est revendiqué.

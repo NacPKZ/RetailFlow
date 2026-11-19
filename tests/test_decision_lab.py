@@ -217,3 +217,14 @@ def test_dense_scene_retains_all_customers_with_bounded_visual_payload():
     assert {c["id"] for c in payload["customers"]} == set(range(1, 501))
     assert payload["events"] == result.events_as_dicts()
     assert len(json.dumps(payload).encode()) < 750_000
+
+
+def test_final_export_includes_quantiles_and_abandonment_denominator():
+    result = DynamicSimulationEngine().run(CONFIG, OPTIONS)
+    metrics = final_metrics(result)
+    waits = pd.Series([c.wait_time for c in result.customers if c.service_start is not None])
+    assert metrics["Médiane des servis (min)"] == pytest.approx(waits.median())
+    assert metrics["P95 des servis (min)"] == pytest.approx(waits.quantile(0.95))
+    assert metrics["Taux d'abandon (%)"] == pytest.approx(
+        100 * result.abandoned_count / len(result.customers)
+    )
