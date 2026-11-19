@@ -57,4 +57,4 @@ print(len(events), recommendation.recommended_registers)
 5. Ajouter les tests d'interface et de bout en bout.
 
 
-> **Note de version :** ce document décrit le contrat V1 basé sur `SimulationResult`. Plusieurs éléments alors absents sont désormais disponibles dans le moteur dynamique `queuesmart/simulation/dynamic.py`. Pour les nouveaux modules 2D et analytics, consulter en priorité [le guide V2](TRANSMISSION_EQUIPE_V2.md). La liste ci-dessus est conservée comme historique, et non comme état actuel de toutes les fonctionnalités.
+> **Note de version :** ce document décrit le contrat V1 basé sur `SimulationResult`. Plusieurs éléments alors absents sont désormais disponibles dans le moteur dynamique `queuesmart/simulation/dynamic.py`. Pour les nouveaux modules 2D et analytics, consulter en priorité [le guide V2](ARCHIVES_V2_TRANSMISSION.md). La liste ci-dessus est conservée comme historique, et non comme état actuel de toutes les fonctionnalités.
