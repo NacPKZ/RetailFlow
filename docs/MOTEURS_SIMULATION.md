@@ -122,4 +122,4 @@ Le module `queuesmart/simulation/dynamic.py` ajoute une seconde implémentation,
 
 Le banc d'essai est `dynamic_demo.py`. L'interface principale `app.py` repose encore principalement sur le moteur historique. Les invariants de cette documentation concernant « tous les clients servis » s'appliquent **uniquement au moteur historique** : dans le moteur dynamique, certains clients peuvent abandonner.
 
-Pour les contrats de données et limites d'intégration, voir [la transmission V2](TRANSMISSION_EQUIPE_V2.md).
+Pour les contrats de données et limites d'intégration, voir [la transmission V2](ARCHIVES_V2_TRANSMISSION.md).
