@@ -1,4 +1,4 @@
-# Crédits des assets graphiques
+# RetailFlow | Crédits graphiques
 
 Aucun fichier image externe n'est utilisé par la scène 2D.
 
