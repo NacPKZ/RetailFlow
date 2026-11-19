@@ -1,4 +1,4 @@
-# RetailFlow | Contrat historique d'intégration (V1)
+# RetailFlow | Archives V1 : contrat d'intégration
 
 ## 1. Statut et portée historique
 
