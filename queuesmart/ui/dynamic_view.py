@@ -8,27 +8,15 @@ from dataclasses import asdict, replace
 import pandas as pd
 import streamlit as st
 
-from queuesmart.analytics.dynamic_metrics import final_metrics, paired_metrics, resource_frame
+from queuesmart.analytics.dynamic_metrics import paired_metrics, resource_frame
 from queuesmart.analytics.interventions import apply_interventions, validate_intervention
-from queuesmart.analytics.narrative import compare_results, describe_result
+from queuesmart.analytics.narrative import compare_results
 from queuesmart.analytics.visual_data import customer_frame, service_level
 from queuesmart.config import ScenarioConfig
 from queuesmart.simulation.dynamic import DynamicOptions, DynamicSimulationEngine
 from queuesmart.ui import charts
-from queuesmart.ui.decision_lab import render_decision_lab
-from queuesmart.ui.presentation import cards, plot, section
+from queuesmart.ui.presentation import plot, section
 from queuesmart.ui.studio_component import render_studio
-
-EVENT_LABELS = {
-    "customer_arrived": "Arrivée",
-    "queue_joined": "Entrée dans une file",
-    "service_started": "Début de service",
-    "customer_departed": "Client servi et sorti",
-    "queue_switched": "Changement de file",
-    "customer_abandoned": "Abandon",
-    "register_opened": "Ouverture de caisse",
-    "register_closed": "Fermeture de caisse",
-}
 
 
 @st.cache_data(show_spinner="Calcul de la simulation...", max_entries=64)
@@ -45,71 +33,108 @@ def _refresh():
         st.rerun()
 
 
-def _controls(config: ScenarioConfig) -> tuple[ScenarioConfig, DynamicOptions]:
+PROFILES = {
+    "Paramètres latéraux": {},
+    "Affluence soutenue": dict(
+        customer_count=80,
+        arrival_window_min=60.0,
+        mean_service_time_min=1.6,
+        open_registers=3,
+    ),
+    "Pic du samedi": dict(
+        customer_count=110,
+        arrival_window_min=60.0,
+        mean_service_time_min=1.7,
+        open_registers=4,
+    ),
+    "Soutenance reproductible": dict(
+        customer_count=110,
+        arrival_window_min=60.0,
+        mean_service_time_min=1.7,
+        open_registers=2,
+        seed=42,
+    ),
+}
+
+
+def _settings():
+    return st.session_state.get(
+        "studio_settings", (None, "Paramètres latéraux", None, 12, True, True)
+    )
+
+
+def studio_parameters(config: ScenarioConfig) -> tuple[ScenarioConfig, DynamicOptions]:
+    saved_capacity_key, situation, registers, patience, abandon, switches = _settings()
+    profile = replace(config, **PROFILES[situation])
+    capacity_key = _capacity_key(config, situation)
+    if saved_capacity_key != capacity_key:
+        registers = min(profile.open_registers, 5)
+    if PROFILES[situation]:
+        profile = replace(profile, name=situation)
+    return replace(profile, open_registers=registers), DynamicOptions(
+        patience_min=patience if abandon else None, switching_enabled=switches
+    )
+
+
+def _capacity_key(config, situation):
+    # Les profils fixent leur capacité initiale, les réglages latéraux la pilotent sinon.
+    return (
+        situation,
+        None if PROFILES[situation] else (config.name, config.open_registers),
+    )
+
+
+def studio_results(config: ScenarioConfig):
+    config, base_options = studio_parameters(config)
+    context = _context(config, base_options)
+    reference = run_dynamic(config, base_options)
+    options = apply_interventions(base_options, context["actions"])
+    return context, reference, run_dynamic(config, options) if context["actions"] else reference
+
+
+def _controls(config: ScenarioConfig) -> None:
+    capacity_key, situation, registers, patience, abandon, switches = _settings()
     with st.expander("Réglages de l'atelier et défis d'affluence"):
         situation = st.selectbox(
             "Situation à explorer",
-            [
-                "Paramètres latéraux",
-                "Affluence soutenue",
-                "Pic du samedi",
-                "Soutenance reproductible",
-            ],
+            list(PROFILES),
+            index=list(PROFILES).index(situation),
+            key="studio_profile",
         )
-        if situation == "Affluence soutenue":
-            config = replace(
-                config,
-                name=situation,
-                customer_count=80,
-                arrival_window_min=60.0,
-                mean_service_time_min=1.6,
-                open_registers=3,
-            )
-        elif situation == "Pic du samedi":
-            config = replace(
-                config,
-                name=situation,
-                customer_count=110,
-                arrival_window_min=60.0,
-                mean_service_time_min=1.7,
-                open_registers=4,
-            )
-        elif situation == "Soutenance reproductible":
-            config = replace(
-                config,
-                name=situation,
-                customer_count=110,
-                arrival_window_min=60.0,
-                mean_service_time_min=1.7,
-                open_registers=2,
-                seed=42,
-            )
+        current_key = _capacity_key(config, situation)
+        profile = replace(config, **PROFILES[situation])
+        if situation == "Soutenance reproductible":
             st.caption(
-                "Profil dérivé du Pic du samedi, avec deux caisses et graine 42. "
-                "Conservez patience 12 min, abandons et rééquilibrage activés "
-                "pour reproduire le scénario de secours documenté."
+                "Pic du samedi avec deux caisses et graine 42. Conservez une patience "
+                "de 12 min, les abandons et le rééquilibrage pour reproduire la démonstration."
             )
-        if config.open_registers > 5:
-            st.info("L'atelier représente 5 caisses. La capacité historique reste inchangée.")
+        if profile.open_registers > 5:
+            st.info("L’atelier représente au maximum cinq caisses.")
         a, b, c = st.columns(3)
         registers = a.slider(
             "Caisses initiales de la scène",
             1,
             5,
-            min(config.open_registers, 5),
-            key=f"studio_registers_{situation}",
+            registers if capacity_key == current_key else min(profile.open_registers, 5),
+            key=f"studio_registers_{current_key}",
         )
-        patience = b.slider("Patience avant abandon (min)", 1, 60, 12)
-        abandon = c.checkbox("Abandons autorisés", value=True)
-        switches = c.checkbox("Rééquilibrage automatique des files", value=True)
+        patience = b.slider("Patience avant abandon (min)", 1, 60, patience, key="studio_patience")
+        abandon = c.checkbox("Abandons autorisés", value=abandon, key="studio_abandon")
+        switches = c.checkbox(
+            "Rééquilibrage automatique des files", value=switches, key="studio_switches"
+        )
+        st.session_state["studio_settings"] = (
+            current_key,
+            situation,
+            registers,
+            patience,
+            abandon,
+            switches,
+        )
         st.caption(
             "Un client réaffecté à la souris garde sa nouvelle file jusqu'au service "
             "ou à une fermeture de caisse. L'arrivée et la patience sont conservées."
         )
-    return replace(config, name=config.name, open_registers=registers), DynamicOptions(
-        patience_min=patience if abandon else None,
-        switching_enabled=switches,
-    )
 
 
 def _context(config: ScenarioConfig, options: DynamicOptions) -> dict:
@@ -130,11 +155,9 @@ def _context(config: ScenarioConfig, options: DynamicOptions) -> dict:
 @st.fragment
 def render_dynamic(config: ScenarioConfig) -> None:
     stage = st.container()
-    config, base_options = _controls(config)
-    context = _context(config, base_options)
-    reference = run_dynamic(config, base_options)
-    options = apply_interventions(base_options, context["actions"])
-    result = run_dynamic(config, options)
+    _controls(config)
+    context, _, result = studio_results(config)
+    config = result.config
     st.caption(
         f"{config.name} / {config.customer_count} clients / "
         f"{config.open_registers} caisses initiales / "
@@ -209,72 +232,16 @@ def render_dynamic(config: ScenarioConfig) -> None:
         f"{len(context['actions'])} intervention(s). "
         "Les actions recalculent le futur avec la même clientèle."
     )
-    section(
-        "Ce que raconte la simulation",
-        "Bilan final du scénario, distinct des compteurs en direct de l'atelier.",
-    )
-    data = customer_frame(result)
-    cards(
-        [
-            ("Clients arrivés", str(len(data)), "Tous les arrivants du scénario", charts.BLUE),
-            ("Clients servis", str(result.served_count), "Passages terminés", charts.TEAL),
-            ("Abandons", str(result.abandoned_count), "Départs sans être servis", charts.RED),
-            (
-                "Servis avec attente ≤ 5 min",
-                f"{service_level(data):.1f} %",
-                "Part de tous les arrivants",
-                charts.GOLD,
-            ),
-        ]
-    )
-    served_waits = data.loc[data["Statut"] == "Servi", "Attente"]
-    if len(served_waits):
-        st.caption(
-            f"Attentes des servis : moyenne {served_waits.mean():.2f} min, "
-            f"médiane {served_waits.median():.2f} min, "
-            f"P90 {served_waits.quantile(0.9):.2f} min, "
-            f"P95 {served_waits.quantile(0.95):.2f} min."
-        )
-    for title, text in describe_result(result):
-        st.markdown(f"**{title}.** {text}")
-    view = st.radio(
-        "Analyse de la scène",
-        ["Flux", "Attentes", "Interventions", "Laboratoire de décision", "Journal et exports"],
-        horizontal=True,
-    )
-    if view == "Flux":
-        plot(charts.congestion(data), "dynamic_flow")
-        plot(charts.cumulative_flow(data), "dynamic_outcomes")
-        plot(charts.arrival_chart(data), "dynamic_arrivals")
-    elif view == "Attentes":
-        st.caption(
-            "La caisse désigne la dernière affectation du client. Son attente couvre "
-            "tout le parcours aux caisses, y compris les éventuels changements de file. "
-            "La heatmap associe cette attente à la caisse finale, sans attribuer "
-            "tout ce temps à cette seule caisse."
-        )
-        plot(charts.wait_scatter(data), "dynamic_scatter")
-        served = data.loc[data["Statut"] == "Servi"]
-        if len(served):
-            left, right = st.columns(2)
-            with left:
-                plot(charts.wait_histogram(served), "dynamic_histogram")
-            with right:
-                plot(charts.wait_ecdf(served), "dynamic_ecdf")
-            st.caption(
-                "Histogramme et courbe cumulée : clients servis seulement. "
-                "Le nuage inclut aussi les abandons, identifiables au survol."
-            )
-        plot(charts.wait_heatmap(data, 5), "dynamic_heatmap")
-    elif view == "Interventions":
-        _render_interventions(context, reference, result)
-    elif view == "Laboratoire de décision":
-        render_decision_lab(config, base_options)
-    else:
-        _exports(config, options, result, context)
+    a, b = st.columns(2)
+    if a.button("Analyser ce scénario", width="stretch"):
+        st.session_state["studio_navigation_request"] = "Analyses"
+        st.rerun(scope="app")
+    if b.button("Comparer les capacités", width="stretch"):
+        st.session_state["studio_navigation_request"] = "Optimisation"
+        st.rerun(scope="app")
 
 
-def _render_interventions(context: dict, reference, result) -> None:
+def render_interventions(context: dict, reference, result) -> None:
     section(
         "L'effet de vos décisions",
         "Même graine, mêmes arrivants, mêmes services prévus. Seules vos actions diffèrent.",
@@ -341,39 +308,3 @@ def _render_interventions(context: dict, reference, result) -> None:
     )
     with st.expander("Vérifier les ressources mobilisées par caisse"):
         st.dataframe(resource_frame(result), hide_index=True, width="stretch")
-
-
-def _exports(config, options, result, context) -> None:
-    events = pd.DataFrame(result.events_as_dicts())
-    events["Événement"] = events["type"].map(EVENT_LABELS)
-    selected = st.multiselect("Types d'événements", list(EVENT_LABELS.values()))
-    display = events if not selected else events.loc[events["Événement"].isin(selected)]
-    st.dataframe(display, hide_index=True, width="stretch")
-    a, b, c = st.columns(3)
-    a.download_button(
-        "Événements (CSV)",
-        events.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"),
-        "retailflow_evenements.csv",
-        "text/csv",
-    )
-    b.download_button(
-        "Clients (CSV)",
-        customer_frame(result).to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"),
-        "retailflow_clients_dynamiques.csv",
-        "text/csv",
-    )
-    payload = {
-        "schema": "retailflow-experience/7.0",
-        "perimetre": "Bilan final du moteur dynamique, temps en minutes",
-        "indicateurs_finaux": final_metrics(result),
-        "resultats_interventions": [asdict(o) for o in result.action_outcomes],
-        "configuration": asdict(config),
-        "options": asdict(options),
-        "interventions": [asdict(a) for a in context["actions"]],
-    }
-    c.download_button(
-        "Expérience (JSON)",
-        json.dumps(payload, ensure_ascii=False, indent=2),
-        "retailflow_experience.json",
-        "application/json",
-    )

@@ -6,6 +6,18 @@ from queuesmart.config import WAIT_THRESHOLD_MIN, ScenarioConfig
 from queuesmart.simulation.dynamic import DynamicResult
 from queuesmart.simulation.result import SimulationResult
 
+CUSTOMER_COLUMNS = [
+    "Client",
+    "Caisse",
+    "Arrivée",
+    "Attente",
+    "Service",
+    "Début",
+    "Sortie",
+    "Abandon",
+    "Statut",
+]
+
 
 def customer_frame(result: SimulationResult | DynamicResult) -> pd.DataFrame:
     """Un schéma commun, avec un statut explicite pour les abandons."""
@@ -21,10 +33,17 @@ def customer_frame(result: SimulationResult | DynamicResult) -> pd.DataFrame:
                 "Début": c.service_start,
                 "Sortie": c.departure_time if dynamic else c.service_end,
                 "Abandon": c.abandoned_at if dynamic else None,
-                "Statut": "Abandon" if dynamic and c.abandoned_at is not None else "Servi",
+                "Statut": (
+                    "Abandon"
+                    if dynamic and c.abandoned_at is not None
+                    else "Présent"
+                    if dynamic and c.departure_time is None
+                    else "Servi"
+                ),
             }
             for c in result.customers
-        ]
+        ],
+        columns=CUSTOMER_COLUMNS,
     )
 
 
@@ -40,8 +59,10 @@ def flow_frame(clients: pd.DataFrame) -> pd.DataFrame:
         if row["Statut"] == "Servi":
             events.append((row["Début"], -1, 1, 0, 0))
             events.append((row["Sortie"], 0, -1, 1, 0))
-        else:
+        elif row["Statut"] == "Abandon":
             events.append((row["Abandon"], -1, 0, 0, 1))
+        elif pd.notna(row["Début"]):
+            events.append((row["Début"], -1, 1, 0, 0))
     frame = pd.DataFrame(
         events, columns=["Minute", "En attente", "En service", "Servis", "Abandons"]
     )

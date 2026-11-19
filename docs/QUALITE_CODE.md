@@ -1,6 +1,10 @@
 # RetailFlow | Qualité du code : exemples de refactorisation
 
-> **Document historique.** Ce texte décrit l'état du projet au moment de cette étape. Les branches, commandes, chiffres de tests et tâches « à faire » peuvent être obsolètes. Pour la version actuelle, consulter [l'index documentaire](README.md) et [la validation V7](VERSION_7_VALIDATION.md).
+## Contrôles de l’intégration V8
+
+Depuis la racine, exécuter `python -m pytest -q`, `python -m compileall -q app.py queuesmart tests`, `npm run test:scene` et `python -m ruff check .`. Le lint global signale la dette historique consignée dans la [validation V8](VERSION_8_VALIDATION.md). Le contrôle ciblé couvre les fichiers Python de la V8 et la portée précédente du workflow.
+
+Les notes suivantes concernent l’ancienne refactorisation. Voir [l’index documentaire](README.md) pour les guides maintenus.
 
 > **Origine des exemples.** Le moteur a d'abord été écrit volontairement sous une forme
 > naïve (une seule fonction `run`), puis exécuté sur les 3 scénarios. Il a ensuite été

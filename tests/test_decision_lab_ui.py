@@ -1,13 +1,10 @@
 """Parcours Streamlit du laboratoire et export reproductible."""
 
-from test_app import run_app
+from test_app import run_app, select_page
 
 
 def _lab():
-    app = run_app()
-    next(w for w in app.radio if w.label == "Analyse de la scène").set_value(
-        "Laboratoire de décision"
-    ).run()
+    app = select_page(run_app(), "Optimisation")
     assert not app.exception
     return app
 
@@ -33,3 +30,13 @@ def test_sensitivity_changes_volume_only():
     _, rows = app.session_state["decision_sensitivity"]
     assert [r["Clients"] for r in rows] == [40, 50, 60]
     assert len({r["Caisses"] for r in rows}) == 1
+
+
+def test_mean_wait_objective_reports_abandonment():
+    app = _lab()
+    next(w for w in app.radio if w.label == "Objectif de capacité").set_value(
+        "Seuil d’attente moyenne"
+    ).run()
+    next(b for b in app.button if b.label == "Tester le seuil d’attente").click().run()
+    assert not app.exception
+    assert any("Taux d’abandon moyen" in notice.value for notice in app.success)

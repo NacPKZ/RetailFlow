@@ -39,7 +39,7 @@ La principale limite est que les données sont synthétiques. Les parcours en ra
 - 0:40 à 1:20 : Simulation, réglages, Soutenance reproductible, graine 42, patience 12, deux caisses. Cliquer Voir le pic.
 - 1:20 à 2:10 : inspecter un client en file puis ouvrir la caisse 3. Attendre la confirmation Python. Montrer le rang et le journal.
 - 2:10 à 3:00 : sélectionner un client encore en file et choisir une autre caisse ouverte. Montrer l'alternative au glisser-déposer.
-- 3:00 à 4:10 : Interventions, comparer le bilan au témoin. Puis Laboratoire de décision, cinq graines, cinq caisses, hypothèses par défaut.
+- 3:00 à 4:10 : Cliquer sur **Analyser ce scénario**, puis **Interventions**. Comparer le bilan au témoin. Ouvrir **Optimisation** et comparer les deux objectifs sur cinq graines.
 - 4:10 à 5:00 : commenter la recommandation conditionnelle, exporter le ZIP, conclure sur les limites.
 
 En cas d'indisponibilité réseau, utiliser l'application locale déjà préparée ou les CSV et le rapport dans docs/demonstration. Les résultats de secours ne remplacent pas une démonstration interactive.
@@ -65,3 +65,11 @@ En cas d'indisponibilité réseau, utiliser l'application locale déjà prépar�
 ## Répartition orale proposée
 
 Intervenant 1 : contexte et objectifs. Intervenant 2 : méthode et architecture. Intervenant 3 : démonstration. Intervenant 4 : analyses, optimisation et limites. Cette répartition de parole ne constitue pas une attribution du développement.
+
+
+## Points à présenter dans la V8
+
+1. Partir du pic, ouvrir une caisse et suivre une réaffectation.
+2. Lire les écarts dans **Analyses**, à scénario et graine identiques.
+3. Expliquer pourquoi une attente moyenne faible peut coexister avec un taux d’abandon élevé.
+4. Présenter les deux objectifs d’**Optimisation**, puis exporter le classeur pour vérifier les chiffres.

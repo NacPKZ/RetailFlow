@@ -520,6 +520,22 @@ RF.StorePainter = class {
         open ? "#528574" : "#ad6677",
         "center",
       );
+      const change = motion && snapshot.recent?.find(
+        (event) => event.register_id === r.id && time - event.time < 0.6 &&
+          ["register_opened", "register_closed", "customer_abandoned"].includes(event.type),
+      );
+      if (change) {
+        const age = (time - change.time) / 0.6;
+        c.save();
+        c.globalAlpha = 0.62 * (1 - age);
+        c.strokeStyle = change.type === "register_opened" ? "#148778" : "#c35465";
+        c.lineWidth = 2;
+        c.beginPath();
+        c.ellipse(x, 2.65 * uy, (1.75 + age * 0.35) * ux,
+          (0.58 + age * 0.22) * uy, 0, 0, Math.PI * 2);
+        c.stroke();
+        c.restore();
+      }
       // Comptoir, terminal et tapis roulant.
       this.round(
         c,

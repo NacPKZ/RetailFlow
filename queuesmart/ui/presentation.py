@@ -27,10 +27,10 @@ def plot(fig: go.Figure, key: str) -> None:
 
 
 def cards(values: list[tuple[str, str, str, str]]) -> None:
-    for column, (label, value, hint, color) in zip(st.columns(len(values)), values, strict=True):
-        column.markdown(
-            f'<div class="rf-card" style="--accent:{color}">'
-            f'<div class="label">{escape(label)}</div>'
-            f'<div class="value">{escape(value)}</div><div class="hint">{escape(hint)}</div></div>',
-            unsafe_allow_html=True,
-        )
+    content = "".join(
+        f'<div class="rf-card" style="--accent:{color}">'
+        f'<div class="label">{escape(label)}</div>'
+        f'<div class="value">{escape(value)}</div><div class="hint">{escape(hint)}</div></div>'
+        for label, value, hint, color in values
+    )
+    st.markdown(f'<div class="rf-card-grid">{content}</div>', unsafe_allow_html=True)

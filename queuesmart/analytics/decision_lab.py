@@ -79,6 +79,7 @@ def compare_dynamic_capacity(
                     "Service (%)": level,
                     "Servis": result.served_count,
                     "Abandons": result.abandoned_count,
+                    "Taux d'abandon (%)": 100 * result.abandoned_count / config.customer_count,
                     "Caisse-minutes": minutes,
                     "Occupation (%)": 100 * float(resources["Service (min)"].sum()) / minutes
                     if minutes
@@ -89,7 +90,9 @@ def compare_dynamic_capacity(
                     "Cible atteinte": level >= assumptions.service_target,
                 }
             )
-    trials = pd.DataFrame(records)
+    trials = pd.DataFrame(records).astype(
+        {"Attente moyenne (min)": float, "P90 servis (min)": float}
+    )
     summary = (
         trials.groupby("Caisses", as_index=False).mean(numeric_only=True).drop(columns="Graine")
     )
@@ -125,9 +128,9 @@ def decision_report(config, options, assumptions, summary, trials) -> str:
     """Rapport Markdown reproductible, aussi lisible hors de l'application."""
     recommendation = recommend_capacity(summary)
     lines = [
-        "# RetailFlow V7.0 : rapport de décision",
+        "# RetailFlow V8 : rapport de décision",
         "",
-        "Projet universitaire de Master 2 BIDABI. Scénarios synthétiques.",
+        "Simulation de files d’attente. Scénarios synthétiques.",
         "",
         "## Hypothèses",
         "",
@@ -203,3 +206,25 @@ def decision_bundle(config, options, assumptions, summary, trials, chart_html) -
         )
         archive.writestr("frontiere.html", chart_html)
     return buffer.getvalue()
+
+
+def mean_wait_capacity(trials: pd.DataFrame, threshold: float) -> tuple[pd.DataFrame, int | None]:
+    """Retient la plus petite capacité conforme pour chaque graine testée."""
+    if not math.isfinite(threshold) or threshold < 0:
+        raise ValueError("Le seuil d’attente doit être fini et positif ou nul.")
+    waits = trials["Attente moyenne (min)"]
+    summary = (
+        trials.assign(conforme=waits.le(threshold))
+        .groupby("Caisses", as_index=False)
+        .agg(
+            **{
+                "Attente moyenne (min)": ("Attente moyenne (min)", "mean"),
+                "Plus forte moyenne (min)": ("Attente moyenne (min)", "max"),
+                "Taux d’abandon moyen (%)": ("Taux d'abandon (%)", "mean"),
+                "Tirages conformes": ("conforme", "sum"),
+                "Tirages": ("Graine", "count"),
+            }
+        )
+    )
+    feasible = summary.loc[summary["Tirages conformes"] == summary["Tirages"]]
+    return summary, int(feasible["Caisses"].min()) if len(feasible) else None
