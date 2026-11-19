@@ -6,7 +6,7 @@ Projet universitaire réalisé en Master 2 Big Data, Analyse & Business Intellig
 
 **[Accéder à l'application Streamlit](https://retailflow-nacpkz.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/RETAILFLOW_V7.md)
 
-![Capture réelle de RetailFlow déployé](docs/validation_v7/retailflow_public.jpg)
+![Capture réelle de RetailFlow déployé](https://raw.githubusercontent.com/NacPKZ/RetailFlow/feature/retailflow-v7-final/docs/validation_v7/retailflow_public.jpg)
 
 ## Problématique
 
