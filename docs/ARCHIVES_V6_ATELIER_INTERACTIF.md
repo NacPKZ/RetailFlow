@@ -133,4 +133,4 @@ présente l'effet combiné face au témoin, sans l'attribuer à la dernière dé
 
 Le mode soutenance guide l'oral sans cacher les contrôles. Les cinq formats CSS testés,
 les mesures, les captures et les limites sont détaillés dans
-[le rapport V6.1](FINALISATION_RETAILFLOW_V6_1.md).
+[le rapport V6.1](ARCHIVES_V6_1_FINALISATION.md).
