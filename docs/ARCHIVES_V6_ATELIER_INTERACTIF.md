@@ -1,5 +1,7 @@
 # RetailFlow | Archives V6 : atelier interactif
 
+> **Document historique.** Ce texte décrit l'état du projet au moment de cette étape. Les branches, commandes, chiffres de tests et tâches « à faire » peuvent être obsolètes. Pour la version actuelle, consulter [l'index documentaire](README.md) et [la validation V7](VERSION_7_VALIDATION.md).
+
 ## Objectif
 
 Passer d'un petit lecteur de trajectoires à un atelier de décision : on observe,
