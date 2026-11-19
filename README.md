@@ -1,6 +1,6 @@
-# RetailFlow V7.0 : Enterprise Edition
+# RetailFlow V7.0
 
-**Prototype universitaire d’aide à la décision, sans déploiement commercial revendiqué.**
+**Prototype universitaire d’aide à la décision.**
 
 **Simulation et optimisation des files d'attente en supermarché**
 
@@ -81,6 +81,16 @@ Un résultat de secours et son CSV sont fournis dans `docs/validation_v6_1/`.
 Pour les reproduire : `python scripts/prepare_soutenance.py`.
 Le protocole de trois à cinq minutes et les limites figurent dans
 [le bilan V6.1](docs/FINALISATION_RETAILFLOW_V6_1.md).
+
+## Livraison finale
+
+Entrée officielle : `app.py`. Accueil, Simulation, Analyses, Optimisation et Méthodologie.
+Les interventions utilisent un fragment Streamlit pour limiter les reruns de la page.
+Les dossiers de décision sont mis en cache.
+
+[Soutenance et contenu des douze diapositives](docs/SOUTENANCE.md).
+[Résultats de démonstration reproductibles](docs/demonstration/scenarios.json).
+[Préparation du déploiement](docs/DEPLOIEMENT.md).
 
 ## Démarrage rapide
 

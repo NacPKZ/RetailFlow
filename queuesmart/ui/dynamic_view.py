@@ -36,6 +36,15 @@ def run_dynamic(config: ScenarioConfig, options: DynamicOptions):
     return DynamicSimulationEngine().run(config, options)
 
 
+def _refresh():
+    from streamlit.errors import StreamlitAPIException
+
+    try:
+        st.rerun(scope="fragment")
+    except StreamlitAPIException:
+        st.rerun()
+
+
 def _controls(config: ScenarioConfig) -> tuple[ScenarioConfig, DynamicOptions]:
     with st.expander("Réglages de l'atelier et défis d'affluence"):
         situation = st.selectbox(
@@ -118,6 +127,7 @@ def _context(config: ScenarioConfig, options: DynamicOptions) -> dict:
     return st.session_state["studio_context"]
 
 
+@st.fragment
 def render_dynamic(config: ScenarioConfig) -> None:
     stage = st.container()
     config, base_options = _controls(config)
@@ -172,7 +182,7 @@ def render_dynamic(config: ScenarioConfig) -> None:
                 "revision": len(context["actions"]),
                 "followed": action.get("followed"),
             }
-            st.rerun()
+            _refresh()
     a, b, c = st.columns([1, 1, 2])
     if a.button(
         "Annuler la dernière intervention", disabled=not context["actions"], width="stretch"
@@ -184,14 +194,14 @@ def render_dynamic(config: ScenarioConfig) -> None:
             "token": uuid.uuid4().hex,
         }
         context["feedback"] = "La dernière intervention a été annulée."
-        st.rerun()
+        _refresh()
     if b.button("Réinitialiser l'expérience", disabled=not context["actions"], width="stretch"):
         context.update(
             actions=[],
             cursor={"time": 0, "revision": 0, "token": uuid.uuid4().hex},
             feedback="Expérience réinitialisée.",
         )
-        st.rerun()
+        _refresh()
     c.caption(
         f"{len(context['actions'])} intervention(s). "
         "Les actions recalculent le futur avec la même clientèle."
@@ -214,6 +224,14 @@ def render_dynamic(config: ScenarioConfig) -> None:
             ),
         ]
     )
+    served_waits = data.loc[data["Statut"] == "Servi", "Attente"]
+    if len(served_waits):
+        st.caption(
+            f"Attentes des servis : moyenne {served_waits.mean():.2f} min, "
+            f"médiane {served_waits.median():.2f} min, "
+            f"P90 {served_waits.quantile(0.9):.2f} min, "
+            f"P95 {served_waits.quantile(0.95):.2f} min."
+        )
     for title, text in describe_result(result):
         st.markdown(f"**{title}.** {text}")
     view = st.radio(

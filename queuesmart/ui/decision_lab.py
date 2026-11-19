@@ -21,6 +21,11 @@ def _compare(config, options, assumptions, maximum, runs):
     return compare_dynamic_capacity(config, options, assumptions, maximum, runs)
 
 
+@st.cache_data(show_spinner=False, max_entries=8)
+def _bundle(*args):
+    return decision_bundle(*args)
+
+
 def render_decision_lab(config, base_options):
     section("Laboratoire de décision", "Capacité, qualité de service et coûts hypothétiques")
     st.caption(
@@ -112,7 +117,7 @@ def render_decision_lab(config, base_options):
             "Une utilisation opérationnelle demanderait une calibration terrain."
         )
     report = decision_report(config, base_options, assumptions, summary, trials)
-    bundle = decision_bundle(
+    bundle = _bundle(
         config,
         base_options,
         assumptions,

@@ -1,4 +1,4 @@
-# RetailFlow V7.0 : Enterprise Edition
+# RetailFlow V7.0
 
 Prototype universitaire d'aide à la décision, Master 2 BIDABI. Données synthétiques.
 Le nom de l'édition décrit une ambition de présentation et de méthode ; aucun
@@ -154,7 +154,7 @@ son graphique HTML embarque Plotly et fonctionne sans CDN.
 
 ## Validation et limites de cette livraison
 
-285 tests Python réussis, sans échec ni test ignoré. Trois suites JavaScript
+286 tests Python réussis, sans échec ni test ignoré. Trois suites JavaScript
 réussies, Ruff ciblé et `git diff --check` réussis.
 Les résultats de tests et les mesures sont consignés dans `validation_v7/`.
 Les tests couvrent notamment :
@@ -183,3 +183,10 @@ La carte est accessible par commandes alternatives, mais le canvas ne représent
 pas à lui seul une interface complète pour lecteur d'écran.
 
 Ces limites motivent une PR en brouillon jusqu'à la revue visuelle de l'équipe.
+
+## Consolidation finale
+
+Accueil et méthodologie intégrés. Interventions isolées dans un fragment Streamlit.
+Exports lourds mis en cache. Médiane et P95 ajoutés aux résultats dynamiques.
+Cinq scénarios calculés dans demonstration/, scripts et contenu oral dans SOUTENANCE.md.
+Le déploiement public nécessite une connexion au compte Streamlit, page de connexion observée.

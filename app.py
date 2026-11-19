@@ -341,10 +341,11 @@ def main() -> None:
     result = run_simulation(config, strategy_name)
     page = st.radio(
         "Navigation",
-        ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison"],
+        ["Accueil", "Simulation", "Analyses", "Optimisation", "Méthodologie"],
         horizontal=True,
         label_visibility="collapsed",
-        index=1,
+        index=0,
+        key="navigation",
     )
     if page == "Simulation":
         st.markdown(
@@ -354,7 +355,7 @@ def main() -> None:
         )
     else:
         hero(config, strategy_name)
-    if page != "Simulation":
+    if page in ("Analyses", "Optimisation"):
         st.markdown(
             '<div class="rf-source"><b>Moteur FIFO historique</b> / sans abandon ni '
             "changement de file / "
@@ -362,8 +363,56 @@ def main() -> None:
             unsafe_allow_html=True,
         )
     clients = customer_frame(result)
-    if page == "Vue d'ensemble":
-        overview(config, result, clients)
+    if page == "Accueil":
+        st.subheader("Simulation et optimisation des files d'attente en supermarché")
+        st.write(
+            "RetailFlow permet de simuler les flux de clients, d'analyser la congestion "
+            "et de comparer différentes configurations de caisses afin d'éclairer "
+            "les décisions opérationnelles."
+        )
+        for col, label, target in zip(
+            st.columns(3),
+            ["Lancer une simulation", "Explorer les analyses", "Comprendre la méthode"],
+            ["Simulation", "Analyses", "Méthodologie"],
+            strict=True,
+        ):
+            col.button(
+                label,
+                on_click=lambda t=target: st.session_state.update(navigation=t),
+                width="stretch",
+            )
+        st.markdown("**Configurer → Simuler → Analyser → Optimiser**")
+        st.write(
+            "Comparez l'attente et le niveau de service au coût hypothétique des caisses. "
+            "Les abandons comptent comme des échecs de service. Les scénarios sont "
+            "synthétiques et reproductibles, sans calibration sur un magasin réel."
+        )
+        st.info(
+            "Démonstration : dans Simulation, choisissez Soutenance reproductible, "
+            "puis Voir le pic. Le laboratoire permet ensuite de tester +20 % de clients."
+        )
+    elif page == "Méthodologie":
+        st.subheader("Méthode et limites")
+        st.markdown(
+            "Arrivées uniformes, services gamma, files FIFO par caisse. "
+            "Le moteur dynamique ajoute patience, abandons et changements de file. "
+            "Une fermeture laisse finir le service en cours. "
+            "La vitesse du dessin ne modifie aucun calcul."
+        )
+        st.markdown(
+            "Le niveau de service dynamique utilise tous les arrivants. "
+            "Moyenne et percentiles des attentes portent sur les clients servis. "
+            "Les capacités partagent les mêmes graines et les mêmes clients. "
+            "La cible doit être atteinte à chaque répétition pour recommander une capacité."
+        )
+        st.markdown(
+            "Coûts hypothétiques, information parfaite sur les services simulés, "
+            "parcours de courses illustratifs. La projection à cinq minutes extrapole "
+            "la tendance récente. Aucun résultat ne constitue une prévision terrain."
+        )
+        st.markdown(
+            "Guide complet : docs/RETAILFLOW_V7.md. Déroulé oral et questions : docs/SOUTENANCE.md."
+        )
     elif page == "Simulation":
         with st.expander("Comprendre le simulateur et préparer une décision"):
             a, b, c = st.columns(3)
@@ -386,9 +435,15 @@ def main() -> None:
                 "explicites. La vitesse de lecture ne change aucun résultat de simulation."
             )
         simulation(config, result)
-    elif page == "Analyse":
+    elif page == "Analyses":
+        overview(config, result, clients)
         analytics(result, clients)
-    else:
+    elif page == "Optimisation":
+        st.info(
+            "Le laboratoire dynamique est accessible dans Simulation, "
+            "Analyse de la scène, Laboratoire de décision. "
+            "Le comparateur ci-dessous conserve le périmètre FIFO historique."
+        )
         comparison(config, strategy_name, clients)
     st.markdown(
         '<div class="rf-foot">RetailFlow / Projet universitaire / Données synthétiques / '

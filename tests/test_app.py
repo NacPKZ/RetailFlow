@@ -12,15 +12,19 @@ from queuesmart.simulation.strategies import STRATEGIES
 APP_PATH = Path(__file__).resolve().parent.parent / "app.py"
 APP_TIMEOUT_S = 60
 CASES = list(itertools.product(SCENARIOS, STRATEGIES))
-PAGES = ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison"]
+PAGES = ["Accueil", "Simulation", "Analyses", "Optimisation", "Méthodologie"]
 
 
 def run_app() -> AppTest:
-    return AppTest.from_file(str(APP_PATH), default_timeout=APP_TIMEOUT_S).run()
+    app = AppTest.from_file(str(APP_PATH), default_timeout=APP_TIMEOUT_S).run()
+    return select_page(app, "Simulation")
 
 
 def select_page(app: AppTest, page: str) -> AppTest:
     navigation = next(widget for widget in app.radio if widget.label == "Navigation")
+    page = {"Analyse": "Analyses", "Comparaison": "Optimisation", "Vue d'ensemble": "Accueil"}.get(
+        page, page
+    )
     navigation.set_value(page).run()
     return app
 
