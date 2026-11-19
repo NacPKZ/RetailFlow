@@ -1,4 +1,4 @@
-# RetailFlow | Rapport technique des étapes H1 à H7
+# RetailFlow | Archives : rapport technique H1 à H7
 
 **Date :** 17 novembre 2026  
 **Statut :** base technique transmise, tests automatisés de l'application mis à jour et exécutés localement le 17 novembre 2026 ; intégration 2D et analytics finale encore en attente.  
