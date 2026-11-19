@@ -88,6 +88,8 @@ docs/                     Méthodologie, validations et soutenance
 
 ## Documentation
 
+**[Index complet de la documentation et des archives](docs/README.md)**
+
 Les guides actuels sont séparés des archives historiques. Les noms des fichiers Markdown suivent une convention en majuscules et underscores.
 
 | Document | Contenu |
