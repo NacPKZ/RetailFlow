@@ -1,5 +1,7 @@
 # RetailFlow | Archives V1 : contrat d'intégration
 
+> **Document historique.** Ce texte décrit l'état du projet au moment de cette étape. Les branches, commandes, chiffres de tests et tâches « à faire » peuvent être obsolètes. Pour la version actuelle, consulter [l'index documentaire](README.md) et [la validation V7](VERSION_7_VALIDATION.md).
+
 ## 1. Statut et portée historique
 
 Le moteur historique calcule des files FIFO fixes. Les modules `queuesmart.simulation.events` et `queuesmart.analytics.mean_wait_optimizer` ont été ajoutés sans modifier les calculs existants.
