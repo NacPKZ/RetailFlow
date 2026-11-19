@@ -1,4 +1,4 @@
-# RetailFlow : atelier interactif V6
+# RetailFlow | Archives V6 : atelier interactif
 
 ## Objectif
 
