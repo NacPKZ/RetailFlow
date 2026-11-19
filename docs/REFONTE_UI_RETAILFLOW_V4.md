@@ -1,4 +1,4 @@
-# RetailFlow | Évolution de l'interface Streamlit (V4)
+# RetailFlow | Archives V4 : évolution de l'interface Streamlit
 
 ## 1. Objectif
 
