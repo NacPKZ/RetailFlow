@@ -386,7 +386,7 @@ def main() -> None:
     if page == "Simulation":
         st.markdown(
             '<div class="rf-lab-head"><strong>RetailFlow <small>V7.0</small></strong>'
-            "<span>Aide à la décision / Prototype universitaire</span></div>",
+            "<span>Aide à la décision / Prototype de simulation</span></div>",
             unsafe_allow_html=True,
         )
     else:
@@ -483,7 +483,7 @@ def main() -> None:
         )
         comparison(config, strategy_name, clients)
     st.markdown(
-        '<div class="rf-foot">RetailFlow / Projet universitaire / Données synthétiques / '
+        '<div class="rf-foot">RetailFlow / Simulation / Données synthétiques / '
         "Ouvre la barre du graphique pour zoomer ou exporter une image.</div>",
         unsafe_allow_html=True,
     )
