@@ -4,7 +4,7 @@
 
 Projet universitaire réalisé en Master 2 Big Data, Analyse & Business Intelligence (BIDABI), à l'Université Sorbonne Paris Nord. RetailFlow étudie le compromis entre temps d'attente, qualité de service et mobilisation des caisses à partir de **données synthétiques**.
 
-**[Accéder à l'application Streamlit](https://retailflow-nacpkz.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/RETAILFLOW_V7.md)
+**[Accéder à l'application Streamlit](https://retailflow-nacpkz.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/VERSION_7_VALIDATION.md)
 
 ![Capture réelle de RetailFlow déployé](docs/validation_v7/retailflow_public.jpg)
 
@@ -68,7 +68,7 @@ npm run test:scene
 git diff --check
 ```
 
-La livraison documente **287 tests Python réussis**, **trois suites JavaScript réussies** et une **GitHub Actions au vert**. Les tests portent notamment sur FIFO, conservation des clients, interventions, cohérence des KPI, comparaisons appariées, scène et exports. Voir [validation détaillée](docs/RETAILFLOW_V7.md) et [contrôle du déploiement](docs/DEPLOIEMENT.md). Ces résultats ne constituent pas une garantie d'absence de bugs.
+La livraison documente **287 tests Python réussis**, **trois suites JavaScript réussies** et une **GitHub Actions au vert**. Les tests portent notamment sur FIFO, conservation des clients, interventions, cohérence des KPI, comparaisons appariées, scène et exports. Voir [validation détaillée](docs/VERSION_7_VALIDATION.md) et [contrôle du déploiement](docs/DEPLOIEMENT.md). Ces résultats ne constituent pas une garantie d'absence de bugs.
 
 ## Architecture
 
@@ -88,13 +88,15 @@ docs/                     Méthodologie, validations et soutenance
 
 ## Documentation
 
+Les guides actuels sont séparés des archives historiques. Les noms des fichiers Markdown suivent une convention en majuscules et underscores.
+
 | Document | Contenu |
 | --- | --- |
-| [Méthodologie et validation finale](docs/RETAILFLOW_V7.md) | Hypothèses, KPI, limites, architecture et contrôles |
+| [Méthodologie et validation finale](docs/VERSION_7_VALIDATION.md) | Hypothèses, KPI, limites, architecture et contrôles |
 | [Déploiement](docs/DEPLOIEMENT.md) | Application publique et vérifications réelles |
 | [Soutenance](docs/SOUTENANCE.md) | Pitchs, plan des douze diapositives et démonstration |
-| [Conception](docs/conception.md) | Architecture et responsabilités |
-| [Moteurs](docs/moteur.md) | Hypothèses et règles de simulation |
+| [Conception](docs/ARCHITECTURE.md) | Architecture et responsabilités |
+| [Moteurs](docs/MOTEURS_SIMULATION.md) | Hypothèses et règles de simulation |
 | [Scène 2D](docs/SCENE_2D.md) | Fonctionnement de la visualisation |
 | [Résultats reproductibles](docs/demonstration/scenarios.json) | Paramètres et résultats des scénarios |
 
