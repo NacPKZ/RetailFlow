@@ -1,0 +1,82 @@
+:root {--rf-navy:#162c46;--rf-muted:#62758a;--rf-border:#e3eaf2;--rf-blue:#3979ce;}
+.stApp {background:#f5f7fb;color:var(--rf-navy);}
+.block-container {max-width:none;padding:.6rem 1.1rem 2rem;}
+h1,h2,h3 {letter-spacing:-.035em;color:var(--rf-navy);}
+p {line-height:1.55;}
+[data-testid="stSidebar"] {background:#fff;border-right:1px solid var(--rf-border);}
+[data-testid="stSidebar"] h2 {font-size:1.4rem;}
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {gap:.85rem;}
+[data-testid="stWidgetLabel"] p {font-size:.95rem;font-weight:600;}
+.rf-hero {border-radius:20px;padding:24px 30px;background:linear-gradient(115deg,#14283f,#244767);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:24px;overflow:hidden;position:relative;}
+.rf-hero:after {content:'';position:absolute;width:240px;height:240px;right:30px;border:36px solid #ffffff06;border-radius:50%;pointer-events:none;}
+.rf-hero h1 {font-size:2.7rem!important;color:#fff;margin:0!important;line-height:1.2;}
+.rf-hero p {color:#d5dfed;margin:8px 0 0;max-width:640px;font-size:1.05rem;}
+.rf-eyebrow {font-size:.72rem;letter-spacing:.15em;font-weight:700;color:#e6bd76;margin-bottom:7px;}
+.rf-context {z-index:1;border-left:1px solid #ffffff28;padding-left:25px;font-size:.87rem;line-height:1.8;white-space:nowrap;}
+.rf-context b {color:#e6bd76;}
+.rf-card {background:#fff;border:1px solid var(--rf-border);border-top:3px solid var(--accent,#3979ce);border-radius:14px;padding:16px 18px;min-height:135px;box-sizing:border-box;}
+.rf-card .label {font-size:.92rem;color:#53677e;font-weight:600;}
+.rf-card .value {font-size:2.2rem;line-height:1.5;font-weight:750;letter-spacing:-.04em;color:#162c46;font-variant-numeric:tabular-nums;}
+.rf-card .hint {font-size:.8rem;color:#6c7e92;}
+.rf-source {font-size:.84rem;color:#5f7389;padding:8px 0;}
+.rf-source b {font-weight:650;color:#2f567c;}
+.rf-section {margin:16px 0 8px;}
+.rf-section strong {display:block;font-size:1.5rem;letter-spacing:-.03em;}
+.rf-section span {display:block;font-size:.9rem;color:var(--rf-muted);margin-top:2px;}
+[data-testid="stPlotlyChart"] {border:1px solid var(--rf-border);border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 3px 12px #162c4604;}
+[data-testid="stMetric"] {background:#fff;border:1px solid var(--rf-border);border-radius:12px;padding:14px;}
+[data-testid="stMetricValue"] {font-size:1.8rem;color:var(--rf-navy);}
+[data-testid="stTabs"] [role="tablist"] {gap:16px;border-bottom:1px solid var(--rf-border);}
+[data-testid="stTabs"] [role="tab"] {font-size:1rem;padding:10px 0;font-weight:600;}
+[data-testid="stRadio"] label {padding:6px 12px;border-radius:10px;transition:background .2s;}
+[data-testid="stRadio"] label:hover {background:#e9f0f9;}
+.rf-foot {font-size:.8rem;color:#6c7e92;border-top:1px solid var(--rf-border);padding-top:14px;margin-top:24px;}
+@media(prefers-reduced-motion:no-preference) {
+.rf-hero,.rf-card,[data-testid="stPlotlyChart"] {animation:rf-appear .35s ease-out both;}
+.rf-card {transition:box-shadow .2s,border-color .2s;}
+.rf-card:hover {box-shadow:0 7px 20px #162c4610;border-color:#bdcfe4;}
+@keyframes rf-appear {from {opacity:0;transform:translateY(6px)}to {opacity:1;transform:none}}
+}
+@media(max-width:800px) {.block-container {padding:1rem .75rem;}.rf-hero {padding:20px;}.rf-hero h1 {font-size:2.1rem!important;}.rf-context {display:none;}.rf-card {min-height:120px;padding:12px;}.rf-card .value {font-size:1.8rem;}}
+
+/* Lecture à distance et espace de travail sur toute la largeur. */
+html {font-size:18px;}
+.rf-lab-head {display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:4px 0 8px;color:#59778e;font-size:.85rem;}
+.rf-lab-head strong {font-size:1.65rem;color:#1c465f;letter-spacing:-.04em;}
+
+[data-testid="stWidgetLabel"] p {font-size:1rem;}
+[data-testid="stCaptionContainer"] p {font-size:.9rem;}
+[data-testid="stTabs"] [role="tab"] {font-size:1.06rem;}
+@media(min-width:1800px) {html {font-size:20px;}.block-container {padding:1rem 1.5rem 2rem;}}
+@media(max-width:800px) {html {font-size:16px;}.rf-lab-head span {display:none;}}
+.rf-lab-head small{font-size:.65rem;letter-spacing:.08em;color:#8b6832;border:1px solid #ddc797;border-radius:6px;padding:4px 7px;margin-left:6px;vertical-align:middle}
+
+/* Navigation lisible et identité sobre sur les cinq espaces. */
+.stApp{background:#f3f5f8}.block-container{max-width:1600px;padding-top:1rem}
+.rf-topbrand{font-size:1.35rem;font-weight:750;color:#152e49;padding:.3rem 0}
+.rf-topbrand span{font-size:.8rem;font-weight:450;color:#63758b;margin-left:18px}
+.st-key-navigation{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:8px 12px;margin-bottom:12px}
+.st-key-navigation [role=radiogroup]{gap:6px;flex-wrap:wrap}
+.st-key-navigation label{border:1px solid transparent;min-height:44px;margin:0;padding:8px 18px!important;border-radius:9px}
+.st-key-navigation label:has(input:checked){background:#193551;border-color:#193551;color:#fff}
+.st-key-navigation label:has(input:checked) p{color:#fff}
+.rf-hero{border-radius:16px;background:#193551;padding:26px 30px;box-shadow:none}
+.rf-hero:after{display:none}.rf-hero h1{font-size:2.5rem!important}
+.rf-card{border-top-width:2px;box-shadow:0 2px 8px #152e4905;min-height:125px}
+.rf-section strong{font-size:1.3rem}.rf-section span{max-width:1000px;line-height:1.6}
+[data-testid=stExpander]{background:white;border-radius:12px;border-color:#dce4ee}
+[data-testid=stForm]{background:#fff;border:1px solid #dce4ee;border-radius:14px;padding:20px}
+[data-testid=stButton] button{border-radius:9px;min-height:44px;font-weight:600}
+[data-testid=stPlotlyChart]{box-shadow:none;border-radius:12px}
+@media(max-width:800px){.rf-topbrand span{display:none}.rf-topbrand{font-size:1.1rem}.st-key-navigation{padding:6px}.st-key-navigation label{padding:8px 10px!important}.rf-hero{padding:20px}}
+
+/* Réserver l'espace du bandeau fixe Streamlit, y compris au zoom navigateur. */
+[data-testid="stMain"] .block-container{padding-top:5rem!important;min-width:0}
+.rf-hero>div{min-width:0}.rf-hero p{overflow-wrap:anywhere}
+.rf-topbrand{overflow-wrap:anywhere}
+@media(max-width:800px){
+ [data-testid="stMain"] .block-container{padding-top:4.5rem!important}
+ .rf-hero{flex-wrap:wrap;gap:16px}
+ .st-key-navigation [role="radiogroup"]{width:100%;min-width:0}
+ .st-key-navigation label{max-width:100%;box-sizing:border-box}
+}

@@ -1,0 +1,13 @@
+{
+  "python_tests": 267,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "python_seconds": 23.085,
+  "javascript_scene": "passed",
+  "javascript_studio": "passed",
+  "ruff_global_before": 97,
+  "ruff_global_after": 97,
+  "new_ruff_diagnostics": 0,
+  "diff_check": "passed"
+}

@@ -1,0 +1,138 @@
+[
+  {
+    "scenario": "A_normal",
+    "configuration": {
+      "name": "A_normal",
+      "customer_count": 50,
+      "arrival_window_min": 60,
+      "mean_service_time_min": 1.7,
+      "open_registers": 3,
+      "seed": 42
+    },
+    "options": {
+      "patience_min": 12.0,
+      "switching_enabled": true,
+      "switching_interval_min": 1.0,
+      "switching_gain_min": 1.0,
+      "register_changes": [],
+      "customer_moves": [],
+      "manual_actions": []
+    },
+    "resultats": {
+      "Attente moyenne des servis (min)": 0.09255770772038868,
+      "Médiane des servis (min)": 0.0,
+      "P95 des servis (min)": 0.6985567776480532,
+      "Taux d'abandon (%)": 0.0,
+      "P90 des servis (min)": 0.5082979735118455,
+      "Clients servis": 50,
+      "Abandons": 0,
+      "Niveau de service (%)": 100.0,
+      "Occupation des ressources (%)": 45.54255051884963,
+      "Ressources mobilisées (caisse-min)": 179.42974969413896
+    }
+  },
+  {
+    "scenario": "B_pointe",
+    "configuration": {
+      "name": "B_pointe",
+      "customer_count": 110,
+      "arrival_window_min": 60,
+      "mean_service_time_min": 1.7,
+      "open_registers": 4,
+      "seed": 42
+    },
+    "options": {
+      "patience_min": 12.0,
+      "switching_enabled": true,
+      "switching_interval_min": 1.0,
+      "switching_gain_min": 1.0,
+      "register_changes": [],
+      "customer_moves": [],
+      "manual_actions": []
+    },
+    "resultats": {
+      "Attente moyenne des servis (min)": 0.44610271421193437,
+      "Médiane des servis (min)": 0.023081126141362596,
+      "P95 des servis (min)": 1.485485451767205,
+      "Taux d'abandon (%)": 0.0,
+      "P90 des servis (min)": 1.2610579864772031,
+      "Clients servis": 110,
+      "Abandons": 0,
+      "Niveau de service (%)": 100.0,
+      "Occupation des ressources (%)": 79.28817634326508,
+      "Ressources mobilisées (caisse-min)": 249.20803547467096
+    }
+  },
+  {
+    "scenario": "C_sous_capacite",
+    "configuration": {
+      "name": "C_sous_capacite",
+      "customer_count": 110,
+      "arrival_window_min": 60,
+      "mean_service_time_min": 1.7,
+      "open_registers": 2,
+      "seed": 42
+    },
+    "options": {
+      "patience_min": 12.0,
+      "switching_enabled": true,
+      "switching_interval_min": 1.0,
+      "switching_gain_min": 1.0,
+      "register_changes": [],
+      "customer_moves": [],
+      "manual_actions": []
+    },
+    "resultats": {
+      "Attente moyenne des servis (min)": 9.526700906802414,
+      "Médiane des servis (min)": 10.34232208012984,
+      "P95 des servis (min)": 11.758084334831963,
+      "Taux d'abandon (%)": 30.90909090909091,
+      "P90 des servis (min)": 11.638624037935614,
+      "Clients servis": 76,
+      "Abandons": 34,
+      "Niveau de service (%)": 4.545454545454546,
+      "Occupation des ressources (%)": 98.92006226297289,
+      "Ressources mobilisées (caisse-min)": 145.75734891533165
+    }
+  },
+  {
+    "scenario": "D_intervention",
+    "configuration": {
+      "name": "D_intervention",
+      "customer_count": 110,
+      "arrival_window_min": 60,
+      "mean_service_time_min": 1.7,
+      "open_registers": 2,
+      "seed": 42
+    },
+    "options": {
+      "patience_min": 12.0,
+      "switching_enabled": true,
+      "switching_interval_min": 1.0,
+      "switching_gain_min": 1.0,
+      "register_changes": [],
+      "customer_moves": [],
+      "manual_actions": [
+        [
+          20,
+          "register",
+          3,
+          null,
+          true
+        ]
+      ]
+    },
+    "resultats": {
+      "Attente moyenne des servis (min)": 8.836150768851075,
+      "Médiane des servis (min)": 9.517513428834008,
+      "P95 des servis (min)": 11.596083749613555,
+      "Taux d'abandon (%)": 0.9090909090909091,
+      "P90 des servis (min)": 11.387228872224998,
+      "Clients servis": 109,
+      "Abandons": 1,
+      "Niveau de service (%)": 6.363636363636363,
+      "Occupation des ressources (%)": 98.42062603116489,
+      "Ressources mobilisées (caisse-min)": 198.82238591627498
+    }
+  }
+]

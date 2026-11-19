@@ -1,0 +1,142 @@
+[
+  {
+    "clients": 10,
+    "caisses": 1,
+    "moteur_ms": 0.267,
+    "scene_ms": 9.879,
+    "json_octets": 15444
+  },
+  {
+    "clients": 10,
+    "caisses": 2,
+    "moteur_ms": 0.224,
+    "scene_ms": 3.961,
+    "json_octets": 15236
+  },
+  {
+    "clients": 10,
+    "caisses": 3,
+    "moteur_ms": 0.232,
+    "scene_ms": 3.348,
+    "json_octets": 15235
+  },
+  {
+    "clients": 10,
+    "caisses": 4,
+    "moteur_ms": 0.248,
+    "scene_ms": 5.02,
+    "json_octets": 15234
+  },
+  {
+    "clients": 10,
+    "caisses": 5,
+    "moteur_ms": 0.247,
+    "scene_ms": 3.362,
+    "json_octets": 15233
+  },
+  {
+    "clients": 60,
+    "caisses": 1,
+    "moteur_ms": 2.901,
+    "scene_ms": 24.448,
+    "json_octets": 143374
+  },
+  {
+    "clients": 60,
+    "caisses": 2,
+    "moteur_ms": 3.586,
+    "scene_ms": 82.469,
+    "json_octets": 112800
+  },
+  {
+    "clients": 60,
+    "caisses": 3,
+    "moteur_ms": 3.027,
+    "scene_ms": 10.013,
+    "json_octets": 103204
+  },
+  {
+    "clients": 60,
+    "caisses": 4,
+    "moteur_ms": 1.528,
+    "scene_ms": 9.183,
+    "json_octets": 93107
+  },
+  {
+    "clients": 60,
+    "caisses": 5,
+    "moteur_ms": 1.175,
+    "scene_ms": 7.931,
+    "json_octets": 89440
+  },
+  {
+    "clients": 100,
+    "caisses": 1,
+    "moteur_ms": 5.408,
+    "scene_ms": 57.629,
+    "json_octets": 297616
+  },
+  {
+    "clients": 100,
+    "caisses": 2,
+    "moteur_ms": 7.44,
+    "scene_ms": 32.415,
+    "json_octets": 215792
+  },
+  {
+    "clients": 100,
+    "caisses": 3,
+    "moteur_ms": 13.963,
+    "scene_ms": 167.741,
+    "json_octets": 193369
+  },
+  {
+    "clients": 100,
+    "caisses": 4,
+    "moteur_ms": 5.602,
+    "scene_ms": 19.338,
+    "json_octets": 179272
+  },
+  {
+    "clients": 100,
+    "caisses": 5,
+    "moteur_ms": 3.92,
+    "scene_ms": 16.621,
+    "json_octets": 166603
+  },
+  {
+    "clients": 110,
+    "caisses": 1,
+    "moteur_ms": 6.013,
+    "scene_ms": 73.722,
+    "json_octets": 355890
+  },
+  {
+    "clients": 110,
+    "caisses": 2,
+    "moteur_ms": 9.232,
+    "scene_ms": 133.708,
+    "json_octets": 253018
+  },
+  {
+    "clients": 110,
+    "caisses": 3,
+    "moteur_ms": 9.644,
+    "scene_ms": 25.732,
+    "json_octets": 222852
+  },
+  {
+    "clients": 110,
+    "caisses": 4,
+    "moteur_ms": 9.188,
+    "scene_ms": 21.056,
+    "json_octets": 203794
+  },
+  {
+    "clients": 110,
+    "caisses": 5,
+    "moteur_ms": 7.821,
+    "scene_ms": 17.639,
+    "json_octets": 190956
+  }
+]

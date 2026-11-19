@@ -1,551 +1,490 @@
-"""RetailFlow, interface Streamlit simplifiée pour la simulation FIFO.
-
-Lancer depuis la racine du projet : python -m streamlit run app.py
-Le moteur dynamique et ses événements sont disponibles dans dynamic_demo.py.
-"""
-
-from __future__ import annotations
+"""RetailFlow : une entrée pour la scène dynamique et l'analyse FIFO."""
 
 import json
 from dataclasses import asdict
+from html import escape
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from queuesmart.analytics.comparison import compare_strategies
 from queuesmart.analytics.kpi import KpiCalculator
-from queuesmart.config import WAIT_THRESHOLD_MIN, ScenarioConfig
+from queuesmart.analytics.narrative import describe_result
+from queuesmart.analytics.visual_data import compare_capacity, customer_frame, register_frame
+from queuesmart.config import ScenarioConfig
 from queuesmart.simulation.engine import SimulationEngine
 from queuesmart.simulation.result import SimulationResult
-from queuesmart.simulation.strategies import build_strategy
+from queuesmart.simulation.strategies import STRATEGIES, build_strategy
+from queuesmart.ui import charts
 from queuesmart.ui.client_screen import render_client_screen
+from queuesmart.ui.dynamic_view import render_dynamic
+from queuesmart.ui.presentation import cards, plot, section, theme
 from queuesmart.ui.sidebar import render_sidebar
 from queuesmart.ui.store_view import render_store_view
-
-NAVY = "#14253D"
-BLUE = "#4478B4"
-GOLD = "#C9A45B"
-GREEN = "#18826F"
-PALE = "#F4F7FB"
 
 
 @st.cache_data(show_spinner="Calcul du scénario...")
 def run_simulation(config: ScenarioConfig, strategy_name: str) -> SimulationResult:
-    """Mémoriser uniquement les entrées hashables, pas l'objet résultat."""
     return SimulationEngine(build_strategy(strategy_name)).run(config)
 
 
-def customers_frame(result: SimulationResult) -> pd.DataFrame:
-    """Pas de cache Streamlit : SimulationResult contient des objets non hashables."""
-    return pd.DataFrame(
-        {
-            "Client": c.customer_id,
-            "Caisse": c.register_id,
-            "Arrivée": c.arrival_time,
-            "Attente": c.wait_time,
-            "Service": c.service_duration,
-            "Début": c.service_start,
-            "Sortie": c.service_end,
-        }
-        for c in result.customers
-    )
+@st.cache_data(show_spinner="Comparaison sur plusieurs graines...")
+def capacity(config: ScenarioConfig, strategy: str, maximum: int, runs: int) -> pd.DataFrame:
+    return compare_capacity(config, strategy, maximum, runs)
 
 
-def registers_frame(result: SimulationResult, clients: pd.DataFrame) -> pd.DataFrame:
-    rows = []
-    for register in result.registers:
-        part = clients.loc[clients["Caisse"] == register.register_id]
-        rows.append(
-            {
-                "Caisse": register.register_id,
-                "Clients": len(part),
-                "Attente moyenne": float(part["Attente"].mean()) if len(part) else 0.0,
-                "Occupation (%)": 100 * register.busy_time() / result.end_time,
-            }
-        )
-    return pd.DataFrame(rows)
+@st.cache_data(show_spinner="Comparaison des comportements...")
+def strategies(config: ScenarioConfig, runs: int):
+    return compare_strategies(config, KpiCalculator(), runs)
 
 
-def theme() -> None:
-    """Style sobre, transitions courtes et respect du mouvement réduit."""
+def hero(config: ScenarioConfig, strategy_name: str) -> None:
     st.markdown(
-        """
-    <style>
-    :root {--navy:#14253D;--gold:#C9A45B;--blue:#4478B4;--muted:#68798D;}
-    .stApp {background:#F5F7FB;color:var(--navy);}
-    .block-container {max-width:1740px;padding:.55rem 1.25rem 1.1rem;}
-    [data-testid="stSidebar"] {background:#14253D;border-right:1px solid #2B415E;}
-    [data-testid="stSidebar"] * {color:#F6F8FC;}
-    [data-testid="stSidebar"] input {color:#14253D!important;}
-    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] {font-weight:550;}
-    [data-testid="stSidebar"] hr {border-color:#304561;}
-    h1,h2,h3 {letter-spacing:-.035em;color:var(--navy)!important;}
-    h2 {font-size:1.8rem!important;margin-top:.2rem!important;}
-    h3 {font-size:1.35rem!important;}
-    p {line-height:1.52;}
-    .rf-hero {display:flex;justify-content:space-between;align-items:center;gap:1rem;
-      background:linear-gradient(115deg,#14253D,#244569);border-radius:20px;
-      padding:18px 28px;color:white;margin-bottom:8px;overflow:hidden;position:relative;
-      animation:rf-in .45s ease-out both;}
-    .rf-hero:after {content:'';position:absolute;right:-45px;top:-100px;width:260px;height:260px;
-      border-radius:50%;border:40px solid #ffffff0c;pointer-events:none;}
-    .rf-eyebrow {font-size:.69rem;font-weight:750;letter-spacing:.15em;color:#E5C17D;margin-bottom:7px;}
-    .rf-hero h1 {font-size:3.1rem!important;color:white!important;margin:0 0 3px!important;}
-    .rf-hero p {font-size:1.12rem;color:#D4E0F0;margin:0;}
-    .rf-pill {border:1px solid #ffffff35;border-radius:100px;padding:8px 13px;
-      font-size:.74rem;white-space:nowrap;background:#ffffff12;z-index:1;}
-    .rf-section {display:flex;align-items:baseline;justify-content:space-between;
-      margin:10px 0 6px;gap:8px;}
-    .rf-section strong {font-size:1.85rem;letter-spacing:-.025em;}
-    .rf-section span {font-size:1.03rem;color:#6A7A8F;}
-    .rf-card {background:white;border:1px solid #E5EBF2;border-radius:16px;
-      padding:12px 17px;box-shadow:0 5px 20px #14253D06;animation:rf-in .45s ease-out both;}
-    .rf-card .label {font-size:1.08rem;color:#69798C;margin-bottom:7px;}
-    .rf-card .value {font-size:2.5rem;letter-spacing:-.045em;font-weight:750;color:#14253D;}
-    .rf-card .hint {font-size:.97rem;color:#7D8A9A;margin-top:5px;}
-    .rf-card:hover {border-color:#C6D6E9;transform:translateY(-2px);transition:.2s ease;}
-    div[data-testid="stMetric"] {background:white;border:1px solid #E5EBF2;
-      border-radius:15px;padding:15px 17px;box-shadow:0 4px 16px #14253D05;}
-    [data-testid="stMetricValue"] {color:#14253D;font-weight:700;}
-    [data-testid="stMetricLabel"] {color:#69798C;}
-    [data-testid="stHorizontalBlock"] {align-items:stretch;gap:.75rem;}
-    [data-testid="stPlotlyChart"] {background:white;border:1px solid #E7ECF3;
-      border-radius:14px;padding:2px 5px;box-shadow:0 4px 16px #14253D05;}
-    [data-testid="stRadio"] [role="radiogroup"] {gap:.45rem;}
-    [data-testid="stRadio"] [role="radiogroup"] label {border-radius:11px;}
-    [data-testid="stDownloadButton"] button {border-radius:11px;}
-    div[data-testid="stTabs"] [role="tablist"] {gap:.35rem;}
-    div[data-testid="stTabs"] button {border-radius:10px;padding:.65rem 1rem;}
-    [data-testid="stPlotlyChart"] {transition:transform .3s ease,box-shadow .3s ease;}
-    [data-testid="stPlotlyChart"]:hover {transform:translateY(-3px);box-shadow:0 12px 32px #14253D16;}
-    [data-testid="stMetric"] {animation:rf-in .55s ease both;}
-    [data-testid="stMetric"]:hover {transform:translateY(-3px);transition:transform .22s ease;}
-    .rf-card:nth-child(2) {animation-delay:.07s;}
-    .rf-card:nth-child(3) {animation-delay:.14s;}
-    .rf-card:nth-child(4) {animation-delay:.21s;}
-    .rf-hero {background-size:180% 180%;animation:rf-in .5s ease both,rf-glow 11s ease-in-out infinite alternate;}
-    @keyframes rf-glow {0% {background-position:0% 50%}100% {background-position:100% 50%}}
-    [data-testid="stTabs"] [role="tab"] {font-size:1.17rem;font-weight:700;}
-    [data-testid="stRadio"] [role="radiogroup"] label {padding:.45rem .8rem!important;transition:background .2s ease;}
-    [data-testid="stRadio"] [role="radiogroup"] label:hover {background:#E5EDF8;}
-    [data-testid="stSidebar"] {min-width:280px;}
-    .rf-foot {margin-top:22px;padding-top:15px;border-top:1px solid #E1E7F0;
-      color:#8793A4;font-size:.73rem;}
-    @keyframes rf-in {from {opacity:0;transform:translateY(9px)}
-      to {opacity:1;transform:translateY(0)}}
-    @media(max-width:800px) {.block-container {padding:1rem .8rem 2rem;}
-      .rf-hero {padding:20px;}.rf-pill {display:none;}.rf-hero h1 {font-size:1.8rem!important;}}
-    @media(prefers-reduced-motion:reduce) {.rf-hero,.rf-card {animation:none!important;}
-      .rf-card:hover,[data-testid="stPlotlyChart"]:hover,[data-testid="stMetric"]:hover {transform:none!important;}
-      .rf-hero {animation:none!important;}}
-    /* Typography and density: larger content, less wasted space. */
-    html {font-size:17px;}
-    [data-testid="stSidebar"] {font-size:1.06rem;}
-    [data-testid="stSidebar"] [data-testid="stWidgetLabel"] p {font-size:1.06rem!important;}
-    [data-testid="stSidebar"] [data-testid="stSlider"] {margin-bottom:-.45rem;}
-    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {gap:.45rem;}
-    [data-testid="stVerticalBlock"] {gap:.55rem;}
-    [data-testid="stPlotlyChart"] {animation:rf-rise .58s cubic-bezier(.2,.8,.2,1) both;}
-    [data-testid="stPlotlyChart"]:nth-of-type(even) {animation-delay:.1s;}
-    [data-testid="stPlotlyChart"] .modebar {opacity:0;transition:opacity .2s;}
-    [data-testid="stPlotlyChart"]:hover .modebar {opacity:1;}
-    .rf-hero:before {content:'';position:absolute;inset:-60% auto -60% -35%;width:25%;
-      transform:rotate(20deg) translateX(-200%);background:linear-gradient(90deg,transparent,#ffffff16,transparent);
-      animation:rf-sheen 9s ease-in-out infinite;pointer-events:none;}
-    .rf-hero:after {animation:rf-orbit 12s ease-in-out infinite alternate;}
-    .rf-pill {animation:rf-breathe 4s ease-in-out infinite;}
-    .rf-card {transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease;}
-    .rf-card:hover {box-shadow:0 14px 28px #14253D18;}
-    [data-testid="stRadio"] [role="radiogroup"] label {font-size:1.1rem!important;}
-    [data-testid="stTabs"] button {font-size:1.12rem!important;}
-    [data-testid="stPlotlyChart"] svg text {font-size:15px;}
-    @keyframes rf-rise {from {opacity:0;transform:translateY(18px) scale(.99)}to {opacity:1;transform:translateY(0) scale(1)}}
-    @keyframes rf-sheen {0%,68% {transform:rotate(20deg) translateX(-300%)}88%,100% {transform:rotate(20deg) translateX(1100%)}}
-    @keyframes rf-orbit {from {transform:translate(-12px,4px) scale(.95)}to {transform:translate(12px,-8px) scale(1.07)}}
-    @keyframes rf-breathe {0%,100% {box-shadow:0 0 0 0 #d7b36e00}50% {box-shadow:0 0 0 6px #d7b36e12}}
-    @media(prefers-reduced-motion:reduce) {
-      *,*::before,*::after {animation:none!important;transition:none!important;scroll-behavior:auto!important;}
-    }
-    </style>
-    """,
+        '<div class="rf-hero"><div><div class="rf-eyebrow">LE BON FLUX. AU BON MOMENT.</div>'
+        '<h1>RetailFlow<span style="color:#e6bd76">.</span></h1>'
+        "<p>Observer les files, comprendre les pics et tester les décisions.</p></div>"
+        f'<div class="rf-context"><b>{escape(config.name)}</b><br>{config.customer_count} clients '
+        f"/ {config.open_registers} caisses<br>Graine {config.seed} "
+        f"/ {escape(STRATEGIES[strategy_name].label)}</div></div>",
         unsafe_allow_html=True,
     )
-
-
-def hero(config: ScenarioConfig) -> None:
-    st.markdown(
-        f"""
-    <div class="rf-hero">
-      <div><div class="rf-eyebrow">SIMULATION ET OPTIMISATION</div>
-      <h1>RetailFlow<span style="color:#D7B36E">.</span></h1>
-      <p>Comprendre les files d'attente. Tester les décisions. Améliorer le service.</p></div>
-      <div class="rf-pill">{config.name} &nbsp; | &nbsp; Simulation FIFO</div>
-    </div>""",
-        unsafe_allow_html=True,
-    )
-
-
-def section(title: str, caption: str = "") -> None:
-    st.markdown(
-        f'<div class="rf-section"><strong>{title}</strong><span>{caption}</span></div>',
-        unsafe_allow_html=True,
-    )
-
-
-def chart(fig: go.Figure, height: int = 320) -> None:
-    fig.update_layout(
-        height=height,
-        margin=dict(l=18, r=18, t=42, b=22),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Arial", color=NAVY, size=17),
-        title_font=dict(size=20),
-        legend=dict(orientation="h", y=1.16, x=0),
-        hoverlabel=dict(bgcolor="white"),
-        transition=dict(duration=550, easing="cubic-in-out"),
-    )
-    fig.update_traces(
-        selector=dict(type="scatter"), marker=dict(line=dict(width=0.6, color="#FFFFFF"))
-    )
-    fig.update_xaxes(
-        showgrid=False, zeroline=False, tickfont=dict(size=15), title_font=dict(size=17)
-    )
-    fig.update_yaxes(
-        gridcolor="#EAF0F6", zeroline=False, tickfont=dict(size=15), title_font=dict(size=17)
-    )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
 def kpis(result: SimulationResult) -> None:
     report = KpiCalculator().compute(result)
-    cards = [
-        ("Clients simulés", str(report.customer_count), "Parcours terminés"),
-        ("Attente moyenne", f"{report.mean_wait:.1f} min", "Avant le passage en caisse"),
-        ("Attente P90", f"{report.p90_wait:.1f} min", "90 % des attentes sous ce seuil"),
-        (
-            "Service sous 5 min",
-            f"{100 * (1 - report.share_over_threshold):.0f} %",
-            "Part des clients",
-        ),
-    ]
-    for column, (label, value, hint) in zip(st.columns(4), cards):
-        with column:
-            st.markdown(
-                f'<div class="rf-card"><div class="label">{label}</div>'
-                f'<div class="value">{value}</div><div class="hint">{hint}</div></div>',
-                unsafe_allow_html=True,
-            )
+    level = 100 * (1 - report.share_over_threshold)
+    cards(
+        [
+            (
+                "Clients simulés",
+                str(report.customer_count),
+                "Tous les parcours sont terminés",
+                charts.BLUE,
+            ),
+            (
+                "Attente moyenne",
+                f"{report.mean_wait:.2f} min",
+                "De l'arrivée au début du service",
+                charts.BLUE,
+            ),
+            ("Attente P90", f"{report.p90_wait:.2f} min", "90e percentile interpolé", charts.GOLD),
+            (
+                "Attente ≤ 5 min",
+                f"{level:.1f} %",
+                "Objectif : au moins 90 % des clients",
+                charts.TEAL if level >= 90 else charts.RED,
+            ),
+        ]
+    )
 
 
 def overview(config: ScenarioConfig, result: SimulationResult, clients: pd.DataFrame) -> None:
-    section("Vue d'ensemble", "Les chiffres essentiels, sans surcharge")
     kpis(result)
-    left, right = st.columns([1.35, 1], gap="medium")
+    report = KpiCalculator().compute(result)
+    if report.share_over_threshold <= 0.10 and report.p90_wait <= 5:
+        st.success(
+            "Objectif atteint sur ce tirage : au moins 90 % des clients attendent 5 min ou moins."
+        )
+    else:
+        st.warning(
+            "Objectif non atteint sur ce tirage. Compare les capacités pour tester plus de caisses."
+        )
+    section(
+        "Le rythme du magasin",
+        "La hauteur montre les clients présents. Le doré représente la file d'attente.",
+    )
+    plot(charts.congestion(clients), "overview_flow")
+    left, right = st.columns([1.25, 1])
     with left:
-        section("Temps d'attente")
-        fig = px.histogram(
-            clients,
-            x="Attente",
-            nbins=22,
-            title="Distribution des attentes",
-            color_discrete_sequence=[BLUE],
-        )
-        fig.add_vline(
-            x=WAIT_THRESHOLD_MIN,
-            line_color=GOLD,
-            line_dash="dash",
-            annotation_text="Objectif 5 min",
-            annotation_position="top right",
-        )
-        fig.update_layout(xaxis_title="Minutes", yaxis_title="Clients", showlegend=False)
-        chart(fig)
-    with right:
-        section("Lecture rapide")
-        report = KpiCalculator().compute(result)
-        if report.share_over_threshold <= 0.10:
-            st.success(
-                "Objectif de service atteint : au moins 90 % des clients attendent 5 min ou moins."
-            )
-        else:
-            st.warning("Objectif non atteint : plus de 10 % des clients attendent plus de 5 min.")
-        st.metric("Occupation moyenne", f"{100 * report.mean_utilization:.0f} %")
+        plot(charts.wait_scatter(clients), "overview_scatter")
         st.caption(
-            f"{config.open_registers} caisses ouvertes. Durée totale simulée : {result.end_time:.1f} min."
+            "Une couleur par caisse. Survole un point pour examiner le client ; "
+            "clique sur une légende pour filtrer."
         )
-        st.caption("Données synthétiques, résultats dépendants du scénario.")
-    section("Arrivées et congestion", "Chaque point représente un client simulé")
-    scatter = px.scatter(
-        clients,
-        x="Arrivée",
-        y="Attente",
-        color="Caisse",
-        size="Service",
-        hover_data=["Client", "Début", "Sortie"],
-        title="Nuage de points : arrivée et attente par client",
-        color_continuous_scale=[[0, "#85B8D9"], [0.5, BLUE], [1, NAVY]],
-        opacity=0.8,
-    )
-    scatter.add_hline(
-        y=WAIT_THRESHOLD_MIN, line_color=GOLD, line_dash="dash", annotation_text="Seuil 5 min"
-    )
-    scatter.update_layout(xaxis_title="Minute d'arrivée", yaxis_title="Attente (min)")
-    chart(scatter, 390)
-    section("Activité des caisses", "Charge et répartition des clients")
-    registers = registers_frame(result, clients)
-    fig = px.bar(
-        registers,
-        x="Caisse",
-        y="Clients",
-        title="Clients servis par caisse",
-        color_discrete_sequence=[BLUE],
-        text="Clients",
-    )
-    fig.update_traces(textposition="outside")
-    fig.update_layout(xaxis=dict(dtick=1))
-    chart(fig, 300)
-    left, right = st.columns(2, gap="large")
-    with left:
-        timeline = px.scatter(
-            clients,
-            x="Début",
-            y="Caisse",
-            color="Attente",
-            size="Service",
-            hover_data=["Client", "Arrivée", "Sortie"],
-            color_continuous_scale="Blues",
-            title="Chronologie des passages en caisse",
-        )
-        timeline.update_layout(
-            xaxis_title="Minute de début de service", yaxis_title="Caisse", yaxis=dict(dtick=1)
-        )
-        chart(timeline, 315)
     with right:
-        arrival = clients.copy()
-        arrival["Tranche (10 min)"] = (arrival["Arrivée"] // 10 * 10).astype(int)
-        grouped = arrival.groupby("Tranche (10 min)", as_index=False).agg(
-            Clients=("Client", "count"), Attente=("Attente", "mean")
+        plot(charts.wait_histogram(clients), "overview_histogram")
+        st.caption(
+            "Vert : tranches sous le seuil de 5 min. Rose : tranches au-delà. Les "
+            "données sont simulées."
         )
-        bars = px.bar(
-            grouped,
-            x="Tranche (10 min)",
-            y="Clients",
-            title="Affluence par tranche de 10 minutes",
-            color_discrete_sequence=[BLUE],
-            text="Clients",
-        )
-        bars.update_layout(xaxis_title="Début de tranche (min)", yaxis_title="Clients")
-        chart(bars, 315)
-
-
-def simulation(result: SimulationResult) -> None:
-    section("Magasin en simulation", "Déplace le temps pour explorer l'activité")
-    st.caption(
-        "Vue schématique du moteur FIFO. La scène pixel art animée sera intégrée séparément."
+    for title, text in describe_result(result)[:2]:
+        st.markdown(f"**{title}.** {text}")
+    section(
+        "Repères", f"{config.open_registers} caisses / {result.end_time:.1f} minutes de simulation"
     )
+    left, right = st.columns(2)
+    with left:
+        plot(
+            charts.register_load(register_frame(clients, config.open_registers, result.end_time)),
+            "overview_load",
+        )
+    with right:
+        plot(charts.wait_ecdf(clients), "overview_ecdf")
+
+
+def simulation(config: ScenarioConfig, result: SimulationResult) -> None:
     tab_scene, tab_client = st.tabs(["Magasin", "Écran client"])
     with tab_scene:
-        render_store_view(result)
+        with st.expander("Modes d'affichage"):
+            mode = st.radio(
+                "Vue du magasin", ["Scène 2D dynamique", "Rejeu FIFO historique"], horizontal=True
+            )
+        if mode == "Scène 2D dynamique":
+            render_dynamic(config)
+        else:
+            render_store_view(result)
     with tab_client:
+        st.caption(
+            "Panneau du moteur FIFO historique, selon le comportement choisi dans la "
+            "barre latérale."
+        )
         render_client_screen(result)
 
 
 def analytics(result: SimulationResult, clients: pd.DataFrame) -> None:
-    section("Analyse des performances", "Distributions, corrélations et performance des caisses")
-    tab_wait, tab_register, tab_customers = st.tabs(["Attentes", "Caisses", "Clients"])
-    with tab_wait:
+    section(
+        "Explorer les performances",
+        "Chaque vue répond à une question. Les durées sont exprimées en minutes.",
+    )
+    selected = st.multiselect(
+        "Caisses à analyser",
+        list(range(1, result.config.open_registers + 1)),
+        default=list(range(1, result.config.open_registers + 1)),
+    )
+    data = clients.loc[clients["Caisse"].isin(selected)]
+    if data.empty:
+        st.info("Choisis au moins une caisse ayant reçu un client.")
+        return
+    st.caption(
+        f"Périmètre filtré : {len(data)} clients sur {len(clients)}. "
+        "Les graphiques ci-dessous suivent ce filtre."
+    )
+    choice = st.radio(
+        "Analyse détaillée", ["Attentes", "Caisses", "Flux", "Clients"], horizontal=True
+    )
+    if choice == "Attentes":
+        plot(charts.wait_scatter(data), "analysis_scatter")
         left, right = st.columns(2)
         with left:
-            fig = px.box(
-                clients,
-                x="Caisse",
-                y="Attente",
-                title="Dispersion des attentes",
-                color_discrete_sequence=[BLUE],
-            )
-            fig.update_layout(xaxis=dict(dtick=1))
-            chart(fig)
+            plot(charts.wait_histogram(data), "analysis_histogram")
         with right:
-            fig = px.scatter(
-                clients,
-                x="Arrivée",
-                y="Attente",
-                color="Caisse",
-                title="Attente selon l'heure d'arrivée",
-                opacity=0.7,
-                color_continuous_scale="Blues",
-            )
-            chart(fig)
-        left, right = st.columns(2, gap="large")
-        with left:
-            fig = px.histogram(
-                clients,
-                x="Attente",
-                nbins=28,
-                title="Histogramme détaillé des temps d'attente",
-                color_discrete_sequence=[BLUE],
-            )
-            fig.add_vline(x=WAIT_THRESHOLD_MIN, line_color=GOLD, line_dash="dash")
-            fig.update_layout(xaxis_title="Attente (min)", yaxis_title="Clients")
-            chart(fig)
-        with right:
-            fig = px.scatter(
-                clients,
-                x="Service",
-                y="Attente",
-                color="Caisse",
-                size="Service",
-                opacity=0.75,
-                title="Nuage de points : durée de service et attente",
-                color_continuous_scale="Blues",
-            )
-            fig.update_layout(xaxis_title="Durée du service (min)", yaxis_title="Attente (min)")
-            chart(fig)
-    with tab_register:
-        frame = registers_frame(result, clients)
-        fig = px.bar(
-            frame,
-            x="Caisse",
-            y="Occupation (%)",
-            title="Occupation des caisses",
-            color_discrete_sequence=[GOLD],
+            plot(charts.wait_ecdf(data), "analysis_ecdf")
+        plot(charts.wait_heatmap(data, result.config.open_registers), "analysis_heatmap")
+        st.caption(
+            "Carte : moyenne par caisse et tranche d'arrivée de 10 min. Une case vide"
+            " signifie qu'aucun client n'est présent dans ce groupe."
         )
-        fig.update_layout(xaxis=dict(dtick=1))
-        chart(fig)
-        a, b = st.columns(2, gap="large")
-        with a:
-            fig = px.bar(
-                frame,
-                x="Caisse",
-                y="Attente moyenne",
-                title="Attente moyenne par caisse",
-                color_discrete_sequence=[BLUE],
-            )
-            fig.update_layout(xaxis=dict(dtick=1))
-            chart(fig, 300)
-        with b:
-            fig = px.scatter(
-                frame,
-                x="Occupation (%)",
-                y="Attente moyenne",
-                size="Clients",
-                text="Caisse",
-                title="Occupation et attente par caisse",
-                color_discrete_sequence=[GOLD],
-            )
-            fig.update_traces(textposition="top center")
-            chart(fig, 300)
-        st.dataframe(frame.round(2), hide_index=True, use_container_width=True)
-    with tab_customers:
-        selected = st.selectbox("Client à examiner", clients["Client"].tolist())
-        customer = clients.loc[clients["Client"] == selected].iloc[0]
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Caisse", int(customer["Caisse"]))
-        c2.metric("Attente", f"{customer['Attente']:.1f} min")
-        c3.metric("Passage", f"{customer['Service']:.1f} min")
-        with st.expander("Afficher toutes les données clients"):
-            st.dataframe(clients.round(2), hide_index=True, use_container_width=True)
+    elif choice == "Caisses":
+        frame = register_frame(data, result.config.open_registers, result.end_time)
+        frame = frame.loc[frame["Caisse"].isin(selected)]
+        plot(charts.register_load(frame), "analysis_load")
+        plot(charts.service_timeline(data), "analysis_timeline")
+        st.dataframe(frame.round(2), hide_index=True, width="stretch")
+    elif choice == "Flux":
+        plot(charts.congestion(data), "analysis_flow")
+        plot(charts.arrival_chart(data), "analysis_arrivals")
+        plot(charts.wait_scatter(data, "Service"), "analysis_service")
+        st.caption(
+            "Le nuage de points ne démontre pas un effet causal de la durée de "
+            "service sur l'attente."
+        )
+    else:
+        selected_id = st.selectbox("Client à examiner", data["Client"].tolist())
+        row = data.loc[data["Client"] == selected_id].iloc[0]
+        cards(
+            [
+                ("Caisse", str(int(row["Caisse"])), "Caisse d'affectation", charts.BLUE),
+                ("Attente", f"{row['Attente']:.2f} min", "Avant le début du service", charts.GOLD),
+                ("Service", f"{row['Service']:.2f} min", "Durée du passage en caisse", charts.TEAL),
+            ]
+        )
+        st.info(
+            f"Arrivée à {row['Arrivée']:.2f} min, service à {row['Début']:.2f} min, "
+            f"sortie à {row['Sortie']:.2f} min."
+        )
+        st.dataframe(data.round(2), hide_index=True, width="stretch")
 
 
-def comparison(
-    config: ScenarioConfig, strategy_name: str, result: SimulationResult, clients: pd.DataFrame
-) -> None:
-    section("Tester une décision", "Comparer plusieurs capacités sur un scénario identique")
-    st.caption(
-        "Les simulations utilisent la même graine. Les résultats ne constituent pas une prévision réelle."
+def comparison(config: ScenarioConfig, strategy_name: str, clients: pd.DataFrame) -> None:
+    section(
+        "Tester une décision",
+        "Même clientèle et mêmes graines pour comparer les capacités équitablement.",
     )
-    maximum = st.slider("Nombre maximal de caisses à comparer", 2, 8, 5)
-    if st.button("Comparer les configurations", type="primary", use_container_width=True):
-        st.session_state["rf_compare_request"] = (config, strategy_name, maximum)
-    request = st.session_state.get("rf_compare_request")
-    if request is not None:
-        old_config, old_strategy, old_maximum = request
-        if old_config != config or old_strategy != strategy_name or old_maximum != maximum:
-            st.info("Les paramètres ont changé. Relance la comparaison.")
-        else:
-            rows = []
-            with st.spinner("Comparaison des capacités..."):
-                for n in range(1, maximum + 1):
-                    simulated = run_simulation(config.with_registers(n), strategy_name)
-                    report = KpiCalculator().compute(simulated)
-                    rows.append(
-                        {
-                            "Caisses": n,
-                            "Attente moyenne": report.mean_wait,
-                            "P90": report.p90_wait,
-                            "Part sous 5 min (%)": 100 * (1 - report.share_over_threshold),
-                        }
-                    )
-            frame = pd.DataFrame(rows)
-            fig = px.line(
-                frame,
-                x="Caisses",
-                y=["Attente moyenne", "P90"],
-                markers=True,
-                title="Effet du nombre de caisses sur l'attente",
+    st.caption(
+        "Moteur FIFO historique, sans abandon ni intervention dynamique. "
+        f"Scénario {config.name}, {config.customer_count} clients, "
+        f"arrivées sur {config.arrival_window_min:g} min, service moyen "
+        f"{config.mean_service_time_min:g} min, comportement {strategy_name}. "
+        "Les configurations utilisent les mêmes graines. Cette recommandation ne remplace "
+        "pas une validation avec le moteur dynamique et ses hypothèses."
+    )
+    with st.form("capacity_form"):
+        left, right = st.columns(2)
+        maximum = left.slider("Nombre maximal de caisses à comparer", 2, 8, 8)
+        runs = right.select_slider("Répétitions par capacité", options=[5, 10, 20], value=20)
+        submitted = st.form_submit_button(
+            "Comparer les configurations", type="primary", width="stretch"
+        )
+    signature = (config, strategy_name, maximum, runs)
+    if submitted:
+        st.session_state["capacity_result"] = (
+            signature,
+            capacity(config, strategy_name, maximum, runs),
+        )
+    cached = st.session_state.get("capacity_result")
+    if cached is not None and cached[0] == signature:
+        frame = cached[1]
+        feasible = frame.loc[frame["Objectif atteint"]]
+        if len(feasible):
+            minimum = int(feasible.iloc[0]["Caisses"])
+            st.success(
+                f"Capacité minimale observée : {minimum} caisses sur {runs} répétitions. "
+                "P90 ≤ 5 min et au moins 90 % des clients avec une attente ≤ 5 min."
             )
-            fig.update_layout(xaxis=dict(dtick=1), yaxis_title="Minutes")
-            chart(fig, 340)
-            st.dataframe(frame.round(2), hide_index=True, use_container_width=True)
-            candidates = frame.loc[frame["Part sous 5 min (%)"] >= 90]
-            if len(candidates):
-                st.success(
-                    f"Plus petite capacité respectant l'objectif dans ce test : {int(candidates.iloc[0]['Caisses'])} caisses."
+        else:
+            st.warning("Aucune capacité testée ne respecte les deux critères de service.")
+        plot(charts.capacity_chart(frame), "capacity_chart")
+        st.caption(
+            "La bande représente le minimum et le maximum des attentes moyennes "
+            "observées selon les graines. "
+            "Ce n'est pas un intervalle de confiance. P90 et part sous le seuil : "
+            "tous les clients des répétitions regroupés."
+        )
+        st.dataframe(frame.round(2), hide_index=True, width="stretch")
+        st.download_button(
+            "Exporter la comparaison (CSV)",
+            frame.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"),
+            "retailflow_comparaison.csv",
+            "text/csv",
+        )
+    elif cached is not None:
+        st.info("Les paramètres ont changé. Relance la comparaison pour actualiser les résultats.")
+    else:
+        st.info(
+            "Lance la comparaison pour rechercher la plus petite capacité respectant l'objectif."
+        )
+    with st.expander("Comparer les comportements avec et sans écran client"):
+        if st.button("Calculer le gain de l'écran"):
+            reports = strategies(config, 20)
+            st.session_state["screen_comparison"] = (config, reports)
+        screen = st.session_state.get("screen_comparison")
+        if screen is not None and screen[0] == config:
+            reports = screen[1]
+            fig = go.Figure()
+            for name, color in [("Attente moyenne", charts.BLUE), ("P90", charts.GOLD)]:
+                values = [
+                    r.mean_wait if name == "Attente moyenne" else r.p90_wait
+                    for r in reports.values()
+                ]
+                fig.add_bar(
+                    x=[STRATEGIES[k].label for k in reports],
+                    y=values,
+                    name=name,
+                    marker_color=color,
+                )
+            fig.update_yaxes(title="Minutes", rangemode="tozero")
+            plot(charts.style(fig, "Les comportements, sur 20 graines identiques"), "screen_chart")
+            before, after = reports["shortest_queue"].mean_wait, reports["least_wait"].mean_wait
+            if before:
+                change = (after - before) / before * 100
+                st.caption(
+                    f"Variation de l'attente moyenne avec l'écran : {change:+.1f} %. "
+                    "Une valeur positive signifie une dégradation."
                 )
             else:
-                st.warning("Aucune configuration testée n'atteint 90 % de clients sous 5 minutes.")
-    section("Télécharger les résultats", "CSV compatible avec Excel")
-    csv = clients.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig")
-    col1, col2 = st.columns(2)
-    col1.download_button(
+                st.caption("Attente de référence nulle : variation relative non définie.")
+    section("Emporter les résultats", "CSV pour Excel, paramètres pour reproduire le scénario")
+    a, b = st.columns(2)
+    a.download_button(
         "Exporter les clients (CSV)",
-        csv,
+        clients.to_csv(index=False, sep=";", decimal=",").encode("utf-8-sig"),
         "retailflow_clients.csv",
         "text/csv",
-        use_container_width=True,
+        width="stretch",
     )
-    config_json = json.dumps(
-        {"configuration": asdict(config), "strategie": strategy_name}, ensure_ascii=False, indent=2
-    )
-    col2.download_button(
+    b.download_button(
         "Exporter les paramètres (JSON)",
-        config_json,
+        json.dumps(
+            {"configuration": asdict(config), "strategie": strategy_name},
+            ensure_ascii=False,
+            indent=2,
+        ),
         "retailflow_parametres.json",
         "application/json",
-        use_container_width=True,
+        width="stretch",
     )
     with st.expander("Méthode et limites"):
-        st.write("Simulation historique FIFO, avec données synthétiques et graine reproductible.")
-        st.write("Le temps d'attente est le délai entre arrivée et début de service.")
-        st.write("Le P90 correspond au 90e percentile empirique des temps d'attente.")
         st.write(
-            "Les changements de file, abandons et ouvertures dynamiques relèvent du moteur séparé."
+            "Arrivées uniformes et durées de service gamma. Le moteur historique "
+            "conserve les clients dans leur file jusqu'au service."
         )
+        st.write(
+            "L'écran connaît les durées de service simulées : c'est une hypothèse "
+            "d'information parfaite. Les résultats ne sont pas une prévision réelle."
+        )
+        st.write(
+            "Le P90 est interpolé. La recommandation teste les deux critères : P90 ≤ "
+            "5 min et part au-delà de 5 min ≤ 10 %."
+        )
+
+
+def _record_navigation():
+    target = st.session_state.get("navigation", "Accueil")
+    previous = st.session_state.get("active_page", "Accueil")
+    if target != previous:
+        history = st.session_state.setdefault("page_history", [])
+        history.append(previous)
+        st.session_state["page_history"] = history[-20:]
+    st.session_state["active_page"] = target
+
+
+def _navigate(target):
+    st.session_state["navigation"] = target
+    _record_navigation()
+
+
+def _back():
+    history = st.session_state.get("page_history", [])
+    target = history.pop() if history else "Accueil"
+    st.session_state.update(navigation=target, active_page=target, page_history=history)
 
 
 def main() -> None:
     st.set_page_config(
-        page_title="RetailFlow | Simulateur",
+        page_title="RetailFlow V7 | Aide à la décision",
         page_icon="🛒",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="collapsed",
     )
     theme()
+    if st.session_state.pop("studio_navigation_request", None) == "back":
+        _back()
     config, strategy_name = render_sidebar()
     result = run_simulation(config, strategy_name)
-    hero(config)
-    pages = ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison"]
-    page = st.radio("Navigation", pages, horizontal=True, label_visibility="collapsed")
-    if page == "Vue d'ensemble":
-        overview(config, result, customers_frame(result))
-    elif page == "Simulation":
-        simulation(result)
-    elif page == "Analyse":
-        analytics(result, customers_frame(result))
+    back, home, heading = st.columns([1, 1, 4])
+    back.button(
+        "← Retour",
+        on_click=_back,
+        width="stretch",
+        disabled=not st.session_state.get("page_history"),
+    )
+    home.button("⌂ Accueil", on_click=_navigate, args=("Accueil",), width="stretch")
+    heading.markdown(
+        '<div class="rf-topbrand">RetailFlow <span>Simulation et aide à la décision</span></div>',
+        unsafe_allow_html=True,
+    )
+    page = st.radio(
+        "Navigation",
+        ["Accueil", "Simulation", "Analyses", "Optimisation", "Méthodologie"],
+        horizontal=True,
+        label_visibility="collapsed",
+        index=0,
+        key="navigation",
+        on_change=_record_navigation,
+    )
+    if page == "Simulation":
+        st.markdown(
+            '<div class="rf-lab-head"><strong>RetailFlow <small>V7.0</small></strong>'
+            "<span>Aide à la décision / Prototype de simulation</span></div>",
+            unsafe_allow_html=True,
+        )
     else:
-        comparison(config, strategy_name, result, customers_frame(result))
+        hero(config, strategy_name)
+    if page in ("Analyses", "Optimisation"):
+        st.markdown(
+            '<div class="rf-source"><b>Moteur FIFO historique</b> / sans abandon ni '
+            "changement de file / "
+            "graphiques calculés sur le même scénario</div>",
+            unsafe_allow_html=True,
+        )
+    clients = customer_frame(result)
+    if page == "Accueil":
+        st.subheader("Simulation et optimisation des files d'attente en supermarché")
+        st.write(
+            "RetailFlow permet de simuler les flux de clients, d'analyser la congestion "
+            "et de comparer différentes configurations de caisses afin d'éclairer "
+            "les décisions opérationnelles."
+        )
+        for col, label, target in zip(
+            st.columns(3),
+            ["Lancer une simulation", "Explorer les analyses", "Comprendre la méthode"],
+            ["Simulation", "Analyses", "Méthodologie"],
+            strict=True,
+        ):
+            col.button(
+                label,
+                on_click=_navigate,
+                args=(target,),
+                width="stretch",
+            )
+        st.markdown("**Configurer → Simuler → Analyser → Optimiser**")
+        st.write(
+            "Comparez l'attente et le niveau de service au coût hypothétique des caisses. "
+            "Les abandons comptent comme des échecs de service. Les scénarios sont "
+            "synthétiques et reproductibles, sans calibration sur un magasin réel."
+        )
+        st.info(
+            "Démonstration : dans Simulation, choisissez Soutenance reproductible, "
+            "puis Voir le pic. Le laboratoire permet ensuite de tester +20 % de clients."
+        )
+    elif page == "Méthodologie":
+        st.subheader("Méthode et limites")
+        st.markdown(
+            "Arrivées uniformes, services gamma, files FIFO par caisse. "
+            "Le moteur dynamique ajoute patience, abandons et changements de file. "
+            "Une fermeture laisse finir le service en cours. "
+            "La vitesse du dessin ne modifie aucun calcul."
+        )
+        st.markdown(
+            "Le niveau de service dynamique utilise tous les arrivants. "
+            "Moyenne et percentiles des attentes portent sur les clients servis. "
+            "Les capacités partagent les mêmes graines et les mêmes clients. "
+            "La cible doit être atteinte à chaque répétition pour recommander une capacité."
+        )
+        st.markdown(
+            "Coûts hypothétiques, information parfaite sur les services simulés, "
+            "parcours de courses illustratifs. La projection à cinq minutes extrapole "
+            "la tendance récente. Aucun résultat ne constitue une prévision terrain."
+        )
+        st.markdown(
+            "Guide complet : docs/RETAILFLOW_V7.md. Déroulé oral et questions : docs/SOUTENANCE.md."
+        )
+    elif page == "Simulation":
+        with st.expander("Comprendre le simulateur et préparer une décision"):
+            a, b, c = st.columns(3)
+            a.markdown(
+                "**1. Observer**\n\nLancez la scène, visitez le pic et inspectez les files. "
+                "Les compteurs et graphiques suivent les événements calculés par Python."
+            )
+            b.markdown(
+                "**2. Tester**\n\nOuvrez une caisse ou réaffectez un client. "
+                "Le moteur valide l'action puis recalcule le futur avec la même clientèle."
+            )
+            c.markdown(
+                "**3. Décider**\n\nConsultez Interventions pour mesurer l'effet de vos actions. "
+                "Le Laboratoire de décision compare capacités, coûts et qualité "
+                "sur plusieurs graines."
+            )
+            st.caption(
+                "Scénarios synthétiques, sans données de magasin réel. Les courses sont "
+                "illustratives. Les projections de tendance et coûts reposent sur des hypothèses "
+                "explicites. La vitesse de lecture ne change aucun résultat de simulation."
+            )
+        simulation(config, result)
+    elif page == "Analyses":
+        overview(config, result, clients)
+        analytics(result, clients)
+    elif page == "Optimisation":
+        st.info(
+            "Le laboratoire dynamique est accessible dans Simulation, "
+            "Analyse de la scène, Laboratoire de décision. "
+            "Le comparateur ci-dessous conserve le périmètre FIFO historique."
+        )
+        comparison(config, strategy_name, clients)
     st.markdown(
-        '<div class="rf-foot">RetailFlow | Simulation pédagogique FIFO | Données synthétiques</div>',
+        '<div class="rf-foot">RetailFlow / Simulation / Données synthétiques / '
+        "Ouvre la barre du graphique pour zoomer ou exporter une image.</div>",
         unsafe_allow_html=True,
     )
 
