@@ -1,4 +1,4 @@
-# RetailFlow V7.0
+# RetailFlow | Version 7 : périmètre et validation
 
 Prototype universitaire d'aide à la décision, Master 2 BIDABI. Données synthétiques.
 Le nom de l'édition décrit une ambition de présentation et de méthode ; aucun
@@ -6,7 +6,7 @@ usage commercial ni déploiement chez un distributeur n'est revendiqué.
 
 ## Base conservée
 
-Les branches `feature/retailflow-v6-1` et `feature/retailflow-v7-final` pointaient
+Les branches historiques `feature/retailflow-v6-1` et `feature/retailflow-v7-final` pointaient
 initialement vers `4ac03698f204d119a5d81fc540c971b1a3c4a948`.
 La V7 prolonge cette base. Elle conserve les contributions, le moteur FIFO
 historique, le moteur dynamique, les contrats et l'ancien lecteur autonome.
