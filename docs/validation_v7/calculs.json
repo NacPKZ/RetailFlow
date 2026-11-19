@@ -1,0 +1,29 @@
+{
+  "scope": "Calcul Python, hors navigateur, un passage par configuration",
+  "measurements": [
+    {
+      "clients": 100,
+      "events": 382,
+      "engine_ms": 3.9788700000826793,
+      "scene_ms": 10.132075999990775,
+      "scene_json_bytes": 124262,
+      "lab_5x5_ms": 100.85069199999452,
+      "capacity_rows": 5,
+      "trials": 25,
+      "conservation": true,
+      "reproducible": true
+    },
+    {
+      "clients": 500,
+      "events": 1602,
+      "engine_ms": 55.82466500004557,
+      "scene_ms": 70.93534500017995,
+      "scene_json_bytes": 557746,
+      "lab_5x5_ms": 1454.85187700001,
+      "capacity_rows": 5,
+      "trials": 25,
+      "conservation": true,
+      "reproducible": true
+    }
+  ]
+}

@@ -25,7 +25,7 @@ FRONT_CORRIDOR_Y = 1.8
 SERVICE_Y = 4.0
 FIRST_SLOT_Y = 6.2
 SLOT_SPACING = 0.78
-SLOTS_PER_COLUMN = 6  # puis la file continue dans une colonne parallèle
+SLOTS_PER_COLUMN = 6  # capacité visible de l'atelier, sur une seule ligne
 COLUMN_SPACING = 1.0
 COMPACT_COLUMN_SPACING = 0.9
 MAIN_AISLE_Y = 11.8
@@ -65,8 +65,10 @@ class SceneLayout:
     def queue_slot(self, register_id: int, rank: int) -> Point:
         """Place du client en attente (1 = tête de file).
 
-        En mode compact, au-delà de 18 clients, coordonnées virtuelles bornées et distinctes.
-        L'atelier agrège ces clients en un badge ; le moteur les conserve tous.
+        En mode compact, six places sur une seule ligne. Les rangs suivants ont
+        des coordonnées virtuelles distinctes dans la zone du badge. Ils ne sont
+        pas dessinés individuellement ; leurs identités et le FIFO sont conservés.
+        Le lecteur historique garde sa géométrie pour les exports existants.
         """
         if rank < 1:
             raise ValueError("Le rang dans la file commence à 1.")
@@ -76,10 +78,12 @@ class SceneLayout:
                 self.lane_x(register_id) + column * COLUMN_SPACING,
                 FIRST_SLOT_Y + row * SLOT_SPACING,
             )
-        return Point(
-            self.lane_x(register_id) + (column % 3) * COMPACT_COLUMN_SPACING,
-            FIRST_SLOT_Y + row * SLOT_SPACING + (column // 3) * 0.002,
+        y = (
+            FIRST_SLOT_Y + (rank - 1) * SLOT_SPACING
+            if rank <= SLOTS_PER_COLUMN
+            else 10.7 + 0.1 * (rank - SLOTS_PER_COLUMN) / (rank - SLOTS_PER_COLUMN + 1)
         )
+        return Point(self.lane_x(register_id), y)
 
     def route(self, start: Point, end: Point) -> list[Point]:
         """Trajet par l'allée principale, pour ne jamais traverser une autre file."""
@@ -108,6 +112,7 @@ class SceneLayout:
             "first_slot_y": FIRST_SLOT_Y,
             "front_corridor_y": FRONT_CORRIDOR_Y,
             "main_aisle_y": MAIN_AISLE_Y,
+            "visible_queue_limit": SLOTS_PER_COLUMN if self.compact else 18,
             "entrance": [self.entrance.x, self.entrance.y],
             "exit": [self.exit.x, self.exit.y],
         }

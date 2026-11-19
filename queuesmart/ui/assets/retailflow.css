@@ -49,3 +49,4 @@ html {font-size:18px;}
 [data-testid="stTabs"] [role="tab"] {font-size:1.06rem;}
 @media(min-width:1800px) {html {font-size:20px;}.block-container {padding:1rem 1.5rem 2rem;}}
 @media(max-width:800px) {html {font-size:16px;}.rf-lab-head span {display:none;}}
+.rf-lab-head small{font-size:.65rem;letter-spacing:.08em;color:#8b6832;border:1px solid #ddc797;border-radius:6px;padding:4px 7px;margin-left:6px;vertical-align:middle}

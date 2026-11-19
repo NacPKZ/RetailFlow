@@ -15,6 +15,7 @@ from queuesmart.analytics.visual_data import customer_frame, service_level
 from queuesmart.config import ScenarioConfig
 from queuesmart.simulation.dynamic import DynamicOptions, DynamicSimulationEngine
 from queuesmart.ui import charts
+from queuesmart.ui.decision_lab import render_decision_lab
 from queuesmart.ui.presentation import cards, plot, section
 from queuesmart.ui.studio_component import render_studio
 
@@ -217,7 +218,7 @@ def render_dynamic(config: ScenarioConfig) -> None:
         st.markdown(f"**{title}.** {text}")
     view = st.radio(
         "Analyse de la scène",
-        ["Flux", "Attentes", "Interventions", "Journal et exports"],
+        ["Flux", "Attentes", "Interventions", "Laboratoire de décision", "Journal et exports"],
         horizontal=True,
     )
     if view == "Flux":
@@ -246,6 +247,8 @@ def render_dynamic(config: ScenarioConfig) -> None:
         plot(charts.wait_heatmap(data, 5), "dynamic_heatmap")
     elif view == "Interventions":
         _render_interventions(context, reference, result)
+    elif view == "Laboratoire de décision":
+        render_decision_lab(config, base_options)
     else:
         _exports(config, options, result, context)
 
@@ -339,7 +342,7 @@ def _exports(config, options, result, context) -> None:
         "text/csv",
     )
     payload = {
-        "schema": "retailflow-experience/6.1",
+        "schema": "retailflow-experience/7.0",
         "perimetre": "Bilan final du moteur dynamique, temps en minutes",
         "indicateurs_finaux": final_metrics(result),
         "resultats_interventions": [asdict(o) for o in result.action_outcomes],

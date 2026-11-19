@@ -1,6 +1,6 @@
 <div class="studio" tabindex="0" aria-label="Atelier de simulation interactif RetailFlow">
   <header class="studio-head">
-    <div><span class="eyebrow">ATELIER INTERACTIF</span><h2>Le magasin est entre vos mains.</h2><p>Cliquez une caisse. Déplacez un client. Mesurez la différence.</p></div>
+    <div><span class="eyebrow">CENTRE DE CONTRÔLE V7.0</span><h2>Pilotez le flux. Éclairez la décision.</h2><p>Cliquez une caisse. Déplacez un client. Mesurez la différence.</p></div>
     <button data-role="guide" aria-expanded="false">Mode soutenance</button>
     <button class="fullscreen secondary" data-role="fullscreen" title="Afficher la scène sur tout l'écran">⛶ Plein écran</button>
   </header>
@@ -9,6 +9,11 @@
       <button data-step="0">1. Situation</button><button data-step="1">2. Congestion</button><button data-step="2">3. Décision</button><button data-step="3">4. Comparaison</button><button data-step="4">5. Conclusion</button>
     </div><p data-role="guide-text" role="status"></p>
   </section>
+  <div class="workspace-nav" role="group" aria-label="Disposition de l'atelier">
+    <button data-role="layout-all" aria-pressed="true">Vue complète</button>
+    <button data-role="layout-scene" aria-pressed="false">Focus magasin</button>
+    <span>Master 2 BIDABI / Simulation sur données synthétiques</span>
+  </div>
   <div class="controls">
     <button data-role="play" class="primary">▶ Démarrer</button>
     <button data-role="restart" title="Revenir au début de la lecture" aria-label="Revenir au début">↺</button>
@@ -19,7 +24,7 @@
     <button data-role="help" aria-label="Afficher l'aide et les raccourcis">?</button>
   </div>
   <div class="live-metrics" aria-label="Indicateurs à l'instant affiché">
-    <div><span>Présents dans le dessin</span><b data-role="present">0</b></div>
+    <div><span>Présents aux caisses + courses</span><b data-role="present">0</b></div>
     <div><span>Courses illustratives</span><b data-role="shopping">0</b></div>
     <div><span>En file</span><b data-role="waiting">0</b></div>
     <div><span>En service</span><b data-role="serving">0</b></div>
@@ -33,6 +38,7 @@
       <div class="scene-chip"><span class="live-dot"></span><span data-role="mode-label">Pilotage / cliquez ou glissez</span></div>
       <div class="start-overlay" data-role="start"><div class="start-icon">▶</div><h3>Le magasin est ouvert.</h3><p>Des clients font leurs courses, d'autres se présentent aux caisses. Lancez la lecture pour suivre le magasin.</p><button data-role="start-play" class="primary">Lancer la simulation</button><button data-role="start-peak">Explorer le pic</button></div>
       <div class="toast" data-role="toast" role="status" hidden></div>
+      <button class="minimap" data-role="minimap-button" aria-label="Recentrer la caméra avec la mini-carte" title="Cliquez pour déplacer la caméra"><canvas data-role="minimap" aria-hidden="true"></canvas><span>MINI-CARTE</span></button>
       <div class="canvas-bottom"><span data-role="hover-hint">Une caisse se ferme au clic. Un client en file se déplace vers une autre caisse.</span><div class="zoom-controls"><button data-role="zoom-out" aria-label="Dézoomer">−</button><span data-role="zoom-label">100 %</span><button data-role="zoom-in" aria-label="Zoomer">+</button><button data-role="fit" title="Recentrer la caméra">Recentrer</button></div></div>
     </div>
     <aside class="inspector">
@@ -51,12 +57,30 @@
     <label><input type="checkbox" data-role="heat" checked> Couleurs d'attente</label>
     <label><input type="checkbox" data-role="labels"> Numéros clients</label>
     <label><input type="checkbox" data-role="trails"> Trajets</label>
+    <label><input type="checkbox" data-role="motion" checked> Animations décoratives</label>
+    <label><input type="checkbox" data-role="minimap-toggle" checked> Mini-carte</label>
+    <button data-role="focus-checkouts">Cadrer les caisses</button>
+    <button data-role="follow" aria-pressed="false">Suivre le client</button>
+    <button data-role="save-view">↓ État affiché (JSON)</button>
     <label><input type="checkbox" data-role="auto-pause"> Pause si attente &gt; 5 min</label>
     <button data-role="bookmark">☆ Marquer l'instant</button>
     <select data-role="bookmarks" aria-label="Instants marqués"><option value="">Mes repères</option></select>
     <button data-role="capture">↓ Capture PNG</button>
   </div>
+  <section class="operations" aria-label="Performance et tendance à l'instant affiché">
+    <div class="ops-chart"><div class="ops-title"><strong>Flux synchronisé</strong><span><i class="legend-wait"></i> En file <i class="legend-busy"></i> En service</span></div><canvas data-role="flow-chart" role="img" aria-label="Évolution des clients en file et en service, sur les vingt dernières minutes"></canvas><p data-role="chart-summary" class="sr-only"></p></div>
+    <div class="ops-facts">
+      <div><span>Attente moyenne des sortis servis</span><b data-role="mean-wait">Indisponible</b></div>
+      <div><span>P90 des sortis servis</span><b data-role="p90-wait">Indisponible</b></div>
+      <div><span>Occupation cumulée des ressources</span><b data-role="occupancy">0 %</b></div>
+      <div><span>Débit observé sur 5 min</span><b data-role="throughput">0 / h</b></div>
+      <div><span>File projetée à +5 min</span><b data-role="projection">Observation</b></div>
+      <div><span>Qualité de dessin</span><b data-role="performance">En mesure</b></div>
+    </div>
+    <p class="ops-note">Projection mécanique : tendance des arrivées, débuts de service et abandons des 5 dernières minutes. Aucune anticipation du journal futur. Hypothèse de rythme constant, hors intervention. Ce n'est pas une prévision de magasin.</p>
+    <div class="alert-panel" data-role="alerts" role="status" aria-live="polite"></div>
+  </section>
   <div class="live-analysis"><span class="analysis-icon">↗</span><p data-role="analysis">Le diagnostic évolue avec l'instant affiché.</p><span data-role="request-state"></span></div>
   <details class="decision-log"><summary>Journal des décisions <span data-role="decision-count"></span></summary><p>État calculé après recalcul. Cliquez pour revoir l'instant. Le bilan final apparié est disponible dans l'analyse Interventions, sous l'atelier.</p><div data-role="decisions"></div></details>
-  <details class="help-panel" data-role="help-panel"><summary>Comment piloter la scène</summary><div><p><b>Caisse :</b> cliquez sur son panneau ou sur sa carte pour l'ouvrir ou la fermer. Une fermeture laisse finir le service en cours et réaffecte la file.</p><p><b>Client :</b> cliquez pour l'inspecter. Glissez un client qui attend vers la zone d'une caisse ouverte. Son heure d'arrivée et sa patience restent inchangées.</p><p><b>Caméra :</b> boutons + / −, molette pour zoomer, Maj + glisser pour déplacer la vue. Une zone vide se déplace aussi à la souris.</p><p><b>Clavier :</b> espace lecture/pause, flèches ± 1 min, + / − zoom, F plein écran. Les compteurs lisent les événements Python. Le dessin illustre les trajets.</p><p><b>Actions :</b> chaque intervention recalcule le futur avec la même clientèle. Le passé avant l'instant de l'action est conservé. La dernière caisse ouverte et les clients en service sont protégés.</p></div></details>
+  <details class="help-panel" data-role="help-panel"><summary>Comment piloter la scène</summary><div><p><b>Caisse :</b> cliquez sur son panneau ou sur sa carte pour l'ouvrir ou la fermer. Une fermeture laisse finir le service en cours et réaffecte la file.</p><p><b>Client :</b> cliquez pour l'inspecter. Glissez un client qui attend vers la zone d'une caisse ouverte. Son heure d'arrivée et sa patience restent inchangées.</p><p><b>Caméra :</b> boutons + / −, molette pour zoomer, Maj + glisser pour déplacer la vue. Une zone vide se déplace aussi à la souris.</p><p><b>Clavier :</b> espace lecture/pause, flèches ± 1 min, + / − zoom, F plein écran, N prochain événement, R début, P pic, B repère, Échap quitter le focus.  Les compteurs lisent les événements Python. Le dessin illustre les trajets.</p><p><b>Actions :</b> chaque intervention recalcule le futur avec la même clientèle. Le passé avant l'instant de l'action est conservé. La dernière caisse ouverte et les clients en service sont protégés.</p></div></details>
 </div>

@@ -1,0 +1,21 @@
+{
+  "baseline_commit": "4ac03698f204d119a5d81fc540c971b1a3c4a948",
+  "python": {
+    "tests": 285,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 15.975
+  },
+  "javascript": [
+    "scene_controls.cjs",
+    "studio_replay.cjs",
+    "studio_operations.cjs"
+  ],
+  "component_unit_test": "studio_mount.cjs, exécuté par pytest, DOM simulé",
+  "lint": "Ruff ciblé sur les fichiers Python modifiés et ajoutés : réussi",
+  "diff_check": "réussi",
+  "browser_visual_review": "non réalisée, aperçu local inaccessible au navigateur de contrôle",
+  "end_to_end_downloads": "non vérifiés dans un navigateur",
+  "node_dom_checks_are_visual_validation": false
+}

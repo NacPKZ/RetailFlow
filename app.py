@@ -331,7 +331,7 @@ def comparison(config: ScenarioConfig, strategy_name: str, clients: pd.DataFrame
 
 def main() -> None:
     st.set_page_config(
-        page_title="RetailFlow | Simulateur",
+        page_title="RetailFlow V7 | Aide à la décision",
         page_icon="🛒",
         layout="wide",
         initial_sidebar_state="collapsed",
@@ -348,8 +348,8 @@ def main() -> None:
     )
     if page == "Simulation":
         st.markdown(
-            '<div class="rf-lab-head"><strong>RetailFlow.</strong>'
-            "<span>Observer. Intervenir. Comprendre.</span></div>",
+            '<div class="rf-lab-head"><strong>RetailFlow <small>V7.0</small></strong>'
+            "<span>Aide à la décision / Prototype universitaire</span></div>",
             unsafe_allow_html=True,
         )
     else:
@@ -365,6 +365,26 @@ def main() -> None:
     if page == "Vue d'ensemble":
         overview(config, result, clients)
     elif page == "Simulation":
+        with st.expander("Comprendre le simulateur et préparer une décision"):
+            a, b, c = st.columns(3)
+            a.markdown(
+                "**1. Observer**\n\nLancez la scène, visitez le pic et inspectez les files. "
+                "Les compteurs et graphiques suivent les événements calculés par Python."
+            )
+            b.markdown(
+                "**2. Tester**\n\nOuvrez une caisse ou réaffectez un client. "
+                "Le moteur valide l'action puis recalcule le futur avec la même clientèle."
+            )
+            c.markdown(
+                "**3. Décider**\n\nConsultez Interventions pour mesurer l'effet de vos actions. "
+                "Le Laboratoire de décision compare capacités, coûts et qualité "
+                "sur plusieurs graines."
+            )
+            st.caption(
+                "Scénarios synthétiques, sans données de magasin réel. Les courses sont "
+                "illustratives. Les projections de tendance et coûts reposent sur des hypothèses "
+                "explicites. La vitesse de lecture ne change aucun résultat de simulation."
+            )
         simulation(config, result)
     elif page == "Analyse":
         analytics(result, clients)

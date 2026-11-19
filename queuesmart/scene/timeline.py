@@ -9,7 +9,7 @@ ensuite d'échantillonner ces trajectoires à l'instant affiché.
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
-from queuesmart.scene.layout import REGISTER_COUNT, Point, SceneLayout
+from queuesmart.scene.layout import REGISTER_COUNT, SLOTS_PER_COLUMN, Point, SceneLayout
 from queuesmart.scene.queue_board import QueueBoard
 from queuesmart.scene.tracks import (
     ABANDONING,
@@ -152,14 +152,14 @@ class SceneTimelineBuilder:
         """Envoie le client à la dernière place de la file ``register_id``."""
         track = self._tracks[event.customer_id]
         rank = self._board.rank(register_id, event.customer_id)
-        slot = self._layout.queue_slot(register_id, rank)
+        slot = self._queue_spot(register_id, rank, event.customer_id)
         track.move(event.time, self._route_from(track, event.time, slot), moving, IN_QUEUE)
 
     def _compact_queue(self, register_id: int, time: float) -> None:
         """Fait avancer chaque client restant à sa nouvelle place (pas de trou, pas de doublon)."""
         for rank, customer_id in enumerate(self._board.waiting(register_id), start=1):
             track = self._tracks[customer_id]
-            slot = self._layout.queue_slot(register_id, rank)
+            slot = self._queue_spot(register_id, rank, customer_id)
             if track.keyframes[-1].position == slot:
                 continue
             state = track.state_at(time) or IN_QUEUE
@@ -171,6 +171,15 @@ class SceneTimelineBuilder:
     def _route_from(self, track: CustomerTrack, time: float, destination: Point) -> list[Point]:
         start = track.position_at(time) or track.keyframes[-1].position
         return self._layout.route(start, destination)
+
+    def _queue_spot(self, register_id: int, rank: int, customer_id: int) -> Point:
+        # Dans un groupe condensé, l'ancre virtuelle est stable par identifiant.
+        # Un avancement invisible ne produit donc pas des milliers d'images clés.
+        # Dès que le client rejoint les six premiers, sa vraie place redevient visible.
+        # Le rang scientifique reste exclusivement dans QueueBoard et le journal.
+        if self._layout.compact and rank > SLOTS_PER_COLUMN:
+            return self._layout.queue_slot(register_id, SLOTS_PER_COLUMN + customer_id)
+        return self._layout.queue_slot(register_id, rank)
 
     def _record_register(self, register_id: int, time: float) -> None:
         self._register_states[register_id].append(

@@ -1,8 +1,12 @@
-# RetailFlow
+# RetailFlow V7.0 : Enterprise Edition
+
+**Prototype universitaire d’aide à la décision, sans déploiement commercial revendiqué.**
 
 **Simulation et optimisation des files d'attente en supermarché**
 
 Projet universitaire de Master 2 BIDABI (Big Data, Analyse & Business Intelligence), consacré à la simulation de flux de clients, à la mesure de la qualité de service et à l'aide à la décision sur le nombre de caisses.
+
+> **V7.0 :** une seule ligne par caisse (six clients visibles, surplus compté), centre de contrôle synchronisé, mini-carte et caméra bornée, suivi client, projection de tendance explicite, laboratoire dynamique coût / service sur plusieurs graines et dossier de décision exportable. [Guide et validation V7](docs/RETAILFLOW_V7.md). La vérification visuelle en navigateur de cette version reste à réaliser.
 
 > **Finalisation V6.1 :** inspecteur temporel avec recherche, réaffectation par sélection, journal des décisions réellement appliquées, comparaison détaillée et mode soutenance reproductible. Voir [le bilan de validation](docs/FINALISATION_RETAILFLOW_V6_1.md).
 
@@ -33,7 +37,9 @@ Le moteur historique calcule les affectations et permet les comparaisons de scé
 
 L'interface RetailFlow propose quatre espaces : **Vue d'ensemble**, **Simulation**, **Analyse** et **Comparaison**. Elle rassemble des KPI, des distributions d'attente, des nuages de points, des analyses par caisse et des exports. Ces résultats concernent principalement **le moteur historique**. Les abandons et changements de file ne doivent pas être attribués à ces graphiques.
 
-Le projet conserve deux approches de recommandation distinctes :
+Le **Laboratoire de décision**, sous la scène, compare désormais de 1 à 5 caisses avec le moteur dynamique. Il conserve patience, abandons et rééquilibrage, puis simule chaque capacité sur les mêmes 5, 10 ou 20 graines. Les coûts horaires et d’abandon sont des hypothèses modifiables. La recommandation retient le coût moyen minimal parmi les capacités respectant la cible dans chaque tirage, sans garantie future.
+
+Le projet conserve également deux approches historiques distinctes :
 - une recommandation historique fondée sur le 90e percentile (P90) et un seuil de service ;
 - un optimiseur expérimental fondé sur l'attente moyenne (`queuesmart/analytics/mean_wait_optimizer.py`), actuellement appliqué au moteur historique.
 
@@ -61,7 +67,7 @@ L’application démarre dans Simulation. Le bouton « Plein écran » agrandit 
 pour l’ouvrir ou la fermer. Glissez un client en file vers une caisse ouverte pour le
 réaffecter. Une alternative clavier et tactile est disponible : recherchez son identifiant,
 choisissez une caisse de destination et appuyez sur « Réaffecter ». Les sections Interventions et Journal permettent de comparer et exporter
-l’expérience. Les réglages et deux situations d’affluence sont disponibles sous la scène.
+l’expérience. Les réglages et situations d’affluence sont disponibles sous la scène. La mini-carte et le bouton « Cadrer les caisses » facilitent l’exploration. « Vue complète » affiche l’inspecteur ; « Focus magasin » agrandit la scène. Les animations décoratives peuvent être désactivées sans modifier le journal.
 
 ## Démonstration universitaire
 
@@ -101,12 +107,12 @@ Sur macOS/Linux, l'activation est `source .venv/bin/activate`.
 python -m pytest -q
 python -m pytest --cov=queuesmart
 node tests/scene_controls.cjs
-node tests/studio_replay.cjs
-ruff check .
+npm run test:scene
+ruff check app.py queuesmart/analytics/decision_lab.py queuesmart/ui/decision_lab.py queuesmart/ui/dynamic_view.py queuesmart/ui/studio_component.py queuesmart/scene/layout.py tests/test_decision_lab.py tests/test_decision_lab_ui.py
 git diff --check
 ```
 
-Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. La refonte du 18 novembre 2026 ajoute des tests des flux, des abandons, des seuils exacts, des filtres et de l’invalidation des résultats. Le lecteur JavaScript est vérifié avec `node tests/scene_controls.cjs` et `node tests/studio_replay.cjs`. Voir [le bilan de refonte](docs/REFONTE_VISUELLE_V5.md) pour le périmètre de validation et ses limites.
+Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. La refonte du 18 novembre 2026 ajoute des tests des flux, des abandons, des seuils exacts, des filtres et de l’invalidation des résultats. Le lecteur JavaScript est vérifié avec `node tests/scene_controls.cjs` et `npm run test:scene`. Voir [le bilan de refonte](docs/REFONTE_VISUELLE_V5.md) pour le périmètre de validation et ses limites.
 
 ## Architecture
 
@@ -129,6 +135,8 @@ RetailFlow/
 
 ## Documentation
 
+La V7 est décrite dans [RETAILFLOW_V7.md](docs/RETAILFLOW_V7.md), avec les fonctions livrées, les hypothèses, le déroulé de soutenance et les limites de validation.
+
 | Document | Contenu |
 |---|---|
 | [Architecture et conception](docs/conception.md) | Modules, responsabilités et principes de conception |
@@ -142,6 +150,7 @@ RetailFlow/
 ## Organisation GitHub
 
 - `main` : version commune, fusion après revue.
+- `feature/retailflow-v7-final` : V7, développée à partir du même commit que V6.1. La PR V7 cible V6.1 pour isoler ce complément ; aucune fusion automatique.
 - `feature/simulation-2d` : scène animée, déplacements et files.
 - `feature/dashboard-analytics` : indicateurs, comparaisons et exports.
 

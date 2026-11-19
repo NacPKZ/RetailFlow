@@ -81,3 +81,39 @@ button{overflow-wrap:normal}.eyebrow{color:#536f82}.event{color:#4d687b}
  .studio:fullscreen .scene-viewport,.studio.immersive .scene-viewport{margin-right:0;height:560px}
  .studio:fullscreen .inspector,.studio.immersive .inspector{position:static;width:auto;height:auto}
 }
+
+/* V7 : centre de contrôle, même scène et mêmes événements. */
+.studio-head{background:linear-gradient(115deg,#11283f,#234861);color:white;padding:20px 22px}
+.studio-head h2{color:#fff;font-size:clamp(23px,2vw,32px);letter-spacing:-.035em}
+.studio-head p{color:#ccdde8;font-size:14px}.studio-head .eyebrow{display:block;color:#edc57c;font-size:11px;margin-bottom:8px}
+.studio-head button{background:#ffffff10;color:#eef6fc;border-color:#ffffff35}
+.studio-head button:hover{background:#ffffff25}.workspace-nav{display:flex;align-items:center;gap:8px;padding:12px 18px;background:#f4f7fa}
+.workspace-nav button{font-size:13px;min-height:38px;padding:8px 12px;border-color:transparent;background:transparent}
+.workspace-nav button[aria-pressed=true]{background:#fff;border-color:#d4e2ed;box-shadow:0 2px 8px #203f5910}
+.workspace-nav>span{font-size:12px;color:#526f84;margin-left:auto}.controls{background:#fff}
+.live-metrics{background:#fafcfd;border-bottom:1px solid #e9eff3;margin-bottom:12px}
+.live-metrics b{color:#173e5b}.live-metrics>div{border-color:#d3b478}
+.tools{border-bottom:1px solid #e7eef3}.tools button[aria-pressed=true]{background:#e1f1ed;border-color:#5ca68e}
+.minimap{position:absolute;bottom:70px;left:14px;padding:5px;border:1px solid #b9cec4;border-radius:10px;background:#ffffffed;box-shadow:0 4px 15px #193d4b18}
+.minimap canvas{display:block;width:144px;height:112px;border-radius:5px}.minimap span{display:block;font-size:9px;letter-spacing:.12em;color:#486c6a;margin-top:4px}
+.operations{display:grid;grid-template-columns:minmax(240px,1fr) minmax(320px,1.25fr);padding:18px 20px;gap:14px;background:#f8fbfd;border-bottom:1px solid #dfebf2}
+.ops-chart{padding:14px;background:white;border:1px solid #e0eaf1;border-radius:12px;min-width:0}
+.ops-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px;flex-wrap:wrap}
+.ops-title>span{font-size:12px;color:#527085;display:flex;align-items:center;gap:6px}.ops-title i{display:inline-block;width:9px;height:9px;border-radius:50%}
+.legend-wait{background:#c19a50}.legend-busy{background:#238e7d}.ops-chart canvas{display:block;width:100%;height:125px;margin-top:8px}
+.ops-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-content:center;min-width:0}
+.ops-facts>div{border-left:2px solid #d6e4ed;padding-left:12px;min-width:0}.ops-facts span{display:block;color:#536f83;font-size:12px;line-height:1.5}
+.ops-facts b{display:block;color:#214b69;font-size:20px;margin-top:4px;font-variant-numeric:tabular-nums}
+.ops-note{grid-column:1/-1;margin:0;color:#526c80;font-size:12px;line-height:1.6}
+.alert-panel{grid-column:1/-1;padding:12px 14px;border:1px solid #b9d7ce;border-radius:9px;background:#edf7f3;color:#2d6456;font-size:13px;line-height:1.6}
+.alert-panel.warning{background:#fff6e6;border-color:#e5c68b;color:#78531b}
+.focus-scene .inspector{display:none}.focus-scene .scene-viewport{margin-right:0}.focus-scene .workspace{display:block}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.studio:fullscreen .operations,.studio.immersive .operations{display:none}
+.studio:fullscreen.focus-scene .scene-viewport,.studio.immersive.focus-scene .scene-viewport{margin-right:0}
+@media(max-width:1100px){.ops-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-nav>span{display:none}}
+@media(max-width:700px){.operations{grid-template-columns:minmax(0,1fr);padding:12px}.ops-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.ops-facts b{font-size:18px}.minimap{left:8px;bottom:65px}.minimap canvas{width:96px;height:75px}.scene-chip{max-width:80%}.studio-head{padding:16px}.tools button{flex:1 1 auto}.live-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:no-preference){.live-dot{animation:rf-pulse 2s ease-in-out infinite}.register-card:hover{transform:translateY(-1px)}@keyframes rf-pulse{50%{box-shadow:0 0 0 4px #47a68d20}}}
+
+.studio:fullscreen.focus-scene .inspector,.studio.immersive.focus-scene .inspector{display:none}
+.reduced-decoration .live-dot{animation:none}

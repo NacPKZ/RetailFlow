@@ -21,7 +21,7 @@ def javascript() -> str:
     sampler = sampler.replace("window.RF = window.RF || {};", "")
     scripts = [sampler] + [
         (ASSETS / name).read_text(encoding="utf-8")
-        for name in ("replay.js", "painter.js", "inspector.js", "studio.js")
+        for name in ("replay.js", "operations.js", "painter.js", "inspector.js", "studio.js")
     ]
     return (
         "const RF = {};\n"
