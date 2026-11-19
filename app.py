@@ -358,6 +358,8 @@ def main() -> None:
         initial_sidebar_state="collapsed",
     )
     theme()
+    if st.session_state.pop("studio_navigation_request", None) == "back":
+        _back()
     config, strategy_name = render_sidebar()
     result = run_simulation(config, strategy_name)
     back, home, heading = st.columns([1, 1, 4])

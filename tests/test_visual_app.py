@@ -83,3 +83,24 @@ def test_dynamic_challenge_and_comparison_page():
     choose(app, "Analyse de la scène", "Interventions")
     assert any("110 clients" in caption.value for caption in app.caption)
     assert app.session_state["studio_context"]["actions"] == []
+
+
+def test_scene_exit_returns_to_previous_page_without_intervention(monkeypatch):
+    from queuesmart.ui import dynamic_view
+
+    app = run_app()
+    select_page(app, "Analyses")
+    select_page(app, "Simulation")
+    context = app.session_state["studio_context"]
+    command = {
+        "kind": "navigate",
+        "id": "leave-scene",
+        "time": 0,
+        "run_id": context["run_id"],
+        "revision": 0,
+    }
+    monkeypatch.setattr(dynamic_view, "render_studio", lambda *args: command)
+    app.run()
+    assert not app.exception
+    assert app.session_state["navigation"] == "Analyses"
+    assert app.session_state["studio_context"]["actions"] == []

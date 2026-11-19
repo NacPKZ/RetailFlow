@@ -118,7 +118,20 @@ button{overflow-wrap:normal}.eyebrow{color:#536f82}.event{color:#4d687b}
 .studio:fullscreen.focus-scene .inspector,.studio.immersive.focus-scene .inspector{display:none}
 .reduced-decoration .live-dot{animation:none}
 
-.back-to-menu{display:none}.studio:fullscreen .back-to-menu,.studio.immersive .back-to-menu{display:block;background:#fff;color:#193551;border-color:#fff;font-weight:750}
+.back-to-menu{display:block!important;background:#fff!important;color:#193551!important;border-color:#fff!important;font-weight:750}
 .studio-head{background:#193551}.studio-head h2{font-size:clamp(22px,2vw,29px)}
 .studio:fullscreen .studio-head,.studio.immersive .studio-head{position:sticky;top:0;z-index:8;flex-shrink:0}
 @media(max-width:700px){.studio-head .back-to-menu{order:-1;flex-basis:100%}.studio-head button{font-size:13px}}
+
+/* Animations de lecture uniquement, sans effet sur le journal simulé. */
+@media(prefers-reduced-motion:no-preference){
+ .studio button{transition:transform .15s ease,background .2s ease,box-shadow .2s ease}
+ .studio button:active{transform:scale(.97)}
+ .studio:not(.reduced-decoration) .event{animation:rf-event-in .25s ease-out both}
+ .studio:not(.reduced-decoration) .client-inspector{animation:rf-event-in .3s ease-out}
+ .studio:not(.reduced-decoration).is-playing .in-service .bar i{background-image:linear-gradient(110deg,transparent 30%,#ffffff80 50%,transparent 70%);background-size:180% 100%;animation:rf-service-flow 1.8s linear infinite}
+ .studio:not(.reduced-decoration).is-playing .scene-chip{animation:rf-live-glow 2.4s ease-in-out infinite}
+ @keyframes rf-event-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+ @keyframes rf-service-flow{to{background-position:-180% 0}}
+ @keyframes rf-live-glow{50%{box-shadow:0 0 0 4px #238e7d18}}
+}

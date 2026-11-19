@@ -157,6 +157,9 @@ def render_dynamic(config: ScenarioConfig) -> None:
         if action.get("run_id") == context["run_id"] and action.get("revision") == len(
             context["actions"]
         ):
+            if action.get("kind") == "navigate":
+                st.session_state["studio_navigation_request"] = "back"
+                st.rerun(scope="app")
             try:
                 if len(context["actions"]) >= 100:
                     raise ValueError(

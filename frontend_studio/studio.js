@@ -315,7 +315,10 @@ RF.mountStudio = (root, data, onAction) => {
     const menu = document.querySelector?.(".st-key-navigation");
     (menu || root).scrollIntoView?.({block:"start", behavior:"instant"});
   }
-  controls["back-to-menu"].onclick = exitImmersion;
+  controls["back-to-menu"].onclick = async () => {
+    await exitImmersion();
+    request({kind: "navigate"});
+  };
   const onFullscreenChange = () => {
     if (!document.fullscreenElement) {
       root.classList.remove("immersive");
@@ -351,6 +354,7 @@ RF.mountStudio = (root, data, onAction) => {
   }
   function hud() {
     const state = snapshot;
+    root.classList.toggle("is-playing", playing);
     controls["zoom-label"].textContent = `${Math.round(painter.zoom * 100)} %`;
     const shoppers = (data.shopping_customers || []).filter(
       (c) => time >= c.start && time < c.end,
@@ -393,6 +397,7 @@ RF.mountStudio = (root, data, onAction) => {
       meta.textContent = `${queue.length} en file / ${complete} servis${queue.length ? ` / max ${RF.minutes(currentWait)}` : ""}`;
       button.title = `${queue.length} en file, ${complete} passages terminés. ${cid ? `Client ${cid} en service.` : ""}`;
       button.classList.toggle("closed", !open);
+      button.classList.toggle("in-service", Boolean(cid));
       button.disabled = pending;
       button.setAttribute("aria-pressed", String(open));
       const person = cid ? data.people[cid] : null;
