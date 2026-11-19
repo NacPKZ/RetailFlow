@@ -58,7 +58,7 @@ python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-**Important :** la version déployée se trouve actuellement sur la branche `feature/retailflow-v7-final`, pas sur `main`. Pour exécuter la version présentée dans ce README après clonage, utiliser `git switch feature/retailflow-v7-final` avant l'installation. L'application publique est configurée sur cette branche. Le point d'entrée officiel est `app.py` ; `dynamic_demo.py` reste un banc d'essai historique.
+**Version officielle :** la V7 est intégrée dans `main`. Streamlit reste connecté à la branche restaurée `feature/retailflow-v7-final` pour préserver le déploiement existant. Le point d'entrée officiel est `app.py` ; `dynamic_demo.py` reste un banc d'essai historique.
 
 ## Tests et qualité
 
@@ -98,7 +98,7 @@ docs/                     Méthodologie, validations et soutenance
 | [Scène 2D](docs/SCENE_2D.md) | Fonctionnement de la visualisation |
 | [Résultats reproductibles](docs/demonstration/scenarios.json) | Paramètres et résultats des scénarios |
 
-Les documents V1 à V6.1 restent disponibles dans `docs/` comme **historique de développement** ; ils ne décrivent pas nécessairement le comportement final.
+Les documents V1 à V6.1 restent disponibles dans `docs/` comme **archives de développement** ; ils ne décrivent pas nécessairement le comportement final. Les titres des documents ont été harmonisés pour distinguer les guides actuels des archives.
 
 ## Limites et perspectives
 
@@ -114,4 +114,4 @@ RetailFlow constitue un **outil d'expérimentation et d'aide à la réflexion**,
 
 ## Équipe et contributions
 
-Projet collectif de **quatre étudiants**. Les contributions individuelles doivent être présentées conformément au travail réellement réalisé et à l'historique Git, sans attribution artificielle. La [PR de livraison](https://github.com/NacPKZ/RetailFlow/pull/4) conserve la traçabilité des changements et reste soumise à revue avant fusion dans `main`.
+Projet collectif de **quatre étudiants**. Les contributions individuelles doivent être présentées conformément au travail réellement réalisé et à l'historique Git, sans attribution artificielle. Les [PR de livraison](https://github.com/NacPKZ/RetailFlow/pull/4) et [d'intégration](https://github.com/NacPKZ/RetailFlow/pull/6) conservent la traçabilité des changements. La V7 est intégrée dans `main`.
