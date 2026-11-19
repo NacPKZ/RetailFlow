@@ -1,5 +1,7 @@
 # RetailFlow | Archives V4 : évolution de l'interface Streamlit
 
+> **Document historique.** Ce texte décrit l'état du projet au moment de cette étape. Les branches, commandes, chiffres de tests et tâches « à faire » peuvent être obsolètes. Pour la version actuelle, consulter [l'index documentaire](README.md) et [la validation V7](VERSION_7_VALIDATION.md).
+
 ## 1. Objectif
 
 Améliorer l'expérience visuelle et les fonctionnalités sans réécrire le moteur métier existant. Le module `queuesmart/ui/insights.py` ajoute plus de 800 lignes de code fonctionnel, avec 12 espaces d'analyse accessibles sous les trois onglets historiques.
