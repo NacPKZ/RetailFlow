@@ -245,4 +245,4 @@ Elles ajoutent des éléments sans rien modifier de l'existant :
 
 RetailFlow conserve le package Python historique `queuesmart` afin de préserver les imports et les tests. Deux moteurs coexistent : `SimulationEngine` (FIFO historique, utilisé dans `app.py`) et `DynamicSimulationEngine` (événements discrets, validé dans `dynamic_demo.py`). Les résultats `SimulationResult` et `DynamicResult` ne sont pas interchangeables : les analyses dynamiques doivent utiliser un adaptateur ou des KPI dédiés.
 
-Le schéma et les choix précédents documentent surtout l'architecture initiale. La scène pixel art et le dashboard dynamique définitif ne sont pas encore fusionnés dans l'application principale.
+Le schéma et les choix précédents documentent surtout l'architecture initiale. Depuis la livraison V7, la scène 2D et les espaces d'analyse sont intégrés dans `app.py`. Les paragraphes précédents décrivent les choix historiques de conception.
