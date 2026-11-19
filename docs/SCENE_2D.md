@@ -1,4 +1,4 @@
-# Scène 2D animée (Mission 2)
+# RetailFlow | Scène 2D animée
 
 Vue du dessus du supermarché, en pixel art, qui **rejoue** les événements du moteur
 dynamique. La scène ne prend aucune décision métier : elle montre ce que le moteur a calculé.
