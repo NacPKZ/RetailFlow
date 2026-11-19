@@ -18,7 +18,9 @@ from queuesmart.simulation.result import SimulationResult
 from queuesmart.simulation.strategies import STRATEGIES, build_strategy
 from queuesmart.ui import charts
 from queuesmart.ui.client_screen import render_client_screen
-from queuesmart.ui.dynamic_view import render_dynamic
+from queuesmart.ui.decision_lab import render_decision_lab, render_mean_wait
+from queuesmart.ui.dynamic_dashboard import render_dynamic_dashboard
+from queuesmart.ui.dynamic_view import render_dynamic, studio_parameters
 from queuesmart.ui.presentation import cards, plot, section, theme
 from queuesmart.ui.sidebar import render_sidebar
 from queuesmart.ui.store_view import render_store_view
@@ -39,14 +41,14 @@ def strategies(config: ScenarioConfig, runs: int):
     return compare_strategies(config, KpiCalculator(), runs)
 
 
-def hero(config: ScenarioConfig, strategy_name: str) -> None:
+def hero(config: ScenarioConfig) -> None:
     st.markdown(
-        '<div class="rf-hero"><div><div class="rf-eyebrow">LE BON FLUX. AU BON MOMENT.</div>'
+        '<div class="rf-hero"><div><div class="rf-eyebrow">FILES D’ATTENTE EN SUPERMARCHÉ</div>'
         '<h1>RetailFlow<span style="color:#e6bd76">.</span></h1>'
         "<p>Observer les files, comprendre les pics et tester les décisions.</p></div>"
         f'<div class="rf-context"><b>{escape(config.name)}</b><br>{config.customer_count} clients '
         f"/ {config.open_registers} caisses<br>Graine {config.seed} "
-        f"/ {escape(STRATEGIES[strategy_name].label)}</div></div>",
+        "</div></div>",
         unsafe_allow_html=True,
     )
 
@@ -79,7 +81,7 @@ def kpis(result: SimulationResult) -> None:
     )
 
 
-def overview(config: ScenarioConfig, result: SimulationResult, clients: pd.DataFrame) -> None:
+def overview(config: ScenarioConfig, result: SimulationResult) -> None:
     kpis(result)
     report = KpiCalculator().compute(result)
     if report.share_over_threshold <= 0.10 and report.p90_wait <= 5:
@@ -90,37 +92,9 @@ def overview(config: ScenarioConfig, result: SimulationResult, clients: pd.DataF
         st.warning(
             "Objectif non atteint sur ce tirage. Compare les capacités pour tester plus de caisses."
         )
-    section(
-        "Le rythme du magasin",
-        "La hauteur montre les clients présents. Le doré représente la file d'attente.",
-    )
-    plot(charts.congestion(clients), "overview_flow")
-    left, right = st.columns([1.25, 1])
-    with left:
-        plot(charts.wait_scatter(clients), "overview_scatter")
-        st.caption(
-            "Une couleur par caisse. Survole un point pour examiner le client ; "
-            "clique sur une légende pour filtrer."
-        )
-    with right:
-        plot(charts.wait_histogram(clients), "overview_histogram")
-        st.caption(
-            "Vert : tranches sous le seuil de 5 min. Rose : tranches au-delà. Les "
-            "données sont simulées."
-        )
     for title, text in describe_result(result)[:2]:
         st.markdown(f"**{title}.** {text}")
-    section(
-        "Repères", f"{config.open_registers} caisses / {result.end_time:.1f} minutes de simulation"
-    )
-    left, right = st.columns(2)
-    with left:
-        plot(
-            charts.register_load(register_frame(clients, config.open_registers, result.end_time)),
-            "overview_load",
-        )
-    with right:
-        plot(charts.wait_ecdf(clients), "overview_ecdf")
+    st.caption(f"{config.open_registers} caisses / {result.end_time:.1f} minutes de simulation")
 
 
 def simulation(config: ScenarioConfig, result: SimulationResult) -> None:
@@ -352,16 +326,18 @@ def _back():
 
 def main() -> None:
     st.set_page_config(
-        page_title="RetailFlow V7 | Aide à la décision",
+        page_title="RetailFlow V8 | Aide à la décision",
         page_icon="🛒",
         layout="wide",
         initial_sidebar_state="collapsed",
     )
     theme()
-    if st.session_state.pop("studio_navigation_request", None) == "back":
+    destination = st.session_state.pop("studio_navigation_request", None)
+    if destination == "back":
         _back()
+    elif destination in ("Analyses", "Optimisation"):
+        _navigate(destination)
     config, strategy_name = render_sidebar()
-    result = run_simulation(config, strategy_name)
     back, home, heading = st.columns([1, 1, 4])
     back.button(
         "← Retour",
@@ -385,21 +361,12 @@ def main() -> None:
     )
     if page == "Simulation":
         st.markdown(
-            '<div class="rf-lab-head"><strong>RetailFlow <small>V7.0</small></strong>'
+            '<div class="rf-lab-head"><strong>RetailFlow <small>V8.0</small></strong>'
             "<span>Aide à la décision / Prototype de simulation</span></div>",
             unsafe_allow_html=True,
         )
-    else:
-        hero(config, strategy_name)
-    if page in ("Analyses", "Optimisation"):
-        st.markdown(
-            '<div class="rf-source"><b>Moteur FIFO historique</b> / sans abandon ni '
-            "changement de file / "
-            "graphiques calculés sur le même scénario</div>",
-            unsafe_allow_html=True,
-        )
-    clients = customer_frame(result)
     if page == "Accueil":
+        hero(config)
         st.subheader("Simulation et optimisation des files d'attente en supermarché")
         st.write(
             "RetailFlow permet de simuler les flux de clients, d'analyser la congestion "
@@ -418,7 +385,11 @@ def main() -> None:
                 args=(target,),
                 width="stretch",
             )
-        st.markdown("**Configurer → Simuler → Analyser → Optimiser**")
+        st.markdown(
+            '<ol class="rf-steps"><li>Configurer le scénario</li><li>Observer le pic</li>'
+            "<li>Mesurer les effets</li><li>Choisir une capacité</li></ol>",
+            unsafe_allow_html=True,
+        )
         st.write(
             "Comparez l'attente et le niveau de service au coût hypothétique des caisses. "
             "Les abandons comptent comme des échecs de service. Les scénarios sont "
@@ -440,16 +411,25 @@ def main() -> None:
             "Le niveau de service dynamique utilise tous les arrivants. "
             "Moyenne et percentiles des attentes portent sur les clients servis. "
             "Les capacités partagent les mêmes graines et les mêmes clients. "
-            "La cible doit être atteinte à chaque répétition pour recommander une capacité."
+            "Le laboratoire économique exige la cible de service à chaque réplication. "
+            "L’objectif d’attente moyenne utilise le pire des tirages et affiche les abandons."
         )
         st.markdown(
             "Coûts hypothétiques, information parfaite sur les services simulés, "
             "parcours de courses illustratifs. La projection à cinq minutes extrapole "
             "la tendance récente. Aucun résultat ne constitue une prévision terrain."
         )
-        st.markdown(
-            "Guide complet : docs/RETAILFLOW_V7.md. Déroulé oral et questions : docs/SOUTENANCE.md."
-        )
+        with st.expander("Suivre un client dans le moteur"):
+            st.markdown(
+                '<ol class="rf-steps"><li>Arrivée en caisse</li>'
+                "<li>Affectation et file FIFO</li><li>Service ou abandon</li>"
+                "<li>Sortie et mise à jour des KPI</li></ol>",
+                unsafe_allow_html=True,
+            )
+            st.write(
+                "En cas de fermeture, les clients en attente rejoignent une caisse ouverte. "
+                "Le client en cours de service termine son passage à la même caisse."
+            )
     elif page == "Simulation":
         with st.expander("Comprendre le simulateur et préparer une décision"):
             a, b, c = st.columns(3)
@@ -463,7 +443,7 @@ def main() -> None:
             )
             c.markdown(
                 "**3. Décider**\n\nConsultez Interventions pour mesurer l'effet de vos actions. "
-                "Le Laboratoire de décision compare capacités, coûts et qualité "
+                "Optimisation compare capacités, coûts et qualité "
                 "sur plusieurs graines."
             )
             st.caption(
@@ -471,17 +451,37 @@ def main() -> None:
                 "illustratives. Les projections de tendance et coûts reposent sur des hypothèses "
                 "explicites. La vitesse de lecture ne change aucun résultat de simulation."
             )
-        simulation(config, result)
+        simulation(config, run_simulation(config, strategy_name))
     elif page == "Analyses":
-        overview(config, result, clients)
-        analytics(result, clients)
+        st.title("Analyses")
+        mode = st.radio("Moteur analysé", ["Dynamique", "FIFO historique"], horizontal=True)
+        if mode == "Dynamique":
+            render_dynamic_dashboard(config)
+        else:
+            st.caption("Simulation FIFO historique, sans abandon ni changement de file.")
+            result = run_simulation(config, strategy_name)
+            clients = customer_frame(result)
+            with st.expander("Synthèse FIFO"):
+                overview(config, result)
+            analytics(result, clients)
     elif page == "Optimisation":
-        st.info(
-            "Le laboratoire dynamique est accessible dans Simulation, "
-            "Analyse de la scène, Laboratoire de décision. "
-            "Le comparateur ci-dessous conserve le périmètre FIFO historique."
+        st.title("Optimisation")
+        objective = st.radio(
+            "Objectif de capacité",
+            ["Niveau de service et coût", "Seuil d’attente moyenne"],
+            horizontal=True,
         )
-        comparison(config, strategy_name, clients)
+        dynamic_config, options = studio_parameters(config)
+        st.caption(
+            f"{dynamic_config.name} / {dynamic_config.customer_count} clients / "
+            f"première graine {dynamic_config.seed}. Réglages de l’atelier dans Simulation."
+        )
+        if objective == "Niveau de service et coût":
+            render_decision_lab(dynamic_config, options)
+        else:
+            render_mean_wait(dynamic_config, options)
+        with st.expander("Comparateur FIFO historique"):
+            comparison(config, strategy_name, customer_frame(run_simulation(config, strategy_name)))
     st.markdown(
         '<div class="rf-foot">RetailFlow / Simulation / Données synthétiques / '
         "Ouvre la barre du graphique pour zoomer ou exporter une image.</div>",

@@ -48,7 +48,7 @@ def test_costs_and_service_denominators_match_actual_dynamic_run():
         trials.groupby("Caisses")["Service (%)"].min().tolist()
     )
     report = decision_report(CONFIG, OPTIONS, assumptions, summary, trials)
-    assert "hypothétique" in report and report.startswith("# RetailFlow V7.0")
+    assert "hypothétique" in report and report.startswith("# RetailFlow V8")
     assert "intervalle" in report and "tous les arrivants" in report
 
 

@@ -13,13 +13,16 @@ def choose(app: AppTest, label: str, value: str) -> AppTest:
 
 @pytest.mark.parametrize("view", ["Attentes", "Caisses", "Flux", "Clients"])
 def test_analysis_subviews(view):
-    choose(select_page(run_app(), "Analyse"), "Analyse détaillée", view)
+    app = choose(select_page(run_app(), "Analyse"), "Moteur analysé", "FIFO historique")
+    choose(app, "Analyse détaillée", view)
 
 
-@pytest.mark.parametrize("view", ["Flux", "Attentes", "Journal et exports"])
+@pytest.mark.parametrize(
+    "view", ["Flux", "Attentes", "Caisses", "Diagnostic", "Journal et exports"]
+)
 def test_dynamic_subviews(view):
-    app = select_page(run_app(), "Simulation")
-    choose(app, "Analyse de la scène", view)
+    app = select_page(run_app(), "Analyses")
+    choose(app, "Analyse dynamique", view)
     assert any("Clients arrivés" in m.value for m in app.markdown)
 
 
@@ -34,7 +37,7 @@ def test_capacity_comparison_is_invalidated_when_scenario_changes():
 
 
 def test_empty_filter_is_a_message():
-    app = select_page(run_app(), "Analyse")
+    app = choose(select_page(run_app(), "Analyse"), "Moteur analysé", "FIFO historique")
     app.multiselect[0].set_value([]).run()
     assert not app.exception
     assert any("Choisis au moins une caisse" in s.value for s in app.info)
@@ -43,7 +46,7 @@ def test_empty_filter_is_a_message():
 def test_single_customer_is_valid_in_all_analysis_views():
     app = AppTest.from_file(str(APP_PATH), default_timeout=60).run()
     app.sidebar.slider[0].set_value(1).run()
-    select_page(app, "Analyse")
+    choose(select_page(app, "Analyse"), "Moteur analysé", "FIFO historique")
     for view in ["Attentes", "Caisses", "Flux", "Clients"]:
         choose(app, "Analyse détaillée", view)
 
@@ -80,9 +83,13 @@ def test_dynamic_challenge_and_comparison_page():
     scenario = next(w for w in app.selectbox if w.label == "Situation à explorer")
     scenario.select("Pic du samedi").run()
     assert not app.exception
-    choose(app, "Analyse de la scène", "Interventions")
+    choose(select_page(app, "Analyses"), "Analyse dynamique", "Interventions")
     assert any("110 clients" in caption.value for caption in app.caption)
     assert app.session_state["studio_context"]["actions"] == []
+    select_page(app, "Simulation")
+    assert (
+        next(w for w in app.selectbox if w.label == "Situation à explorer").value == "Pic du samedi"
+    )
 
 
 def test_scene_exit_returns_to_previous_page_without_intervention(monkeypatch):

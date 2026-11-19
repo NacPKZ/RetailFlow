@@ -145,6 +145,7 @@ RF.mountStudio = (root, data, onAction) => {
     lastHud = -1,
     lastSave = 0,
     drag = null,
+    cameraMove = null,
     pending = false;
   let pauseFired = false,
     toastTimer = 0,
@@ -163,7 +164,7 @@ RF.mountStudio = (root, data, onAction) => {
       "Situation : observez les paramètres, la graine et les caisses ouvertes. Les courses sont illustratives ; les événements aux caisses viennent du moteur.",
       "Congestion : la lecture est placée au pic. Identifiez les files et l’attente actuelle dans l’inspecteur.",
       "Décision : ouvrez une caisse fermée ou sélectionnez un client en file, puis choisissez une autre caisse. Python valide et recalcule le futur.",
-      "Comparaison : sous l’atelier, ouvrez l’analyse Interventions. Comparez les bilans finaux au témoin, avec les mêmes arrivants et services prévus.",
+      "Comparaison : dans Analyses, ouvrez Interventions. Comparez les bilans finaux au témoin, avec les mêmes arrivants et services prévus.",
       "Conclusion : commentez les écarts de moyenne, P90, abandons, service et ressources mobilisées. Plusieurs actions ont un effet combiné ; une graine ne suffit pas à généraliser.",
     ];
     controls["guide-text"].textContent = descriptions[guideStep];
@@ -300,10 +301,28 @@ RF.mountStudio = (root, data, onAction) => {
       "Pic de clients en file dans ce scénario. Vous pouvez intervenir ici.",
     );
   }
-  function zoom(factor) {
-    painter.zoomBy(factor);
+  function moveCamera(change) {
+    const from = { zoom: painter.zoom, pan: { ...painter.pan } };
+    if (cameraMove) {
+      painter.zoom = cameraMove.to.zoom;
+      painter.pan = { ...cameraMove.to.pan };
+    }
+    change();
+    if (painter.options.motion && !painter.reduceMotion) {
+      const to = { zoom: painter.zoom, pan: { ...painter.pan } };
+      cameraMove = { from, to, started: performance.now() };
+      painter.zoom = from.zoom;
+      painter.pan = { ...from.pan };
+    } else {
+      cameraMove = null;
+      controls["zoom-label"].textContent = `${Math.round(painter.zoom * 100)} %`;
+      save();
+    }
     dirty = true;
-    controls["zoom-label"].textContent = `${Math.round(painter.zoom * 100)} %`;
+  }
+  function zoom(factor) {
+    following = false;
+    moveCamera(() => painter.zoomBy(factor));
   }
   async function exitImmersion() {
     playing = false;
@@ -559,6 +578,23 @@ RF.mountStudio = (root, data, onAction) => {
       dirty = true;
       if (time >= data.end_time) playing = false;
     }
+    if (cameraMove) {
+      const { from, to, started } = cameraMove;
+      const t = Math.max(0, Math.min(1, (stamp - started) / 220));
+      const eased = painter.options.motion ? 1 - (1 - t) ** 3 : 1;
+      painter.zoom = from.zoom + (to.zoom - from.zoom) * eased;
+      painter.pan = {
+        x: from.pan.x + (to.pan.x - from.pan.x) * eased,
+        y: from.pan.y + (to.pan.y - from.pan.y) * eased,
+      };
+      painter.clampCamera();
+      controls["zoom-label"].textContent = `${Math.round(painter.zoom * 100)} %`;
+      if (eased === 1) {
+        cameraMove = null;
+        save();
+      }
+      dirty = true;
+    }
     if (following && selected != null) {
       const track = data.customers.find((p) => p.id === selected);
       const shoppingTrack = data.shopping_customers?.find((p) => p.id === selected);
@@ -648,21 +684,21 @@ RF.mountStudio = (root, data, onAction) => {
     save();
   };
   controls.follow.onclick = () => {
+    cameraMove = null;
     following = !following;
     dirty = true;
     save();
   };
   controls["focus-checkouts"].onclick = () => {
     following = false;
-    painter.focus(12, 6, 1.6);
-    dirty = true;
-    save();
+    moveCamera(() => painter.focus(12, 6, 1.6));
   };
   controls["minimap-toggle"].onchange = () => {
     controls["minimap-button"].hidden = !controls["minimap-toggle"].checked;
     save();
   };
   controls["minimap-button"].onclick = (e) => {
+    cameraMove = null;
     following = false;
     if (e.detail === 0) {
       painter.resetCamera();
@@ -774,9 +810,7 @@ RF.mountStudio = (root, data, onAction) => {
   controls["zoom-out"].onclick = () => zoom(1 / 1.2);
   controls.fit.onclick = () => {
     following = false;
-    painter.resetCamera();
-    controls["zoom-label"].textContent = "100 %";
-    dirty = true;
+    moveCamera(() => painter.resetCamera());
   };
   controls.bookmark.onclick = () => {
     if (bookmarks.length >= 12) {
@@ -805,6 +839,7 @@ RF.mountStudio = (root, data, onAction) => {
     return painter.toWorld(e.clientX - r.left, e.clientY - r.top);
   };
   canvas.onpointerdown = (e) => {
+    cameraMove = null;
     if (pending) return;
     root.focus({ preventScroll: true });
     const p = point(e),
@@ -911,6 +946,7 @@ RF.mountStudio = (root, data, onAction) => {
     dirty = true;
   };
   canvas.onwheel = (e) => {
+    cameraMove = null;
     e.preventDefault();
     following = false;
     const r = canvas.getBoundingClientRect();

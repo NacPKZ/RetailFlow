@@ -1,7 +1,20 @@
 """Bilan final dynamique et ressources réellement mobilisées, sans mélange de moteurs."""
 
+import pandas as pd
+
 from queuesmart.analytics.visual_data import customer_frame, service_level
 from queuesmart.simulation.dynamic import DynamicResult
+
+
+def observation_end(result: DynamicResult) -> float:
+    terminal = [
+        c.departure_time if c.departure_time is not None else c.abandoned_at
+        for c in result.customers
+    ]
+    if any(t is None for t in terminal):
+        # Un rejeu partiel se termine au dernier événement disponible.
+        return result.events[-1].time if result.events else 0.0
+    return max(terminal, default=0.0)
 
 
 def resource_frame(result: DynamicResult):
@@ -10,12 +23,7 @@ def resource_frame(result: DynamicResult):
     Une caisse fermée qui termine son client mobilise encore une ressource.
     Les commandes administratives après la dernière sortie n'allongent pas le bilan.
     """
-    import pandas as pd
-
-    horizon = max(
-        (c.departure_time or c.abandoned_at or c.arrival_time for c in result.customers),
-        default=0.0,
-    )
+    horizon = observation_end(result)
     opened = {r: r <= result.config.open_registers for r in range(1, 6)}
     serving = dict.fromkeys(opened)
     available = dict.fromkeys(opened, 0.0)
@@ -36,6 +44,9 @@ def resource_frame(result: DynamicResult):
             serving[rid] = None
         if event.time >= horizon:
             break
+    for rid in opened:
+        available[rid] += (horizon - previous) * (opened[rid] or serving[rid] is not None)
+        busy[rid] += (horizon - previous) * (serving[rid] is not None)
     return pd.DataFrame(
         [
             {
@@ -54,14 +65,29 @@ def final_metrics(result: DynamicResult) -> dict[str, float | int | None]:
     served = clients.loc[clients["Statut"] == "Servi", "Attente"]
     resources = resource_frame(result)
     denominator = resources["Mobilisation (min)"].sum()
+    finished = clients.loc[clients["Statut"] == "Servi"]
+    abandoned = clients.loc[clients["Statut"] == "Abandon"]
+    horizon = observation_end(result)
+
+    def mean(values):
+        return float(values.mean()) if len(values) else None
+
     return {
-        "Attente moyenne des servis (min)": float(served.mean()) if len(served) else None,
+        "Clients arrivés": len(clients),
+        "Clients encore présents": len(clients) - len(finished) - len(abandoned),
+        "Fin d’observation (min)": horizon,
+        "Attente moyenne des servis (min)": mean(served),
         "Médiane des servis (min)": float(served.median()) if len(served) else None,
         "P95 des servis (min)": float(served.quantile(0.95)) if len(served) else None,
         "Taux d'abandon (%)": 100 * result.abandoned_count / len(clients) if len(clients) else 0.0,
         "P90 des servis (min)": float(served.quantile(0.9)) if len(served) else None,
-        "Clients servis": result.served_count,
-        "Abandons": result.abandoned_count,
+        "Attente maximale des servis (min)": float(served.max()) if len(served) else None,
+        "Service moyen des servis (min)": mean(finished["Service"]),
+        "Temps dans le système des servis (min)": mean(finished["Sortie"] - finished["Arrivée"]),
+        "Temps moyen avant abandon (min)": mean(abandoned["Attente"]),
+        "Débit (servis/min)": len(finished) / horizon if horizon else None,
+        "Clients servis": len(finished),
+        "Abandons": len(abandoned),
         "Niveau de service (%)": service_level(clients),
         "Occupation des ressources (%)": (
             100 * float(resources["Service (min)"].sum()) / denominator if denominator else None

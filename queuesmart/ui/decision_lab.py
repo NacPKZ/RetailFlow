@@ -10,8 +10,10 @@ from queuesmart.analytics.decision_lab import (
     compare_dynamic_capacity,
     decision_bundle,
     decision_report,
+    mean_wait_capacity,
     recommend_capacity,
 )
+from queuesmart.exports.dynamic import csv_bytes
 from queuesmart.ui import charts
 from queuesmart.ui.presentation import plot, section
 
@@ -163,3 +165,70 @@ def render_decision_lab(config, base_options):
         saved = st.session_state.get("decision_sensitivity")
         if saved and saved[0] == sensitivity_key:
             st.dataframe(saved[1], hide_index=True, width="stretch")
+
+
+def render_mean_wait(config, options):
+    section("Attente moyenne des clients servis", "Capacités fixes testées sur les mêmes graines")
+    st.caption(
+        "Le calcul utilise la patience et le rééquilibrage de l’atelier. Les interventions "
+        "sont exclues. Le seuil doit être respecté à chaque tirage. Un tirage sans service "
+        "terminé ne satisfait pas l’objectif."
+    )
+    with st.form("mean_wait_form"):
+        a, b, c = st.columns(3)
+        threshold = a.number_input("Attente moyenne maximale (min)", 0.0, 120.0, 5.0, 0.5)
+        maximum = b.slider("Capacité maximale à tester", 1, 5, 5)
+        runs = c.select_slider("Graines par capacité", options=[5, 10, 20], value=5)
+        submitted = st.form_submit_button("Tester le seuil d’attente", type="primary")
+    signature = (config, options, DecisionAssumptions(), maximum, runs)
+    if submitted:
+        st.session_state["mean_wait_result"] = (signature, threshold, _compare(*signature)[1])
+    saved = st.session_state.get("mean_wait_result")
+    if not saved or saved[:2] != (signature, threshold):
+        st.info("Validez le formulaire pour calculer la recommandation.")
+        return
+    trials = saved[2]
+    summary, recommended = mean_wait_capacity(trials, threshold)
+    if recommended is None:
+        st.warning("Aucune capacité ne respecte le seuil sur toutes les graines testées.")
+    else:
+        rate = summary.loc[summary["Caisses"] == recommended, "Taux d’abandon moyen (%)"].iloc[0]
+        st.success(
+            f"{recommended} caisse(s), la plus petite capacité conforme sur les {runs} graines. "
+            f"Taux d’abandon moyen observé à cette capacité : {rate:.1f} %."
+        )
+    figure = go.Figure()
+    for name, color in [
+        ("Attente moyenne (min)", charts.BLUE),
+        ("Plus forte moyenne (min)", charts.GOLD),
+    ]:
+        figure.add_scatter(
+            x=summary["Caisses"],
+            y=summary[name],
+            name=name,
+            mode="lines+markers",
+            line_color=color,
+        )
+    figure.add_hline(y=threshold, line_dash="dash", line_color=charts.RED)
+    figure.update_xaxes(title="Caisses ouvertes", dtick=1)
+    figure.update_yaxes(title="Minutes", rangemode="tozero")
+    plot(charts.style(figure, "Attente par capacité"), "mean_wait_comparison")
+    st.dataframe(summary.round(3), hide_index=True, width="stretch")
+    st.caption(
+        "Les clients abandonnés ne font pas partie du calcul des attentes des servis. "
+        "Le taux d’abandon reste un critère distinct. La recommandation dépend des paramètres "
+        "et des graines testés."
+    )
+    with st.expander("Détail par graine"):
+        st.dataframe(
+            trials[["Caisses", "Graine", "Attente moyenne (min)", "Servis", "Taux d'abandon (%)"]],
+            hide_index=True,
+            width="stretch",
+        )
+    st.download_button(
+        "Exporter la comparaison d’attente (CSV)",
+        csv_bytes(summary),
+        "retailflow_comparaison_attente.csv",
+        "text/csv",
+        on_click="ignore",
+    )
