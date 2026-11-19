@@ -1,4 +1,4 @@
-# RetailFlow : intégration et refonte visuelle V5
+# RetailFlow | Archives V5 : refonte visuelle
 
 Date : 18 novembre 2026.
 
