@@ -259,12 +259,12 @@ Pour récupérer cette version après publication, sans fusionner :
 
 ```bash
 git fetch origin
-git switch feature/retailflow-v6-1
-git pull --ff-only origin feature/retailflow-v6-1
+git switch 4ac03698f204d119a5d81fc540c971b1a3c4a948
+# Branche V6.1 supprimée après intégration dans main
 python -m streamlit run app.py
 ```
 
-Si la branche locale n'existe pas encore, `git switch --track origin/feature/retailflow-v6-1`
+La branche V6.1 a été supprimée après intégration. Consulter le commit historique ou la PR #3 pour retrouver cette version.
 la crée à partir de la branche distante. Arrêter puis relancer Streamlit après le changement
 de branche permet de recharger les assets du composant.
 
