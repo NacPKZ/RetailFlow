@@ -1,10 +1,12 @@
 # RetailFlow | Qualité du code : exemples de refactorisation
 
+> **Document historique.** Ce texte décrit l'état du projet au moment de cette étape. Les branches, commandes, chiffres de tests et tâches « à faire » peuvent être obsolètes. Pour la version actuelle, consulter [l'index documentaire](README.md) et [la validation V7](VERSION_7_VALIDATION.md).
+
 > **Origine des exemples.** Le moteur a d'abord été écrit volontairement sous une forme
 > naïve (une seule fonction `run`), puis exécuté sur les 3 scénarios. Il a ensuite été
 > refactoré en classes. Le projet n'utilisant pas encore git, la version naïve est
 > conservée ci-dessous telle qu'elle a été écrite.
-> **Preuve que le comportement est préservé** : avec la graine 42, les deux versions
+> **Comparaison historique rapportée, à distinguer d'une validation indépendante** : avec la graine 42, les deux versions
 > donnent exactement les mêmes attentes moyennes (par exemple 2,25 min puis 1,91 min
 > à l'heure de pointe), et `pytest` passe sur la version refactorée.
 
