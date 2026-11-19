@@ -12,7 +12,7 @@ from queuesmart.simulation.strategies import STRATEGIES
 APP_PATH = Path(__file__).resolve().parent.parent / "app.py"
 APP_TIMEOUT_S = 60
 CASES = list(itertools.product(SCENARIOS, STRATEGIES))
-PAGES = ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison"]
+PAGES = ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison", "Analytics dynamique"]
 
 
 def run_app() -> AppTest:
@@ -55,3 +55,9 @@ def test_unknown_customer_shows_a_warning_not_a_traceback() -> None:
     journey_input.set_value(9999).run()
     assert not app.exception
     assert any("Aucun client n°9999" in warning.value for warning in app.warning)
+
+
+def test_dynamic_analytics_page_renders_without_exception() -> None:
+    app = select_page(run_app(), "Analytics dynamique")
+    assert not app.exception
+    assert any("moteur dynamique" in title.value.lower() for title in app.header)

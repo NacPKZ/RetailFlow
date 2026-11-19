@@ -144,6 +144,35 @@ heures normales et 6 à l'heure de pointe.
 
 ---
 
+## Mission 3 — Analytics et optimisation dynamique
+
+La navigation **Analytics dynamique** utilise `DynamicSimulationEngine` et un calculateur
+indépendant du moteur FIFO historique. Elle présente les KPI des clients servis, les abandons,
+les files reconstruites depuis les événements, l'occupation des caisses, la comparaison de 1 à
+5 caisses et la recommandation fondée sur un seuil d'attente moyenne.
+
+Les exports sont disponibles en cinq CSV UTF-8 (`clients`, `evenements`, `caisses`, `kpi`,
+`comparaison`) et en un classeur Excel avec les onglets Paramètres, Résumé KPI, Caisses,
+Clients, Événements et Comparaison. La dépendance `openpyxl` est utilisée pour générer le
+classeur.
+
+Le dictionnaire des formules, unités, populations et conventions figure dans
+[docs/DICTIONNAIRE_KPI_DYNAMIQUES.md](docs/DICTIONNAIRE_KPI_DYNAMIQUES.md). Les commandes de lancement, la procédure de démonstration et la correspondance exigences/tests figurent dans [docs/INTEGRATION_MISSION_3.md](docs/INTEGRATION_MISSION_3.md).
+
+Pour lancer la mission 3 :
+
+```bash
+python -m streamlit run app.py
+python -m pytest -q
+```
+
+Le sélecteur **Analytics dynamique** est distinct des pages FIFO. Le moteur dynamique conserve
+sa règle intégrée d'affectation par attente estimée et n'utilise pas le sélecteur de stratégie
+historique. Les comparaisons 1 à 5 caisses refusent une graine absente ou un calendrier de
+changements de caisses, car ces paramètres ne garantiraient pas une capacité comparable.
+
+---
+
 ## Limites et pistes d'évolution
 
 - **Abandon de file** : tous les clients attendent jusqu'au bout ; on pourrait ajouter un seuil de patience.

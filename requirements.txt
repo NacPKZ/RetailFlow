@@ -2,6 +2,7 @@
 streamlit==1.67.0
 plotly==7.1.0
 pandas==3.1.1
+openpyxl==3.1.5
 
 # Qualité : tests, couverture, lint
 pytest==9.2.0

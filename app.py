@@ -1,7 +1,8 @@
-"""RetailFlow, interface Streamlit simplifiée pour la simulation FIFO.
+"""Interface Streamlit RetailFlow pour les simulations FIFO et dynamiques.
 
 Lancer depuis la racine du projet : python -m streamlit run app.py
-Le moteur dynamique et ses événements sont disponibles dans dynamic_demo.py.
+La démonstration technique indépendante du moteur dynamique reste disponible
+dans dynamic_demo.py.
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from queuesmart.simulation.engine import SimulationEngine
 from queuesmart.simulation.result import SimulationResult
 from queuesmart.simulation.strategies import build_strategy
 from queuesmart.ui.client_screen import render_client_screen
+from queuesmart.ui.dynamic_dashboard import render_dynamic_dashboard
 from queuesmart.ui.sidebar import render_sidebar
 from queuesmart.ui.store_view import render_store_view
 
@@ -532,20 +534,33 @@ def main() -> None:
     )
     theme()
     config, strategy_name = render_sidebar()
-    result = run_simulation(config, strategy_name)
     hero(config)
-    pages = ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison"]
+    pages = ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison", "Analytics dynamique"]
     page = st.radio("Navigation", pages, horizontal=True, label_visibility="collapsed")
-    if page == "Vue d'ensemble":
-        overview(config, result, customers_frame(result))
-    elif page == "Simulation":
-        simulation(result)
-    elif page == "Analyse":
-        analytics(result, customers_frame(result))
+    if page == "Analytics dynamique":
+        st.caption(
+            "Le moteur dynamique utilise sa propre règle d'affectation par attente estimée ; "
+            "le choix de stratégie historique de la barre latérale ne s'applique pas "
+            "à cette page."
+        )
+        render_dynamic_dashboard(config)
     else:
-        comparison(config, strategy_name, result, customers_frame(result))
+        result = run_simulation(config, strategy_name)
+        if page == "Vue d'ensemble":
+            overview(config, result, customers_frame(result))
+        elif page == "Simulation":
+            simulation(result)
+        elif page == "Analyse":
+            analytics(result, customers_frame(result))
+        else:
+            comparison(config, strategy_name, result, customers_frame(result))
+    footer_label = (
+        "Analytics dynamique"
+        if page == "Analytics dynamique"
+        else "Simulation pédagogique FIFO"
+    )
     st.markdown(
-        '<div class="rf-foot">RetailFlow | Simulation pédagogique FIFO | Données synthétiques</div>',
+        f'<div class="rf-foot">RetailFlow | {footer_label} | Données synthétiques</div>',
         unsafe_allow_html=True,
     )
 
