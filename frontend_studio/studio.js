@@ -17,6 +17,7 @@ RF.mountStudio = (root, data, onAction) => {
       "peak",
       "help",
       "fullscreen",
+      "back-to-menu",
       "mode-label",
       "layout-all",
       "layout-scene",
@@ -96,7 +97,7 @@ RF.mountStudio = (root, data, onAction) => {
   const cursor = data.cursor || {};
   let time = RF.cursorTime(data, saved);
   const cursorToken = cursor.token || saved.cursorToken || null;
-  if (saved.immersive) root.classList.add("immersive");
+  if (saved.immersive && cursor.token && cursor.token !== saved.cursorToken) root.classList.add("immersive");
   painter.zoom = Math.max(1, Math.min(3, Number(saved.zoom) || 1));
   if (saved.pan) painter.pan = saved.pan;
   painter.reduceMotion = window.matchMedia(
@@ -304,9 +305,28 @@ RF.mountStudio = (root, data, onAction) => {
     dirty = true;
     controls["zoom-label"].textContent = `${Math.round(painter.zoom * 100)} %`;
   }
+  async function exitImmersion() {
+    playing = false;
+    if (document.fullscreenElement) await document.exitFullscreen();
+    root.classList.remove("immersive", "focus-scene");
+    layoutControls();
+    controls.fullscreen.textContent = "⛶ Plein écran";
+    painter.resize(); dirty = true; save();
+    const menu = document.querySelector?.(".st-key-navigation");
+    (menu || root).scrollIntoView?.({block:"start", behavior:"instant"});
+  }
+  controls["back-to-menu"].onclick = exitImmersion;
+  const onFullscreenChange = () => {
+    if (!document.fullscreenElement) {
+      root.classList.remove("immersive");
+      controls.fullscreen.textContent = "⛶ Plein écran";
+      painter.resize(); dirty = true; save();
+    }
+  };
+  document.addEventListener("fullscreenchange", onFullscreenChange);
   async function fullscreen() {
     if (document.fullscreenElement) {
-      await document.exitFullscreen();
+      await exitImmersion();
       controls.fullscreen.textContent = "⛶ Plein écran";
       save();
       return;
@@ -897,6 +917,7 @@ RF.mountStudio = (root, data, onAction) => {
     save();
   };
   const onKey = (e) => {
+    if (e.key === "Escape") { exitImmersion(); return; }
     if (
       ["INPUT", "SELECT", "BUTTON", "TEXTAREA", "SUMMARY"].includes(
         e.target.tagName,
@@ -963,6 +984,7 @@ RF.mountStudio = (root, data, onAction) => {
     clearTimeout(toastTimer);
     resize.disconnect();
     document.removeEventListener("visibilitychange", onVisibility);
+    document.removeEventListener("fullscreenchange", onFullscreenChange);
     root.removeEventListener("keydown", onKey);
     save();
   };

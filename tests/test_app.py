@@ -59,3 +59,16 @@ def test_unknown_customer_shows_a_warning_not_a_traceback() -> None:
     journey_input.set_value(9999).run()
     assert not app.exception
     assert any("Aucun client n°9999" in warning.value for warning in app.warning)
+
+
+def test_back_and_home_navigation():
+    app = run_app()
+    select_page(app, "Analyses")
+    select_page(app, "Méthodologie")
+    next(b for b in app.button if b.label == "← Retour").click().run()
+    assert app.session_state["navigation"] == "Analyses"
+    next(b for b in app.button if b.label == "← Retour").click().run()
+    assert app.session_state["navigation"] == "Simulation"
+    next(b for b in app.button if b.label == "⌂ Accueil").click().run()
+    assert app.session_state["navigation"] == "Accueil"
+    assert not app.exception

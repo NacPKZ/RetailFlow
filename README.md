@@ -177,3 +177,9 @@ La base initiale QueueSmart a été réalisée en équipe et a fourni le moteur 
 Les données sont simulées, l'estimation d'attente peut exploiter une information parfaite sur les durées de service, et les résultats ne sont pas des prévisions opérationnelles pour un magasin réel. Les deux moteurs sont accessibles dans la même interface, avec des périmètres explicitement indiqués. Les ouvertures/fermetures et réaffectations peuvent être déclenchées dans la scène ; elles sont validées et recalculées par le moteur Python. Le périmètre 1 à 5 caisses doit encore être harmonisé avec certains modules historiques pouvant aller jusqu'à 8.
 
 **Technologies :** Python, Streamlit, pandas, Plotly, pytest, ruff.
+
+### Revenir au menu
+
+Le bouton **Retour** revient à l’espace précédent et **Accueil** ouvre la présentation.
+En plein écran, **Retour au menu** ou Échap ferme l’immersion et retrouve la navigation.
+Le plein écran ne se réactive plus automatiquement après un changement de page.

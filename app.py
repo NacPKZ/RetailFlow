@@ -329,6 +329,27 @@ def comparison(config: ScenarioConfig, strategy_name: str, clients: pd.DataFrame
         )
 
 
+def _record_navigation():
+    target = st.session_state.get("navigation", "Accueil")
+    previous = st.session_state.get("active_page", "Accueil")
+    if target != previous:
+        history = st.session_state.setdefault("page_history", [])
+        history.append(previous)
+        st.session_state["page_history"] = history[-20:]
+    st.session_state["active_page"] = target
+
+
+def _navigate(target):
+    st.session_state["navigation"] = target
+    _record_navigation()
+
+
+def _back():
+    history = st.session_state.get("page_history", [])
+    target = history.pop() if history else "Accueil"
+    st.session_state.update(navigation=target, active_page=target, page_history=history)
+
+
 def main() -> None:
     st.set_page_config(
         page_title="RetailFlow V7 | Aide à la décision",
@@ -339,6 +360,18 @@ def main() -> None:
     theme()
     config, strategy_name = render_sidebar()
     result = run_simulation(config, strategy_name)
+    back, home, heading = st.columns([1, 1, 4])
+    back.button(
+        "← Retour",
+        on_click=_back,
+        width="stretch",
+        disabled=not st.session_state.get("page_history"),
+    )
+    home.button("⌂ Accueil", on_click=_navigate, args=("Accueil",), width="stretch")
+    heading.markdown(
+        '<div class="rf-topbrand">RetailFlow <span>Simulation et aide à la décision</span></div>',
+        unsafe_allow_html=True,
+    )
     page = st.radio(
         "Navigation",
         ["Accueil", "Simulation", "Analyses", "Optimisation", "Méthodologie"],
@@ -346,6 +379,7 @@ def main() -> None:
         label_visibility="collapsed",
         index=0,
         key="navigation",
+        on_change=_record_navigation,
     )
     if page == "Simulation":
         st.markdown(
@@ -378,7 +412,8 @@ def main() -> None:
         ):
             col.button(
                 label,
-                on_click=lambda t=target: st.session_state.update(navigation=t),
+                on_click=_navigate,
+                args=(target,),
                 width="stretch",
             )
         st.markdown("**Configurer → Simuler → Analyser → Optimiser**")

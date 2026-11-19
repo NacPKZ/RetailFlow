@@ -117,3 +117,8 @@ button{overflow-wrap:normal}.eyebrow{color:#536f82}.event{color:#4d687b}
 
 .studio:fullscreen.focus-scene .inspector,.studio.immersive.focus-scene .inspector{display:none}
 .reduced-decoration .live-dot{animation:none}
+
+.back-to-menu{display:none}.studio:fullscreen .back-to-menu,.studio.immersive .back-to-menu{display:block;background:#fff;color:#193551;border-color:#fff;font-weight:750}
+.studio-head{background:#193551}.studio-head h2{font-size:clamp(22px,2vw,29px)}
+.studio:fullscreen .studio-head,.studio.immersive .studio-head{position:sticky;top:0;z-index:8;flex-shrink:0}
+@media(max-width:700px){.studio-head .back-to-menu{order:-1;flex-basis:100%}.studio-head button{font-size:13px}}
