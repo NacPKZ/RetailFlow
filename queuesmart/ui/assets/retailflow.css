@@ -69,3 +69,14 @@ html {font-size:18px;}
 [data-testid=stButton] button{border-radius:9px;min-height:44px;font-weight:600}
 [data-testid=stPlotlyChart]{box-shadow:none;border-radius:12px}
 @media(max-width:800px){.rf-topbrand span{display:none}.rf-topbrand{font-size:1.1rem}.st-key-navigation{padding:6px}.st-key-navigation label{padding:8px 10px!important}.rf-hero{padding:20px}}
+
+/* Réserver l'espace du bandeau fixe Streamlit, y compris au zoom navigateur. */
+[data-testid="stMain"] .block-container{padding-top:5rem!important;min-width:0}
+.rf-hero>div{min-width:0}.rf-hero p{overflow-wrap:anywhere}
+.rf-topbrand{overflow-wrap:anywhere}
+@media(max-width:800px){
+ [data-testid="stMain"] .block-container{padding-top:4.5rem!important}
+ .rf-hero{flex-wrap:wrap;gap:16px}
+ .st-key-navigation [role="radiogroup"]{width:100%;min-width:0}
+ .st-key-navigation label{max-width:100%;box-sizing:border-box}
+}
