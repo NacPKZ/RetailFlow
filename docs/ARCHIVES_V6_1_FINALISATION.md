@@ -1,5 +1,7 @@
 # RetailFlow | Archives V6.1 : finalisation et validation
 
+> **Document historique.** Ce texte décrit l'état du projet au moment de cette étape. Les branches, commandes, chiffres de tests et tâches « à faire » peuvent être obsolètes. Pour la version actuelle, consulter [l'index documentaire](README.md) et [la validation V7](VERSION_7_VALIDATION.md).
+
 ## Référence auditée
 
 La Pull Request 2 pointe sur `b759b3a73a1d933edff26ed1dbb296cdcb1b3c20`.
@@ -304,5 +306,4 @@ sans mesure isolée des effets individuels ni intervalle de confiance.
 Les téléchargements binaires, les gestes sur appareil tactile réel et les autres moteurs
 de navigateur restent des vérifications à réaliser. La dette de lint préexistante subsiste.
 Aucun test n'a été supprimé et aucune fusion automatique n'a été réalisée.
-La Pull Request V6.1 est destinée à la branche de la PR 2 pour ne présenter que ce complément ;
-sa fusion dans main reste une décision de revue de l'équipe.
+**Note de clôture (19 novembre 2026) :** la V6.1 a été intégrée dans l'historique de `main` avec la V7. La phrase précédente décrivait uniquement la stratégie de revue initiale.
