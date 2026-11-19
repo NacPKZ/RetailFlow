@@ -1,0 +1,162 @@
+[
+  {
+    "clients": 10,
+    "caisses": 1,
+    "moteur_mediane_ms": 0.27903899990633363,
+    "preparation_scene_ms": 12.96128099966154,
+    "scene_cache_chaud_ms": 1.867838999714877,
+    "payload_octets": 15552
+  },
+  {
+    "clients": 10,
+    "caisses": 2,
+    "moteur_mediane_ms": 0.14112699955148855,
+    "preparation_scene_ms": 6.830358000115666,
+    "scene_cache_chaud_ms": 1.4901559998179437,
+    "payload_octets": 15344
+  },
+  {
+    "clients": 10,
+    "caisses": 3,
+    "moteur_mediane_ms": 0.14123700020718388,
+    "preparation_scene_ms": 4.9268060001850245,
+    "scene_cache_chaud_ms": 1.9702899999174406,
+    "payload_octets": 15343
+  },
+  {
+    "clients": 10,
+    "caisses": 4,
+    "moteur_mediane_ms": 0.17434600067645079,
+    "preparation_scene_ms": 4.850504000387446,
+    "scene_cache_chaud_ms": 1.982147000489931,
+    "payload_octets": 15342
+  },
+  {
+    "clients": 10,
+    "caisses": 5,
+    "moteur_mediane_ms": 0.31699499959358945,
+    "preparation_scene_ms": 7.073284999933094,
+    "scene_cache_chaud_ms": 2.0052219997523935,
+    "payload_octets": 15341
+  },
+  {
+    "clients": 60,
+    "caisses": 1,
+    "moteur_mediane_ms": 2.362946000175725,
+    "preparation_scene_ms": 94.03242299958947,
+    "scene_cache_chaud_ms": 11.687092000101984,
+    "payload_octets": 144489
+  },
+  {
+    "clients": 60,
+    "caisses": 2,
+    "moteur_mediane_ms": 3.534824999405828,
+    "preparation_scene_ms": 23.03393500005768,
+    "scene_cache_chaud_ms": 11.131457000374212,
+    "payload_octets": 113477
+  },
+  {
+    "clients": 60,
+    "caisses": 3,
+    "moteur_mediane_ms": 3.009463999660511,
+    "preparation_scene_ms": 21.01629599928856,
+    "scene_cache_chaud_ms": 10.484638999514573,
+    "payload_octets": 103895
+  },
+  {
+    "clients": 60,
+    "caisses": 4,
+    "moteur_mediane_ms": 1.5611399994668318,
+    "preparation_scene_ms": 18.982442000378796,
+    "scene_cache_chaud_ms": 11.274005999439396,
+    "payload_octets": 93797
+  },
+  {
+    "clients": 60,
+    "caisses": 5,
+    "moteur_mediane_ms": 1.029470000503352,
+    "preparation_scene_ms": 18.143246000363433,
+    "scene_cache_chaud_ms": 16.348990000551566,
+    "payload_octets": 90130
+  },
+  {
+    "clients": 100,
+    "caisses": 1,
+    "moteur_mediane_ms": 5.523230999642692,
+    "preparation_scene_ms": 77.42924000012863,
+    "scene_cache_chaud_ms": 21.405487000265566,
+    "payload_octets": 301558
+  },
+  {
+    "clients": 100,
+    "caisses": 2,
+    "moteur_mediane_ms": 7.597703999635996,
+    "preparation_scene_ms": 43.06875099973695,
+    "scene_cache_chaud_ms": 17.927515999872412,
+    "payload_octets": 216512
+  },
+  {
+    "clients": 100,
+    "caisses": 3,
+    "moteur_mediane_ms": 8.195399999749498,
+    "preparation_scene_ms": 37.301592000403616,
+    "scene_cache_chaud_ms": 17.491837000306987,
+    "payload_octets": 194326
+  },
+  {
+    "clients": 100,
+    "caisses": 4,
+    "moteur_mediane_ms": 7.321108999349235,
+    "preparation_scene_ms": 33.00683299949014,
+    "scene_cache_chaud_ms": 16.805289999865636,
+    "payload_octets": 180299
+  },
+  {
+    "clients": 100,
+    "caisses": 5,
+    "moteur_mediane_ms": 5.201620000661933,
+    "preparation_scene_ms": 31.721547999950417,
+    "scene_cache_chaud_ms": 16.853711000294425,
+    "payload_octets": 167635
+  },
+  {
+    "clients": 110,
+    "caisses": 1,
+    "moteur_mediane_ms": 6.4650020003682585,
+    "preparation_scene_ms": 182.92817200017453,
+    "scene_cache_chaud_ms": 20.22839999972348,
+    "payload_octets": 360325
+  },
+  {
+    "clients": 110,
+    "caisses": 2,
+    "moteur_mediane_ms": 9.258260000024165,
+    "preparation_scene_ms": 50.94788900078129,
+    "scene_cache_chaud_ms": 17.91008000054717,
+    "payload_octets": 253723
+  },
+  {
+    "clients": 110,
+    "caisses": 3,
+    "moteur_mediane_ms": 9.725865999826055,
+    "preparation_scene_ms": 42.27925400027743,
+    "scene_cache_chaud_ms": 18.18047699998715,
+    "payload_octets": 223844
+  },
+  {
+    "clients": 110,
+    "caisses": 4,
+    "moteur_mediane_ms": 9.218490999955975,
+    "preparation_scene_ms": 38.666134000777674,
+    "scene_cache_chaud_ms": 18.332480000026408,
+    "payload_octets": 204889
+  },
+  {
+    "clients": 110,
+    "caisses": 5,
+    "moteur_mediane_ms": 7.606766999742831,
+    "preparation_scene_ms": 35.663179000039236,
+    "scene_cache_chaud_ms": 18.83085999998002,
+    "payload_octets": 192059
+  }
+]

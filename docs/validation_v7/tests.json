@@ -1,0 +1,22 @@
+{
+  "baseline_commit": "4ac03698f204d119a5d81fc540c971b1a3c4a948",
+  "python": {
+    "tests": 287,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds": 17.061
+  },
+  "javascript": [
+    "scene_controls.cjs",
+    "studio_replay.cjs",
+    "studio_operations.cjs"
+  ],
+  "component_unit_test": "studio_mount.cjs, exécuté par pytest, DOM simulé",
+  "lint": "Ruff ciblé sur les fichiers Python modifiés et ajoutés : réussi",
+  "diff_check": "réussi",
+  "browser_visual_review": "contrôle ciblé ordinateur sur https://retailflow-nacpkz.streamlit.app/, voir docs/DEPLOIEMENT.md",
+  "end_to_end_downloads": "ZIP : événement de téléchargement terminé ; PNG et JSON de scène non validés",
+  "node_dom_checks_are_visual_validation": false,
+  "deployment_url": "https://retailflow-nacpkz.streamlit.app/"
+}

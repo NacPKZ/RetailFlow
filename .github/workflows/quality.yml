@@ -1,0 +1,24 @@
+name: Qualité RetailFlow
+on:
+  push:
+    branches: [main, feature/retailflow-v7-final]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  invariants-et-interface:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest -q
+      - run: npm run test:scene
+      - run: ruff check app.py queuesmart/analytics/decision_lab.py queuesmart/ui/decision_lab.py queuesmart/ui/dynamic_view.py queuesmart/ui/studio_component.py queuesmart/scene/layout.py queuesmart/scene/timeline.py scripts/benchmark_v7.py tests/test_decision_lab.py tests/test_decision_lab_ui.py
+      - run: git diff --check

@@ -634,7 +634,7 @@ def _markdown_report(config: ScenarioConfig, strategy: str, s: StudioSummary, re
 
 def render_exports(config: ScenarioConfig, strategy: str, result: SimulationResult) -> None:
     """Exports CSV, JSON et rapport Markdown reproductible."""
-    _heading('Centre d’export', 'Données et rapports pour le dossier universitaire ou GitHub.')
+    _heading('Centre d’export', 'Données et rapports de simulation.')
     customers = customer_frame(result)
     registers = register_frame(result)
     timeline = timeline_frame(result, max(1., result.end_time / 200))
@@ -789,7 +789,7 @@ def render_diagnostics(result: SimulationResult) -> None:
     for finding in findings:
         tone = 'red' if finding['priorite'] == 'Élevée' else 'gold'
         _callout(finding['constat'], finding['preuve'] + '. ' + finding['action'], tone)
-    st.caption('Ces alertes sont des règles simples. Elles ne reposent pas sur un modèle d’intelligence artificielle.')
+    st.caption('Ces alertes suivent des règles explicites et des seuils paramétrables.')
     _csv_button('Exporter les alertes', pd.DataFrame(findings), 'retailflow_diagnostic.csv', 'rf_diagnostics_export')
 
 

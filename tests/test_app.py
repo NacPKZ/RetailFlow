@@ -12,15 +12,19 @@ from queuesmart.simulation.strategies import STRATEGIES
 APP_PATH = Path(__file__).resolve().parent.parent / "app.py"
 APP_TIMEOUT_S = 60
 CASES = list(itertools.product(SCENARIOS, STRATEGIES))
-PAGES = ["Vue d'ensemble", "Simulation", "Analyse", "Comparaison"]
+PAGES = ["Accueil", "Simulation", "Analyses", "Optimisation", "Méthodologie"]
 
 
 def run_app() -> AppTest:
-    return AppTest.from_file(str(APP_PATH), default_timeout=APP_TIMEOUT_S).run()
+    app = AppTest.from_file(str(APP_PATH), default_timeout=APP_TIMEOUT_S).run()
+    return select_page(app, "Simulation")
 
 
 def select_page(app: AppTest, page: str) -> AppTest:
     navigation = next(widget for widget in app.radio if widget.label == "Navigation")
+    page = {"Analyse": "Analyses", "Comparaison": "Optimisation", "Vue d'ensemble": "Accueil"}.get(
+        page, page
+    )
     navigation.set_value(page).run()
     return app
 
@@ -55,3 +59,16 @@ def test_unknown_customer_shows_a_warning_not_a_traceback() -> None:
     journey_input.set_value(9999).run()
     assert not app.exception
     assert any("Aucun client n°9999" in warning.value for warning in app.warning)
+
+
+def test_back_and_home_navigation():
+    app = run_app()
+    select_page(app, "Analyses")
+    select_page(app, "Méthodologie")
+    next(b for b in app.button if b.label == "← Retour").click().run()
+    assert app.session_state["navigation"] == "Analyses"
+    next(b for b in app.button if b.label == "← Retour").click().run()
+    assert app.session_state["navigation"] == "Simulation"
+    next(b for b in app.button if b.label == "⌂ Accueil").click().run()
+    assert app.session_state["navigation"] == "Accueil"
+    assert not app.exception
