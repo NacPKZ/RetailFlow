@@ -1,4 +1,4 @@
-# RetailFlow | Exemples de Clean Code et de refactorisation
+# RetailFlow | Qualité du code : exemples de refactorisation
 
 > **Origine des exemples.** Le moteur a d'abord été écrit volontairement sous une forme
 > naïve (une seule fonction `run`), puis exécuté sur les 3 scénarios. Il a ensuite été
