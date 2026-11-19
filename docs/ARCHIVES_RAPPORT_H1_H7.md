@@ -1,7 +1,7 @@
 # RetailFlow | Archives : rapport technique H1 à H7
 
 **Date :** 17 novembre 2026  
-**Statut :** base technique transmise, tests automatisés de l'application mis à jour et exécutés localement le 17 novembre 2026 ; intégration 2D et analytics finale encore en attente.  
+**Statut historique au 17 novembre 2026 (avant intégration V7) :** base technique transmise, tests automatisés de l'application mis à jour et exécutés localement le 17 novembre 2026 ; intégration 2D et analytics finale encore en attente.  
 **Nature des heures :** H1 à H7 sont sept créneaux de travail planifiés, pas un relevé chronométré des heures effectivement passées.
 
 ## 1. Objectif et périmètre
@@ -36,7 +36,7 @@ Réutiliser le projet QueueSmart initial développé par le premier membre, le f
 - Les événements `DynamicEvent` comportent `time`, `type`, `customer_id`, `register_id`, `target_register_id` et `queue_position`.
 - Le membre 2 doit animer ces événements sans inventer de décisions métier.
 - La future scène doit représenter l'entrée, les files, les caissiers, les changements de file, les départs et les abandons.
-- Référence de transmission : `docs/TRANSMISSION_EQUIPE_V2.md` et `docs/CONTRAT_INTEGRATION_V1.md`.
+- Référence de transmission : `docs/ARCHIVES_V2_TRANSMISSION.md` et `docs/ARCHIVES_V1_CONTRAT_INTEGRATION.md`.
 
 ## 6. H6 : interface pour le membre analytics
 
