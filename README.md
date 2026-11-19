@@ -1,112 +1,117 @@
 # RetailFlow
 
-**Simulation et optimisation des files d'attente en supermarché**
+**Simulation interactive et aide à la décision pour les files d'attente en supermarché**
 
-Projet universitaire de Master 2 BIDABI (Big Data, Analyse & Business Intelligence), consacré à la simulation de flux de clients, à la mesure de la qualité de service et à l'aide à la décision sur le nombre de caisses.
+Projet universitaire réalisé en Master 2 Big Data, Analyse & Business Intelligence (BIDABI), à l'Université Sorbonne Paris Nord. RetailFlow étudie le compromis entre temps d'attente, qualité de service et mobilisation des caisses à partir de **données synthétiques**.
 
-> **État du projet : version de travail collaborative.** L'interface analytique et le moteur FIFO historique fonctionnent dans `app.py`. Le moteur événementiel dynamique est disponible dans `dynamic_demo.py`. La scène pixel art et le dashboard dynamique définitif restent à intégrer.
+**[Accéder à l'application Streamlit](https://retailflow-nacpkz.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/RETAILFLOW_V7.md)
 
-## Le problème étudié
+![Capture réelle de RetailFlow déployé](docs/validation_v7/retailflow_public.jpg)
 
-Un magasin doit limiter les temps d'attente sans mobiliser inutilement trop de caisses. RetailFlow permet d'explorer ce compromis dans des **scénarios synthétiques**, reproductibles grâce à une graine aléatoire. Aucun jeu de données clients réel n'est utilisé.
+## Problématique
 
-## Deux moteurs complémentaires
+Combien de caisses faut-il mobiliser pour limiter l'attente des clients sans augmenter inutilement les coûts ? RetailFlow permet de **simuler**, **observer**, **intervenir** et **comparer** plusieurs configurations. Il s'agit d'un prototype pédagogique, non d'un système calibré sur les données d'un magasin réel.
 
-| | Moteur historique | Moteur dynamique |
-|---|---|---|
-| Entrée | `queuesmart/simulation/engine.py` | `queuesmart/simulation/dynamic.py` |
-| Interface | `app.py` | `dynamic_demo.py` |
-| Files FIFO | Oui | Oui |
-| Stratégies | File la plus courte, attente estimée minimale | Choix de caisse avec réévaluation |
-| Changement de file | Non | Oui |
-| Abandon selon la patience | Non | Oui |
-| Ouverture et fermeture programmées | Non | Oui, de 1 à 5 caisses |
-| Statut | Interface principale | Banc d'essai technique |
+## Parcours dans l'application
 
-Le moteur historique calcule les affectations et permet les comparaisons de scénarios. Le moteur dynamique produit des **événements horodatés** (`customer_arrived`, `queue_joined`, `service_started`, `queue_switched`, `customer_abandoned`, `register_opened`, `register_closed`, `customer_departed`). Ces événements doivent alimenter la future animation 2D, sans recalculer les décisions métier dans le navigateur.
+| Espace | Utilité |
+| --- | --- |
+| **Accueil** | Comprendre le problème, la démarche et les limites |
+| **Simulation** | Observer les files en 2D, piloter la lecture et intervenir sur les caisses ou les clients |
+| **Analyses** | Explorer les indicateurs, les distributions et les évolutions des files |
+| **Optimisation** | Comparer plusieurs capacités et le compromis coût/service |
+| **Méthodologie** | Comprendre les hypothèses, le calcul et la reproductibilité |
 
-## Application et analyses
+La scène 2D affiche une ligne par caisse, jusqu'à six clients visibles, puis un compteur de surplus. Tous les clients restent présents dans le modèle. Le lecteur propose notamment pause, accélération, zoom, mini-carte, suivi et inspection des clients. Les ouvertures, fermetures et réaffectations sont validées par le moteur Python.
 
-L'interface RetailFlow propose quatre espaces : **Vue d'ensemble**, **Simulation**, **Analyse** et **Comparaison**. Elle rassemble des KPI, des distributions d'attente, des nuages de points, des analyses par caisse et des exports. Ces résultats concernent principalement **le moteur historique**. Les abandons et changements de file ne doivent pas être attribués à ces graphiques.
+## Fonctionnement technique
 
-Le projet conserve deux approches de recommandation distinctes :
-- une recommandation historique fondée sur le 90e percentile (P90) et un seuil de service ;
-- un optimiseur expérimental fondé sur l'attente moyenne (`queuesmart/analytics/mean_wait_optimizer.py`), actuellement appliqué au moteur historique.
+RetailFlow conserve **deux moteurs complémentaires**, dont les résultats ne doivent pas être confondus :
 
-## Démarrage rapide
+- **Moteur historique** (`queuesmart/simulation/engine.py`) : simulation FIFO, stratégies d'affectation, analyses et comparaisons historiques. Il ne modélise ni abandons ni changements de file.
+- **Moteur dynamique** (`queuesmart/simulation/dynamic.py`) : simulation à événements discrets avec patience, abandons, changements de file, ouverture et fermeture des caisses. Son journal horodaté pilote la scène JavaScript.
 
-Prérequis : Python 3.11 ou version ultérieure (développement sous Python 3.12).
+**Python** calcule les événements et les résultats ; **JavaScript/Canvas** anime leur représentation ; **Streamlit** rassemble les contrôles, analyses et décisions. La vitesse d'animation ne modifie pas les calculs. Le package Python conserve son nom historique `queuesmart` pour préserver la compatibilité.
 
-```powershell
+### Indicateurs et décision
+
+Les analyses comprennent, selon le moteur utilisé, l'attente moyenne, les percentiles, les abandons, le niveau de service, l'occupation, le débit et la congestion. Dans le laboratoire dynamique, le niveau de service est rapporté à **tous les arrivants**, abandons compris. Les percentiles d'attente des servis ne représentent pas les abandons.
+
+Le laboratoire compare de **1 à 5 caisses**, sur **5, 10 ou 20 graines** communes entre capacités. Il sélectionne le coût moyen minimal parmi les configurations qui respectent la cible sur chaque tirage testé ; si aucune ne convient, il ne produit pas de recommandation. Les coûts de personnel et d'abandon sont **des hypothèses ajustables**, pas des coûts observés. Les intervalles min/max ne constituent pas des intervalles de confiance.
+
+## Démonstration reproductible
+
+Le préréglage **Soutenance reproductible** utilise 110 clients, 60 minutes d'arrivées, un service moyen de 1,7 minute, deux caisses initiales et la graine 42. La patience de 12 minutes, les abandons et le rééquilibrage sont activés. Le bouton **Voir le pic** permet d'atteindre rapidement une situation de congestion.
+
+La démonstration recommandée : observer le pic, ouvrir une caisse, réaffecter un client, comparer avec le témoin, puis examiner une recommandation du laboratoire. Les cinq scénarios calculés et leurs paramètres sont conservés dans [`docs/demonstration/`](docs/demonstration/). Le [guide de soutenance](docs/SOUTENANCE.md) propose un déroulé de cinq minutes et les questions du jury.
+
+## Installation locale
+
+Prérequis : **Python 3.11+**, Node.js pour les tests JavaScript.
+
+```bash
+git clone https://github.com/NacPKZ/RetailFlow.git
+cd RetailFlow
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+# Activer l'environnement virtuel selon votre système
 python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-Depuis le dossier racine du dépôt, pour tester séparément le moteur dynamique :
+**Important :** la version déployée se trouve actuellement sur la branche `feature/retailflow-v7-final`, pas sur `main`. Pour exécuter la version présentée dans ce README après clonage, utiliser `git switch feature/retailflow-v7-final` avant l'installation. L'application publique est configurée sur cette branche. Le point d'entrée officiel est `app.py` ; `dynamic_demo.py` reste un banc d'essai historique.
 
-```powershell
-python -m streamlit run dynamic_demo.py
-```
+## Tests et qualité
 
-Sur macOS/Linux, l'activation est `source .venv/bin/activate`.
-
-## Tests
-
-```powershell
+```bash
 python -m pytest -q
-python -m pytest --cov=queuesmart
-ruff check .
+npm run test:scene
+git diff --check
 ```
 
-Les tests couvrent la génération, les stratégies, les invariants de simulation, les événements, les recommandations et l'interface Streamlit. **La suite locale a été signalée comme réussie le 17 novembre 2026 après adaptation des tests d'interface** ; les contrôles visuels et l'intégration des modules des autres membres restent à réaliser.
+La livraison documente **287 tests Python réussis**, **trois suites JavaScript réussies** et une **GitHub Actions au vert**. Les tests portent notamment sur FIFO, conservation des clients, interventions, cohérence des KPI, comparaisons appariées, scène et exports. Voir [validation détaillée](docs/RETAILFLOW_V7.md) et [contrôle du déploiement](docs/DEPLOIEMENT.md). Ces résultats ne constituent pas une garantie d'absence de bugs.
 
 ## Architecture
 
 ```text
-RetailFlow/
-├── app.py                        Interface principale (moteur historique)
-├── dynamic_demo.py               Banc d'essai du moteur événementiel
-├── queuesmart/                   Nom technique conservé du package Python
-│   ├── config.py                 Paramètres et scénarios
-│   ├── domain/                   Clients et caisses
-│   ├── simulation/               Génération, FIFO, stratégies, événements, dynamique
-│   ├── analytics/                KPI, comparaisons et optimisation
-│   └── ui/                       Composants de présentation
-├── tests/                        Tests automatisés
-├── docs/                         Documentation et contrats d'intégration
-└── requirements.txt
+app.py                    Application Streamlit officielle
+queuesmart/
+  simulation/             Moteurs historique et événementiel
+  analytics/              KPI, comparaisons et laboratoire de décision
+  scene/                  Géométrie et chronologie
+  ui/                     Interfaces Streamlit
+frontend_studio/          Scène interactive JavaScript / Canvas
+tests/                    Tests Python et JavaScript
+scripts/                  Reproduction et benchmarks
+docs/                     Méthodologie, validations et soutenance
+.streamlit/               Configuration de l'application
 ```
-
-**Pourquoi le dossier `queuesmart` existe encore ?** RetailFlow est le nom du produit. `queuesmart` est le nom historique du package Python, maintenu temporairement pour ne pas casser les imports, scripts et tests. Son renommage technique nécessite une migration séparée et testée.
 
 ## Documentation
 
 | Document | Contenu |
-|---|---|
-| [Architecture et conception](docs/conception.md) | Modules, responsabilités et principes de conception |
-| [Moteurs de simulation](docs/moteur.md) | Hypothèses, règles FIFO et limites |
-| [Guide d'intégration des équipes](docs/TRANSMISSION_EQUIPE_V2.md) | Contrat dynamique prioritaire pour la 2D et l'analytics |
-| [Contrat historique V1](docs/CONTRAT_INTEGRATION_V1.md) | Référence conservée pour la compatibilité |
-| [Rapport de développement H1-H7](docs/RAPPORT_ETAPE_H1_H7.md) | Audit, extensions et vérifications |
-| [Interface RetailFlow](docs/REFONTE_UI_RETAILFLOW_V4.md) | Historique des évolutions UI et limites |
-| [Pratiques Clean Code](docs/clean_code_examples.md) | Exemples de refactorisation |
+| --- | --- |
+| [Méthodologie et validation finale](docs/RETAILFLOW_V7.md) | Hypothèses, KPI, limites, architecture et contrôles |
+| [Déploiement](docs/DEPLOIEMENT.md) | Application publique et vérifications réelles |
+| [Soutenance](docs/SOUTENANCE.md) | Pitchs, plan des douze diapositives et démonstration |
+| [Conception](docs/conception.md) | Architecture et responsabilités |
+| [Moteurs](docs/moteur.md) | Hypothèses et règles de simulation |
+| [Scène 2D](docs/SCENE_2D.md) | Fonctionnement de la visualisation |
+| [Résultats reproductibles](docs/demonstration/scenarios.json) | Paramètres et résultats des scénarios |
 
-## Organisation GitHub
+Les documents V1 à V6.1 restent disponibles dans `docs/` comme **historique de développement** ; ils ne décrivent pas nécessairement le comportement final.
 
-- `main` : version commune, fusion après revue.
-- `feature/simulation-2d` : scène animée, déplacements et files.
-- `feature/dashboard-analytics` : indicateurs, comparaisons et exports.
+## Limites et perspectives
 
-Chaque membre travaille sur sa branche et propose une **Pull Request** vers `main`. Ne pas fusionner de changements sans exécuter les tests et vérifier les contrats de données.
+- Données synthétiques, sans calibration sur un supermarché réel.
+- Arrivées et durées de service générées selon les hypothèses du simulateur.
+- Coûts hypothétiques, sans chiffre d'affaires ni marge observés.
+- Courses en rayons, scan et paiement visuels partiellement illustratifs ; pas de simulation physique de collisions.
+- Projection de file à cinq minutes fondée sur une extrapolation simple, pas sur un modèle prédictif validé.
+- Contrôle navigateur réalisé sur ordinateur ; tests mobiles et audit exhaustif d'accessibilité non documentés.
+- Les exports PNG et JSON de scène n'ont pas été vérifiés de bout en bout dans le navigateur lors du dernier contrôle.
 
-## Contributions et attribution
+RetailFlow constitue un **outil d'expérimentation et d'aide à la réflexion**, pas une recommandation opérationnelle garantie.
 
-La base initiale QueueSmart a été réalisée en équipe et a fourni le moteur FIFO, les stratégies, les KPI et une première interface. L'évolution RetailFlow comprend l'audit, le moteur événementiel, des tests additionnels, une nouvelle interface et les contrats de transmission. La scène 2D et le dashboard définitif sont des contributions séparées en cours. Pour une attribution individuelle précise, consulter l'historique Git et les Pull Requests plutôt que d'attribuer tout le code à une seule personne.
+## Équipe et contributions
 
-## Limites
-
-Les données sont simulées, l'estimation d'attente peut exploiter une information parfaite sur les durées de service, et les résultats ne sont pas des prévisions opérationnelles pour un magasin réel. Le moteur dynamique est actuellement séparé de l'interface principale. Les ouvertures/fermetures y sont **programmées avant exécution**, non pilotées en direct depuis la scène. Le périmètre 1 à 5 caisses doit encore être harmonisé avec certains modules historiques pouvant aller jusqu'à 8.
-
-**Technologies :** Python, Streamlit, pandas, Plotly, pytest, ruff.
+Projet collectif de **quatre étudiants**. Les contributions individuelles doivent être présentées conformément au travail réellement réalisé et à l'historique Git, sans attribution artificielle. La [PR de livraison](https://github.com/NacPKZ/RetailFlow/pull/4) conserve la traçabilité des changements et reste soumise à revue avant fusion dans `main`.
