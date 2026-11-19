@@ -57,7 +57,7 @@ sur un magasin en temps réel.
 Le navigateur Chromium local ne démarre pas dans cet environnement (création de socket
 refusée). Aucun contrôle visuel bureau/mobile ni capture du rendu final n’a donc été
 validé. Les tests Streamlit vérifient le calcul et la construction des pages, pas leur
-apparence dans un navigateur. Un contrôle visuel reste à réaliser avant fusion.
+apparence dans un navigateur. Cette remarque décrivait l'état V5 avant fusion ; la V7 a depuis fait l'objet d'un contrôle navigateur documenté.
 
 ## Exécution
 
