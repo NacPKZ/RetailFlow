@@ -1,6 +1,6 @@
 # RetailFlow | Déploiement Streamlit
 
-Application : https://retailflow-nacpkz.streamlit.app/
+Application : https://retailflow-bidabi.streamlit.app/
 
 Déployée et démarrée le 19 novembre 2026 sur Streamlit Community Cloud.
 Dépôt NacPKZ/RetailFlow, branche feature/retailflow-v7-final, entrée officielle app.py.
@@ -9,7 +9,7 @@ La version V7 a été intégrée dans `main` le 19 novembre 2026. La branche `fe
 
 ## Validation V8
 
-Le candidat V8 est préparé sur `integration/retailflow-v8-analytics`. Voir [la validation V8](VERSION_8_VALIDATION.md) pour les contrôles locaux. Après validation GitHub, vérifier la branche configurée dans Streamlit Community Cloud. Si la configuration pointe toujours vers `feature/retailflow-v7-final`, publier le commit validé sur cette branche par avance rapide. Conserver `app.py` et l’URL existante. Contrôler ensuite le titre V8, le chargement de la scène et le téléchargement Excel depuis cette URL.
+Le tableau de bord Streamlit confirme que l’application active RetailFlow utilise `feature/retailflow-v7-final` et l’entrée `app.py`. Après validation GitHub, livrer par avance rapide de cette branche vers le commit validé. L’application conserve son adresse. Contrôler ensuite le titre V8, le chargement de la scène et le téléchargement Excel depuis cette URL. Le [rapport V8](VERSION_8_VALIDATION.md) documente la validation locale.
 
 ## Contrôle historique V7 en navigateur
 

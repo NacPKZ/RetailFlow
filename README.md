@@ -4,7 +4,7 @@
 
 Projet universitaire réalisé en Master 2 Big Data, Analyse & Business Intelligence (BIDABI), à l'Université Sorbonne Paris Nord. RetailFlow étudie le compromis entre temps d'attente, qualité de service et mobilisation des caisses à partir de **données synthétiques**.
 
-**[Accéder à l'application Streamlit](https://retailflow-nacpkz.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/VERSION_8_VALIDATION.md)
+**[Accéder à l'application Streamlit](https://retailflow-bidabi.streamlit.app/)** | [Guide de démonstration](docs/SOUTENANCE.md) | [Méthodologie et validation](docs/VERSION_8_VALIDATION.md)
 
 ![Capture réelle des analyses V8 dans Chromium](docs/validation_v8/analyses-desktop.jpg)
 

@@ -26,4 +26,4 @@ Dans Chromium sur ordinateur, les cinq pages, la pause, le pic, le zoom, le rece
 
 ## Limites
 
-Le parcours Chromium est ciblé. Les autres navigateurs, les appareils mobiles physiques, l’accessibilité exhaustive et une cadence garantie ne sont pas couverts. La vérification de l’URL Streamlit depuis l’environnement d’intégration a reçu une redirection vers l’authentification. La branche réellement reliée à l’application doit être contrôlée depuis sa configuration. Voir le [guide de déploiement](DEPLOIEMENT.md).
+Le parcours Chromium est ciblé. Les autres navigateurs, les appareils mobiles physiques, l’accessibilité exhaustive et une cadence garantie ne sont pas couverts. Le tableau de bord Streamlit confirme l’application active `retailflow-bidabi.streamlit.app`, liée à `feature/retailflow-v7-final`. L’adresse indiquée dans le brief et les anciennes archives renvoie vers une page d’accès indisponible. Voir le [guide de déploiement](DEPLOIEMENT.md).
