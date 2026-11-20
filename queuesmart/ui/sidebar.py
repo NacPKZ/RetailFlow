@@ -3,6 +3,7 @@
 import streamlit as st
 
 from queuesmart.config import (
+    DEFAULT_SEED,
     MAX_ARRIVAL_WINDOW_MIN,
     MAX_CUSTOMER_COUNT,
     MAX_MEAN_SERVICE_TIME_MIN,
@@ -18,7 +19,6 @@ from queuesmart.simulation.strategies import STRATEGIES
 
 ARRIVAL_WINDOW_STEP_MIN = 5.0
 SERVICE_TIME_STEP_MIN = 0.1
-DEFAULT_SIDEBAR_SEED = 30
 
 
 def render_sidebar() -> tuple[ScenarioConfig, str]:
@@ -32,7 +32,7 @@ def render_sidebar() -> tuple[ScenarioConfig, str]:
         st.caption("Ajustements (préremplis par le scénario)")
         values = _adjustment_inputs(preset)
         strategy_name = _strategy_input()
-        seed = st.number_input("Graine aléatoire", min_value=0, value=DEFAULT_SIDEBAR_SEED, step=1)
+        seed = st.number_input("Graine aléatoire", min_value=0, value=DEFAULT_SEED, step=1)
     return _validated_config(preset.name, values, int(seed)), strategy_name
 
 
